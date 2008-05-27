@@ -1,0 +1,131 @@
+﻿/**
+* Loads and manages a playlist. Can read ASX, RSS, SMIL & XSPF.
+**/
+package com.jeroenwijering.utils {
+
+
+import com.jeroenwijering.parsers.*;
+import flash.events.*;
+import flash.net.URLRequest;
+import flash.net.URLLoader;
+
+
+public class Playlister extends EventDispatcher {
+
+
+	/** XML connect and parse object. **/
+	private var loader:URLLoader;
+	/** Status of the HTTP request. **/
+	private var status:Number;
+	/** The array the playlist is loaded into. **/
+	private var _playlist:Array;
+
+
+	/** Constructor. **/
+	public function Playlister() {
+		loader = new URLLoader();
+		loader.addEventListener(Event.COMPLETE,loaderHandler);
+		loader.addEventListener(SecurityErrorEvent.SECURITY_ERROR,errorHandler);
+		loader.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
+		loader.addEventListener(HTTPStatusEvent.HTTP_STATUS, statusHandler);
+		_playlist = new Array();
+	};
+
+
+	/** Determine filetype and load file or list. **/
+	public function load(obj:Object) {
+		if(typeof(obj) == 'string') { 
+			var obj = {file:obj};
+		} 
+		if(obj['file']) {
+			var itm = ObjectParser.parse(obj);
+			if (itm['type'] == undefined) {
+				try {
+					loader.load(new URLRequest(obj['file']));
+				} catch (err:Error) {
+					dispatchEvent(new ErrorEvent(ErrorEvent.ERROR,false,false,err.message));
+				}
+			} else {
+				_playlist = new Array(itm);
+				dispatchEvent(new Event(Event.COMPLETE));
+			}
+		} else {
+			_playlist = new Array();
+			for each (var ent in obj) {
+				if(typeof(ent) == 'object' && ent['file']) { _playlist.push(ent); }
+			}
+			if(_playlist.length == 0) {
+				var str = 'No file found. Did you set the "file" flashvar?';
+				dispatchEvent(new ErrorEvent(ErrorEvent.ERROR,false,false,str));
+			} else { 
+				dispatchEvent(new Event(Event.COMPLETE));
+			}
+		}
+	};
+
+
+	/** Catch security and io errors **/
+	private function errorHandler(evt:ErrorEvent) {
+		dispatchEvent(new ErrorEvent(ErrorEvent.ERROR,false,false,status+': '+evt.text));
+	};
+
+
+	/** Translate the XML object to the feed array. **/
+	private function loaderHandler(evt:Event) {
+		try {
+			var dat = XML(evt.target.data);
+		} catch (err:Error) {
+			var str = status+': This playlist is not a valid XML file.';
+			dispatchEvent(new ErrorEvent(ErrorEvent.ERROR,false,false,str));
+			return;
+		}
+		var fmt = dat.localName().toLowerCase();
+		if( fmt == 'rss') {
+			_playlist = RSSParser.parse(dat);
+		} else if (fmt == 'playlist') { 
+			_playlist = XSPFParser.parse(dat);
+		} else if (fmt == 'asx') { 
+			_playlist = ASXParser.parse(dat);
+		} else if (fmt == 'smil') { 
+			_playlist = SMILParser.parse(dat);
+		} else if (fmt == 'feed') {
+			_playlist = ATOMParser.parse(dat);
+		} else {
+			fmt = 'Unknown playlist format: '+fmt;
+			dispatchEvent(new ErrorEvent(ErrorEvent.ERROR,false,false,fmt));
+			return;
+		}
+		if(_playlist.length == 0) { 
+			fmt = 'No suitable playlist elements found.';
+			dispatchEvent(new ErrorEvent(ErrorEvent.ERROR,false,false,fmt));
+			
+		} else {  
+			dispatchEvent(new Event(Event.COMPLETE));
+		}
+	};
+
+
+	/** Save the http status **/
+	private function statusHandler(evt:HTTPStatusEvent) {
+		status = evt.status;
+	};
+
+
+	/** Return the playlist to external objects. **/
+	public function get playlist():Array {
+		return _playlist;
+	};
+
+
+	/** Handler for manually updating elements. **/
+	public function update(itm:Number,elm:String,val:Object) {
+		if(_playlist[itm]) {
+			_playlist[itm][elm] = val;
+		}
+	};
+
+
+}
+
+
+}

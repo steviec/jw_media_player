@@ -1,0 +1,197 @@
+/**
+* Wrapper for playback of camera input; more for testing than actually useful.
+**/
+package com.jeroenwijering.models {
+
+
+import com.jeroenwijering.events.*;
+import com.jeroenwijering.models.ModelInterface;
+import com.jeroenwijering.player.Model;
+import flash.events.*;
+import flash.media.*;
+import flash.net.*;
+import flash.utils.clearInterval;
+import flash.utils.setInterval;
+
+
+public class CameraModel implements ModelInterface {
+
+
+	/** reference to the model. **/
+	private var model:Model;
+	/** Camera object to be instantiated. **/
+	private var camera:Camera;
+	/** Video object to be instantiated. **/
+	private var video:Video;
+	/** Microphone object to be instantiated. **/
+	private var microphone:Microphone;
+	/** NetConnection object for setup of the video stream. **/
+	private var connection:NetConnection;
+	/** NetStream instance that handles the stream IO. **/
+	private var stream:NetStream;
+	/** Interval ID for position counter. **/
+	private var interval:Number;
+	/** Current position. **/
+	private var position:Number;
+
+
+	public function CameraModel(mod:Model) {
+		model = mod;
+		try {
+			camera = Camera.getCamera();
+			microphone = Microphone.getMicrophone();
+			video = new Video(320,240);
+			model.mediaHandler(video);
+		} catch(err:Error) {
+			model.sendEvent(ModelEvent.ERROR,{message:'No webcam found on this computer.'});
+		}
+		connection = new NetConnection();
+		connection.objectEncoding = ObjectEncoding.AMF0; 
+		connection.addEventListener(NetStatusEvent.NET_STATUS,statusHandler);
+		connection.addEventListener(SecurityErrorEvent.SECURITY_ERROR,errorHandler);
+		quality(model.config['quality']);
+	};
+
+
+	/** Catch security errors. **/
+	private function errorHandler(evt:ErrorEvent) {
+		model.sendEvent(ModelEvent.ERROR,{message:evt.text});
+	};
+
+
+	/** xtract the current ID from an RTMP URL **/
+	private function getStream(url:String):String {
+		var i = 0;
+		var idx = 0;
+		do {
+			idx = url.indexOf('/',idx+1);
+			i++;
+		} while (i < 4);
+		return url.substr(0,idx);
+	};
+
+
+	/** xtract the current Stream from an RTMP URL **/
+	private function getID(url:String):String {
+		var i = 0;
+		var idx = 0;
+		do {
+			idx = url.indexOf('/',idx)+1;
+			i++;
+		} while (i < 4);
+		var str = url.substr(idx);
+		if(str.substr(-4) == '.mp3') { 
+			str = 'mp3:'+str.substr(0,str.length-4);
+		} else if (str.substr(-4) == '.flv'){ 
+			str = str.substr(0,str.length-4);
+		}
+		return str;
+	};
+
+
+	/** Load the camera into the video **/
+	public function load() {
+		var url = model.playlist[model.config['item']]['file'];
+		position = model.playlist[model.config['item']]['start'];
+		if(url.indexOf('rtmp://') == 0) {
+			connection.connect(getStream(url));
+		} else { 
+			play();
+		}
+	};
+
+
+	/** Pause playback. **/
+	public function pause() {
+		video.attachCamera(null);
+		if(stream) { 
+			stream.publish(null);
+			stream.attachAudio(null);
+			stream.attachCamera(null); 
+		}
+		clearInterval(interval);
+		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PAUSED});
+	};
+
+
+	/** Resume playback **/
+	public function play() {
+		video.attachCamera(camera);
+		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
+		interval = setInterval(timeInterval,100);
+		if(stream) {
+			stream.publish(getID(model.playlist[model.config['item']]['file']));
+			stream.attachAudio(microphone);
+			stream.attachCamera(camera);
+		}
+	};
+
+
+	/** Change the quality mode. **/
+	public function quality(stt:Boolean) {
+		if(stt == true) {
+			camera.setMode(480,360,25);
+			video.smoothing = true;
+			video.deblocking = 4;
+			model.sendEvent(ModelEvent.META,{framerate:25,height:360,width:480});
+		} else {
+			camera.setMode(240,180,12);
+			video.smoothing = false;
+			video.deblocking = 1;
+			model.sendEvent(ModelEvent.META,{framerate:12,height:180,width:240});
+		}
+	};
+
+
+	/** Seek the camera timeline. **/
+	public function seek(pos:Number) {
+		position = pos;
+		clearInterval(interval);
+		play();
+	};
+
+
+	/** Destroy the videocamera. **/
+	public function stop() {
+		position = 0;
+		video.attachCamera(null);
+		clearInterval(interval);
+		if(stream) { stream.publish(null); }
+	};
+
+
+	/** Receive NetStream status updates. **/
+	private function statusHandler(evt:NetStatusEvent) {
+		if(evt.info.code == "NetConnection.Connect.Success") {
+			stream = new NetStream(connection);
+			stream.bufferTime = model.config['bufferlength'];
+			stream.addEventListener(NetStatusEvent.NET_STATUS,statusHandler);
+			play();
+		}
+		model.sendEvent(ModelEvent.META,{info:evt.info.code});
+	};
+
+
+	/** Interval function that countdowns the time. **/
+	private function timeInterval() {
+		position = Math.round(position*10+1)/10;
+		var dur = model.playlist[model.config['item']]['duration'];
+		if(dur > 0) {
+			if(position >= dur) {
+				clearInterval(interval);
+				model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
+			} else {
+				model.sendEvent(ModelEvent.TIME,{position:position,duration:dur});
+			}
+		}
+	};
+
+
+	/** Volume setting **/
+	public function volume(pct:Number) {};
+
+
+};
+
+
+}
