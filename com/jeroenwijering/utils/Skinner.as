@@ -19,6 +19,8 @@ public class Skinner extends EventDispatcher {
 	public var skin:MovieClip;
 	/** SWF skin loader reference **/
 	private var loader:Loader;
+	/** Skinnable elements **/
+	private var ELEMENTS:Array = new Array("controlbar","display","playlist");
 
 
 	/**
@@ -61,11 +63,14 @@ public class Skinner extends EventDispatcher {
 	/** SWF loading completed; add to stage and populate. **/
 	private function loaderHandler(evt:Event) {
 		var cnt = MovieClip(loader.content);
-		while(cnt.numChildren > 0) {
-			var ncd = cnt.getChildAt(0);
+		for(var i=0; i<cnt.numChildren; i++) {
+			var ncd = cnt.getChildAt(i);
 			var ocd = skin.getChildByName(ncd.name);
-			skin.removeChild(ocd);
-			skin.addChild(ncd);
+			if(ocd) {
+				skin.removeChild(ocd);
+				skin.addChild(ncd);
+				skin[ncd.name] = ncd;
+			}
 		}
 		dispatchEvent(new Event(Event.COMPLETE));
 	};

@@ -63,11 +63,15 @@ public class ControlbarView {
 	/** Handle a change in the current item **/
 	private function captionHandler(evt:ControllerEvent) {
 		if(evt.data.state == true) { 
-			bar.captionButton.icn.visible = true;
-			bar.captionButton.alt.visible = false;
+			try {
+				bar.captionButton.icn.visible = true;
+				bar.captionButton.alt.visible = false;
+			} catch (err:Error) {}
 		} else {
-			bar.captionButton.icn.visible = false;
-			bar.captionButton.alt.visible = true;
+			try {
+				bar.captionButton.icn.visible = false;
+				bar.captionButton.alt.visible = true;
+			} catch (err:Error) {}
 		}
 	};
 
@@ -159,9 +163,11 @@ public class ControlbarView {
 		if(evt.data.offset) {
 			pc2 = evt.data.offset/evt.data.total;
 		}
-		var wid = bar.timeSlider.bck.width;
-		bar.timeSlider.bar.x = Math.round(pc2*wid);
-		bar.timeSlider.bar.width = Math.round(pc1*wid);  
+		try {
+			var wid = bar.timeSlider.bck.width;
+			bar.timeSlider.bar.x = Math.round(pc2*wid);
+			bar.timeSlider.bar.width = Math.round(pc1*wid);  
+		} catch (err:Error) {}
 	};
 
 
@@ -207,26 +213,28 @@ public class ControlbarView {
 			bar.y = evt.data.height - view.config['controlbarsize']*2;
 			if(evt.data.width > 640) { 
 				bar.x = Math.round(evt.data.width/2 - 300);
-				bar.back.width = 600;
+				try { bar.back.width = 600; } catch (err:Error) {}
 			} else { 
 				bar.x = view.config['controlbarsize'];
-				bar.back.width = evt.data.width - view.config['controlbarsize']*2;
+				try { bar.back.width = evt.data.width - view.config['controlbarsize']*2;  } catch (err:Error) {}
 			}
 		} else {
 			bar.x = 0;
-			bar.back.width = evt.data.width;
+			try { bar.back.width = evt.data.width;  } catch (err:Error) {}
 			bar.y = evt.data.height;
 			if(view.config['playlist'] == 'right') { 
-				bar.back.width += view.config['playlistsize'];
+				try { bar.back.width += view.config['playlistsize'];  } catch (err:Error) {}
 			}
 		}
-		if(evt.data.fullscreen == true) { 
-			bar.fullscreenButton.icn.visible = false;
-			bar.fullscreenButton.alt.visible = true;
-		} else { 
-			bar.fullscreenButton.icn.visible = true;
-			bar.fullscreenButton.alt.visible = false;
-		}
+		try { 
+			if(evt.data.fullscreen == true) { 
+				bar.fullscreenButton.icn.visible = false;
+				bar.fullscreenButton.alt.visible = true;
+			} else { 
+				bar.fullscreenButton.icn.visible = true;
+				bar.fullscreenButton.alt.visible = false;
+			}
+		} catch (err:Error) {}
 		setButtons();
 	};
 
@@ -316,13 +324,15 @@ public class ControlbarView {
 			bar.totalText.txt.text = Strings.digits(evt.data.duration);
 		} catch(err:Error) {}
 		var pct = evt.data.position/evt.data.duration;
-		var xps = Math.floor(pct*bar.timeSlider.bck.width);
-		if (dur <= 0) {
-			bar.timeSlider.icn.visible = false;
-		} else {
-			bar.timeSlider.icn.visible = true;
-			bar.timeSlider.icn.x = xps;
-		}
+		try {
+			var xps = Math.floor(pct*bar.timeSlider.bck.width);
+			if (dur <= 0) {
+				bar.timeSlider.icn.visible = false;
+			} else {
+				bar.timeSlider.icn.visible = true;
+				bar.timeSlider.icn.x = xps;
+			}
+		} catch(err:Error) {}
 	};
 
 

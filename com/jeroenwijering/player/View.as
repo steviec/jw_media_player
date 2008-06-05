@@ -32,6 +32,7 @@ public class View extends EventDispatcher {
 	public function View(cfg:Object,skn:MovieClip,ctr:Controller,mdl:Model) {
 		_config = cfg;
 		_skin = skn;
+		_config['controlbarsize'] = _skin['controlbar'].height;
 		controller = ctr;
 		model = mdl;
 		addViews();

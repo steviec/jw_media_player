@@ -4,12 +4,51 @@
 package com.jeroenwijering.utils {
 
 
+import flash.display.DisplayObject;
 import flash.display.Sprite;
+import flash.geom.Rectangle;
 import flash.text.TextField;
 import flash.text.TextFormat;
 
 
 public class Draw {
+
+
+	/** 
+	* Completely clear the contents of a displayobject.
+	*
+	* @param tgt	Displayobject to clear.
+	**/
+	public static function clear(tgt:Sprite) {
+		var len = tgt.numChildren;
+		for(var i=0; i<len; i++) {
+			tgt.removeChildAt(0);
+		}
+		tgt.scaleX = tgt.scaleY = 1;
+	};
+
+
+	/** 
+	* Clone a displayobject.
+	*
+	* @param tgt	Displayobject to clone.
+	*
+	* @return		The clone; not yet added to the displaystack.
+	**/
+	public static function clone(tgt:DisplayObject):DisplayObject {
+		var cls:Class = Object(tgt).constructor;
+		var dup:DisplayObject = new cls();
+		dup.transform = tgt.transform;
+		dup.filters = tgt.filters;
+		dup.cacheAsBitmap = tgt.cacheAsBitmap;
+		dup.opaqueBackground = tgt.opaqueBackground;
+		if(tgt.scale9Grid) {
+			var rct:Rectangle = tgt.scale9Grid;
+			rct.x /= 20, rct.y /= 20, rct.width /= 20, rct.height /= 20;
+			dup.scale9Grid = rct;
+		}
+	    return dup;
+	};
 
 
 	/** 
@@ -61,20 +100,6 @@ public class Draw {
 		tfd.text = txt;
 		tgt.addChild(tfd);
 		return tfd;
-	};
-
-
-	/** 
-	* Completely clear the contents of a displayobject.
-	*
-	* @param tgt	Displayobject to clear.
-	**/
-	public static function clear(tgt:Sprite) {
-		var len = tgt.numChildren;
-		for(var i=0; i<len; i++) {
-			tgt.removeChildAt(0);
-		}
-		tgt.scaleX = tgt.scaleY = 1;
 	};
 
 

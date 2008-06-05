@@ -18,7 +18,6 @@ public class Player extends MovieClip {
 	/** A list with all default configuration values. **/
 	private var defaults:Object = {
 		height:300,
-		skin:undefined,
 		width:400,
 
 		author:undefined,
@@ -38,6 +37,7 @@ public class Player extends MovieClip {
 		logo:undefined,
 		playlist:'none',
 		playlistsize:180,
+		skin:'agriya.swf',
 		texts:false,
 
 		autostart:false,
@@ -59,7 +59,7 @@ public class Player extends MovieClip {
 		linktarget:'_self',
 		streamscript:undefined,
 		tracecall:undefined,
-		version:'4.0 r157'
+		version:'4.0 r1'
 	};
 	/** Object that loads all configuration variables. **/
 	private var configger:Configger;
