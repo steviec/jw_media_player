@@ -25,6 +25,7 @@ public class KeyboardView {
 
 	/** Process keyboard events. **/
 	private function keyHandler(evt:KeyboardEvent) {
+		trace(evt.keyCode);
 		switch(evt.keyCode) {
 			case 37:
 				view.sendEvent('prev');
@@ -38,9 +39,6 @@ public class KeyboardView {
 			case 40:
 				view.sendEvent('volume',view.config['volume']-10);
 				break;
-			case 80:
-				view.sendEvent('play');
-				break;
 			case 67:
 				view.sendEvent('caption');
 				break;
@@ -52,6 +50,12 @@ public class KeyboardView {
 				break;
 			case 77:
 				view.sendEvent('mute');
+				break;
+			case 80:
+				view.sendEvent('play');
+				break;
+			case 81:
+				view.sendEvent('quality');
 				break;
 		}
 	};

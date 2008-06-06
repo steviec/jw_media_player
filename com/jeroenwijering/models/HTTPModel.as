@@ -111,6 +111,7 @@ public class HTTPModel implements ModelInterface {
 		}
 		url += '&width='+model.config['width'];
 		url += '&client='+encodeURI(model.config['client']);
+		trace(url);
 		stream.play(url);
 		clearInterval(loadinterval);
 		clearInterval(timeinterval);

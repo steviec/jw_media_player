@@ -295,7 +295,7 @@ public class ControlbarView {
 	private function stateHandler(evt:ModelEvent) {
 		switch(evt.data.newstate) { 
 			case ModelStates.PLAYING:
-				if(view.config['controlbar'] == 'above') {
+				if(view.config['controlbar'] == 'over') {
 					hiding = setTimeout(moveTimeout,1000);
 					view.skin.addEventListener(MouseEvent.MOUSE_MOVE, moveHandler);
 				}
@@ -304,7 +304,7 @@ public class ControlbarView {
 				bar.playButton.alt.visible = true;
 				break;
 			default: 
-				if(view.config['controlbar'] == 'above') {
+				if(view.config['controlbar'] == 'over') {
 					clearTimeout(hiding);
 					bar.visible = true;
 					view.skin.removeEventListener(MouseEvent.MOUSE_MOVE, moveHandler);

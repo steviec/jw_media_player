@@ -34,7 +34,7 @@ public class PlaylistButton extends MovieClip {
 		index = idx;
 		buttonsize = back.width;
 		view = vie;
-		if(view) { 
+		if(view) {
 			resize(wid);
 			setElements(); 
 		}

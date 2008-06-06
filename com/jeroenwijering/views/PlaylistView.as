@@ -6,7 +6,6 @@ package com.jeroenwijering.views {
 
 import com.jeroenwijering.events.*;
 import com.jeroenwijering.player.View;
-import com.jeroenwijering.views.PlaylistButton;
 import com.jeroenwijering.utils.Draw;
 import flash.display.MovieClip;
 import flash.events.MouseEvent;
@@ -39,13 +38,11 @@ public class PlaylistView {
 		view.addControllerListener(ControllerEvent.ITEM,itemHandler);
 		view.addControllerListener(ControllerEvent.PLAYLIST,playlistHandler);
 		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
-		var btn = clip.scrollClip.getChildByName('button');
-		buttonsize = btn.height;
-		clip.scrollClip.removeChild(btn);
-		clip.scrollClip.mask = clip.scrollMask;
-		clip.scrollBar.buttonMode = true;
-		clip.scrollBar.mouseChildren = false;
-		clip.scrollBar.addEventListener(MouseEvent.MOUSE_DOWN,startHandler);
+		buttonsize = clip.scrollClip.getChildByName('button').height;
+		clip.list.mask = clip.scrollMask;
+		clip.slider.buttonMode = true;
+		clip.slider.mouseChildren = false;
+		clip.slider.addEventListener(MouseEvent.MOUSE_DOWN,startHandler);
 		view.skin.addEventListener(MouseEvent.MOUSE_UP,stopHandler);
 	};
 
@@ -70,7 +67,8 @@ public class PlaylistView {
 		}
 		for(var i=0; i<view.playlist.length; i++) {
 			if(clr) { 
-				var btn = new PlaylistButton(i,wid,view);
+				var btn = Draw.clone(clip.scrollClip.getChildByName('button')); 
+				// new PlaylistButton(i,wid,view);
 				clip.scrollClip.addChild(btn);
 				buttons.push(btn);
 			} else { 

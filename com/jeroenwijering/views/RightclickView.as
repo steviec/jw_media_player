@@ -28,10 +28,11 @@ public class RightclickView {
 		context.hideBuiltInItems();
 		view.skin.contextMenu = context;
 		addItem('Toggle Playback Quality',qualityHandler);
-		if(view.config['fullscreen'] == true  && view.skin.stage.displayState != null) {
+		addItem('Toggle Captions Display',captionHandler);
+		if(view.config['fullscreen'] == true && view.skin.stage.displayState!=null) {
 			addItem('Toggle Fullscreen Mode',fullscreenHandler);
 		}
-		if(view.config['abouttext']) { 
+		if(view.config['abouttext']) {
 			addItem(view.config['abouttext'],aboutHandler);
 		} else {
 			addItem('About '+view.config['player']+'...',aboutHandler);
@@ -57,6 +58,12 @@ public class RightclickView {
 	/** Toggle the smoothing mode. **/
 	private function qualityHandler(evt:ContextMenuEvent) {
 		view.sendEvent('quality');
+	};
+
+
+	/** Toggle the fullscreen mode. **/
+	private function captionHandler(evt:ContextMenuEvent) {
+		view.sendEvent('caption');
 	};
 
 

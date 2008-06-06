@@ -6,13 +6,14 @@
 package com.jeroenwijering.utils {
 
 
+import com.jeroenwijering.utils.Strings;
 import flash.events.Event;
 import flash.events.EventDispatcher;
 import flash.display.Sprite;
 import flash.net.SharedObject;
 import flash.net.URLRequest;
 import flash.net.URLLoader;
-import com.jeroenwijering.utils.Strings;
+import flash.system.Capabilities;
 
 
 public class Configger extends EventDispatcher {
@@ -41,6 +42,7 @@ public class Configger extends EventDispatcher {
 	**/
 	public function load(def:Object) {
 		config = def;
+		config['client'] = 'FLASH '+Capabilities.version;
 		var xml = reference.root.loaderInfo.parameters['config'];
 		if(xml) {
 			loadXML(Strings.decode(xml));
@@ -74,7 +76,7 @@ public class Configger extends EventDispatcher {
 
 	/** Load configuration data from flashcookie. **/
 	private function loadCookies() {
-		Configger.cookie = SharedObject.getLocal('com.jeroenwijering.utils','/');
+		Configger.cookie = SharedObject.getLocal('com.jeroenwijering','/');
 		compareWrite(Configger.cookie.data);
 		loadFlashvars();
 	};
@@ -89,10 +91,12 @@ public class Configger extends EventDispatcher {
 
 	/** Compare and save new items in config, preserving datatype. **/
 	private function compareWrite(obj:Object) {
-		for(var cfv in config) {
+		for(var cfv in obj) {
 			var lfv = cfv.toLowerCase();
-			if(obj[lfv] != undefined) {
+			if(config[lfv] != undefined) {
 				config[lfv] = Strings.serialize(obj[lfv],config[cfv]);
+			} else { 
+				config[lfv] = obj[lfv];
 			}
 		}
 	};

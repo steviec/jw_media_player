@@ -9,7 +9,6 @@ import com.jeroenwijering.utils.Configger;
 import com.jeroenwijering.utils.Skinner;
 import flash.display.MovieClip;
 import flash.events.Event;
-import flash.system.Capabilities;
 
 
 public class Player extends MovieClip {
@@ -17,28 +16,22 @@ public class Player extends MovieClip {
 
 	/** A list with all default configuration values. **/
 	private var defaults:Object = {
-		height:300,
-		width:400,
-
 		author:undefined,
 		captions:undefined,
 		description:undefined,
 		duration:0,
-		file:undefined,
+		file:'http://www.jeroenwijering.com/upload/mrss.xml',
 		image:undefined,
 		link:undefined,
 		start:0,
 		title:undefined,
 		type:undefined,
 
-		controlbar:'below',
-		controlbarsize:20,
-		icons:true,
+		controlbar:'bottom',
 		logo:undefined,
 		playlist:'none',
 		playlistsize:180,
-		skin:'agriya.swf',
-		texts:false,
+		skin:undefined,
 
 		autostart:false,
 		bufferlength:1,
@@ -55,11 +48,15 @@ public class Player extends MovieClip {
 
 		abouttext:"About JW Player 4.0...",
 		aboutlink:"http://www.jeroenwijering.com/?page=about",
-		client:undefined,
 		linktarget:'_self',
-		streamscript:undefined,
+		streamscript:'lighttpd',
 		tracecall:undefined,
-		version:'4.0 r1'
+
+		client:undefined,
+		controlbarheight:20,
+		height:300,
+		version:'4.0 r3',
+		width:400
 	};
 	/** Object that loads all configuration variables. **/
 	private var configger:Configger;
@@ -73,20 +70,18 @@ public class Player extends MovieClip {
 	private var _view:View;
 
 
-	/** Constructor; loads config. **/
-	public function Player(ply:MovieClip=undefined) {
-		if(!ply) { ply = this['player']; }
-		defaults['client'] = Capabilities.version;
-		configger = new Configger(ply);
+	/** Constructor; Loads config. **/
+	public function Player() {
+		configger = new Configger(this);
 		configger.addEventListener(Event.COMPLETE,configHandler);
-		skinner = new Skinner(ply);
-		skinner.addEventListener(Event.COMPLETE,skinHandler);
 		configger.load(defaults);
 	};
 
 
 	/** Config loading completed; now load skin. **/
 	private function configHandler(evt:Event) {
+		skinner = new Skinner(this);
+		skinner.addEventListener(Event.COMPLETE,skinHandler);
 		skinner.load(configger.config['skin']);
 	};
 

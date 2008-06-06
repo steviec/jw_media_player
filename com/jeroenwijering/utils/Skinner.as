@@ -15,10 +15,12 @@ import flash.net.URLRequest;
 public class Skinner extends EventDispatcher {
 
 
-	/** Reference to the stage graphics **/
+	/** Reference to the stage graphics. **/
 	public var skin:MovieClip;
 	/** SWF skin loader reference **/
 	private var loader:Loader;
+	/** Reference to the player itself. **/
+	private var player:MovieClip;
 	/** Skinnable elements **/
 	private var ELEMENTS:Array = new Array("controlbar","display","playlist");
 
@@ -28,8 +30,8 @@ public class Skinner extends EventDispatcher {
 	*
 	* @param skn	The MovieClip that contains the display, playlist and controlbar.
 	**/
-	public function Skinner(skn:MovieClip) {
-		skin = skn;
+	public function Skinner(ply:MovieClip) {
+		player = ply;
 	};
 
 
@@ -49,6 +51,7 @@ public class Skinner extends EventDispatcher {
 				dispatchEvent(new Event(Event.COMPLETE));
 			}
 		} else {
+			skin = player['player'];
 			dispatchEvent(new Event(Event.COMPLETE));
 		}
 	};
@@ -63,6 +66,7 @@ public class Skinner extends EventDispatcher {
 	/** SWF loading completed; add to stage and populate. **/
 	private function loaderHandler(evt:Event) {
 		var cnt = MovieClip(loader.content);
+		/*
 		for(var i=0; i<cnt.numChildren; i++) {
 			var ncd = cnt.getChildAt(i);
 			var ocd = skin.getChildByName(ncd.name);
@@ -72,6 +76,7 @@ public class Skinner extends EventDispatcher {
 				skin[ncd.name] = ncd;
 			}
 		}
+		*/
 		dispatchEvent(new Event(Event.COMPLETE));
 	};
 

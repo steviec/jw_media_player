@@ -1,5 +1,5 @@
 /**
-* Interface for javascript interaction.
+* Interface for javascript interaction and IDE tracing.
 **/
 package com.jeroenwijering.views {
 
@@ -62,6 +62,7 @@ public class ExternalView {
 			ExternalInterface.addCallback("addModelListener", addModelListener);
 			ExternalInterface.addCallback("addViewListener", addViewListener);
 			ExternalInterface.addCallback("sendEvent", view.sendEvent);
+			playerReady();
 		}
 	};
 
@@ -95,6 +96,7 @@ public class ExternalView {
 		}
 		if(!dat) { dat = new Object(); }
 	 	dat.id = ExternalInterface.objectID;
+		dat.client = view.config['client'];
 		dat.version = view.config['version'];
 		for each (var itm in listeners) {
 			if(itm['target'] == tgt && itm['type'] == typ) {
@@ -104,15 +106,38 @@ public class ExternalView {
 	};
 
 
-	/** Return the config and javascript objects to callers. **/
-	public function getConfig():Object { return view.config; };
-	public function getPlaylist():Array { return view.playlist; };
+	/** Return the config and playlist objects to javascript. **/
+	public function getConfig():Object { 
+		return view.config; 
+	};
+	public function getPlaylist():Array {
+		return view.playlist;
+	};
+
+
+	/** Send a call to javascript that the player is ready. **/
+	private function playerReady() {
+		var dat = {
+			id:ExternalInterface.objectID,
+			client:view.config['client'],
+			version:view.config['version']
+		};
+		try { 
+			ExternalInterface.call("playerReady",dat);
+		} catch (err:Error) {}
+	};
 
 
 	/** Forward events to tracer and subscribers. **/
-	private function setController(evt:ControllerEvent) { forward('CONTROLLER',evt.type,evt.data); };
-	private function setModel(evt:ModelEvent) { forward('MODEL',evt.type,evt.data); };
-	private function setView(evt:ViewEvent) { forward('VIEW',evt.type,evt.data); };
+	private function setController(evt:ControllerEvent) {
+		forward('CONTROLLER',evt.type,evt.data);
+	};
+	private function setModel(evt:ModelEvent) {
+		forward('MODEL',evt.type,evt.data);
+	};
+	private function setView(evt:ViewEvent) {
+		forward('VIEW',evt.type,evt.data);
+	};
 
 
 };

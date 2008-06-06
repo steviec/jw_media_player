@@ -47,10 +47,10 @@ public class View extends EventDispatcher {
 		views.push(new KeyboardView(this));
 		views.push(new RightclickView(this));
 		if(_skin['controlbar']) {
-			views.push(new ControlbarView(this));
+			//views.push(new ControlbarView(this));
 		}
 		if(_skin['playlist']) {
-			views.push(new PlaylistView(this));
+			//views.push(new PlaylistView(this));
 		}
 		if(ExternalInterface.available || Capabilities.playerType == 'External') {
 			views.push(new ExternalView(this));

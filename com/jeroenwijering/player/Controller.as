@@ -239,12 +239,12 @@ public class Controller extends EventDispatcher {
 			width:skin.stage.stageWidth,
 			fullscreen:false
 		};
-		if(config['controlbar'] == 'below') {
+		if(config['controlbar'] == 'bottom') {
 			dat.height -= config['controlbarsize'];
 		}
 		if(config['playlist'] == 'right') {
 			dat.width -= config['playlistsize'];
-		} else if(config['playlist'] == 'below') {
+		} else if(config['playlist'] == 'bottom') {
 			dat.height -= config['playlistsize'];
 		}
 		if(skin.stage.displayState == 'fullScreen') {
