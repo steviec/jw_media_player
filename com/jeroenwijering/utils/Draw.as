@@ -4,8 +4,7 @@
 package com.jeroenwijering.utils {
 
 
-import flash.display.DisplayObject;
-import flash.display.Sprite;
+import flash.display.*;
 import flash.geom.Rectangle;
 import flash.text.TextField;
 import flash.text.TextFormat;
@@ -35,13 +34,10 @@ public class Draw {
 	*
 	* @return		The clone; not yet added to the displaystack.
 	**/
-	public static function clone(tgt:DisplayObject):DisplayObject {
+	public static function clone(tgt:MovieClip):MovieClip {
 		var cls:Class = Object(tgt).constructor;
-		var dup:DisplayObject = new cls();
+		var dup:MovieClip = new cls();
 		dup.transform = tgt.transform;
-		dup.filters = tgt.filters;
-		dup.cacheAsBitmap = tgt.cacheAsBitmap;
-		dup.opaqueBackground = tgt.opaqueBackground;
 		if(tgt.scale9Grid) {
 			var rct:Rectangle = tgt.scale9Grid;
 			rct.x /= 20, rct.y /= 20, rct.width /= 20, rct.height /= 20;

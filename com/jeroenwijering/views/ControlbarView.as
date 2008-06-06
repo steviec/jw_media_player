@@ -6,6 +6,7 @@ package com.jeroenwijering.views {
 
 import com.jeroenwijering.events.*;
 import com.jeroenwijering.player.View;
+import com.jeroenwijering.utils.Stacker;
 import com.jeroenwijering.utils.Strings;
 import flash.display.MovieClip;
 import flash.events.MouseEvent;
@@ -21,13 +22,11 @@ public class ControlbarView {
 
 	/** Reference to the view. **/
 	private var view:View;
-	/** A list with all controls docked to the left. **/
-	private var left:Array;
-	/** A list with all controls docked to the right. **/
-	private var right:Array;
+	/** A list with all controls. **/
+	private var stacker:Stacker;
 	/** Reference to the controlbar **/
 	private var bar:MovieClip;
-	/** Save whether slading is enabled. **/
+	/** Save whether sliding is enabled. **/
 	private var sliding:Boolean;
 	/** Timeout for hiding the bar. **/
 	private var hiding:Number;
@@ -36,7 +35,6 @@ public class ControlbarView {
 	/** Constructor. **/
 	public function ControlbarView(vie:View) {
 		view = vie;
-		view.addControllerListener(ControllerEvent.CAPTION,captionHandler);
 		view.addControllerListener(ControllerEvent.ITEM,itemHandler);
 		view.addControllerListener(ControllerEvent.MUTE,muteHandler);
 		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
@@ -45,54 +43,17 @@ public class ControlbarView {
 		view.addModelListener(ModelEvent.STATE,stateHandler);
 		view.addModelListener(ModelEvent.TIME,timeHandler);
 		bar = view.skin['controlbar'];
+		stacker = new Stacker(bar);
 		bar.addEventListener(MouseEvent.CLICK, clickHandler);
 		bar.timeSlider.addEventListener(MouseEvent.MOUSE_DOWN,timeslideHandler);
 		bar.timeSlider.addEventListener(MouseEvent.MOUSE_OUT,outHandler);
 		bar.volumeSlider.addEventListener(MouseEvent.MOUSE_DOWN,volumeslideHandler);
 		bar.volumeSlider.addEventListener(MouseEvent.MOUSE_OUT,outHandler);
-		checkButtons();
 		loadedHandler(new ModelEvent(ModelEvent.LOADED,{loaded:0,total:0}));
-		captionHandler(new ControllerEvent(ControllerEvent.CAPTION,{percentage:view.config['caption']}));
 		muteHandler(new ControllerEvent(ControllerEvent.MUTE,{state:view.config['mute']}));
 		stateHandler(new ModelEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE}));
 		timeHandler(new ModelEvent(ModelEvent.TIME,{position:0,duration:0}));
 		volumeHandler(new ControllerEvent(ControllerEvent.VOLUME,{percentage:view.config['volume']}));
-	};
-
-
-	/** Handle a change in the current item **/
-	private function captionHandler(evt:ControllerEvent) {
-		if(evt.data.state == true) { 
-			try {
-				bar.captionButton.icn.visible = true;
-				bar.captionButton.alt.visible = false;
-			} catch (err:Error) {}
-		} else {
-			try {
-				bar.captionButton.icn.visible = false;
-				bar.captionButton.alt.visible = true;
-			} catch (err:Error) {}
-		}
-	};
-
-
-	/** Check which buttons are available and save their positions. **/
-	private function checkButtons() {
-		var mid = bar.width/2;
-		left = new Array();
-		right = new Array();
-		for(var i=0; i<bar.numChildren; i++) {
-			var clp = bar.getChildAt(i);
-			clp.buttonMode = true;
-			clp.mouseChildren = false;
-			if(clp.x < mid) {
-				left.push({c:clp,x:clp.x,n:clp.name,w:clp.width});
-			} else {
-				right.push({c:clp,x:clp.x,n:clp.name,w:clp.width});
-			}
-		}
-		left.sortOn(['x','n'],[Array.NUMERIC,Array.CASEINSENSITIVE]);
-		right.sortOn('x',Array.DESCENDING | Array.NUMERIC);
 	};
 
 
@@ -110,46 +71,23 @@ public class ControlbarView {
 	};
 
 
-	/** Returns whether the control should be hidden. **/
-	private function hideButton(nam:String):Boolean {
-		var obj = view.playlist[view.config['item']];
-		switch(nam) {
-			case 'prevButton':
-			case 'nextButton':
-				if(view.playlist.length < 2) {
-					return true;
-				}
-				break;
-			case 'elapsedText':
-			case 'remainingText':
-			case 'totalText':
-				if(bar.back.width < 200) {
-					return true;
-				}
-				break;
-			case 'linkButton':
-				if(!obj || !obj['link']) {
-					return true;
-				}
-				break;
-			case 'fullscreenButton':
-				if(view.config['fullscreen'] == false || bar.stage.displayState == null) {
-					return true;
-				}
-				break;
-			case 'captionButton':
-				if(!obj || !obj['captions']) {
-					return true;
-				}
-				break;
-		}
-		return false;
-	};
-
-
 	/** Handle a change in the current item **/
 	private function itemHandler(evt:ControllerEvent) {
-		setButtons();
+		if(view.playlist.length > 1) { 
+			bar.prevButton.visible = bar.nextButton.visible = true;
+		} else {
+			bar.prevButton.visible = bar.nextButton.visible = false;
+		}
+		if(view.playlist[view.config['item']]['link']) { 
+			bar.linkButton.visible = true;
+		} else { 
+			bar.linkButton.visible = false;
+		}
+		if(view.config['digits'] == false) {
+			bar.elapsedText.visible = bar.totalText.visible = false;
+		} else { 
+			bar.elapsedText.visible = bar.totalText.visible = true;
+		}
 	};
 
 
@@ -164,9 +102,9 @@ public class ControlbarView {
 			pc2 = evt.data.offset/evt.data.total;
 		}
 		try {
-			var wid = bar.timeSlider.bck.width;
-			bar.timeSlider.bar.x = Math.round(pc2*wid);
-			bar.timeSlider.bar.width = Math.round(pc1*wid);  
+			var wid = bar.timeSlider.rail.width;
+			bar.timeSlider.mark.x = Math.round(pc2*wid);
+			bar.timeSlider.mark.width = Math.round(pc1*wid);  
 		} catch (err:Error) {}
 	};
 
@@ -190,13 +128,13 @@ public class ControlbarView {
 	/** Show a mute icon if playing. **/
 	private function muteHandler(evt:ControllerEvent) {
 		if(evt.data.state == true) { 
-			bar.muteButton.icn.visible = false;
-			bar.muteButton.alt.visible = true;
-			bar.volumeSlider.bar.visible = false;
+			bar.muteButton.visible = false;
+			bar.unmuteButton.visible = true;
+			bar.volumeSlider.mark.visible = false;
 		} else {
-			bar.muteButton.icn.visible = true;
-			bar.muteButton.alt.visible = false;
-			bar.volumeSlider.bar.visible = true;
+			bar.muteButton.visible = true;
+			bar.unmuteButton.visible = false;
+			bar.volumeSlider.mark.visible = true;
 		}
 	};
 
@@ -209,85 +147,55 @@ public class ControlbarView {
 
 	/** Process resizing requests **/
 	private function resizeHandler(evt:ControllerEvent) {
-		if(view.config['controlbar'] == 'above' || evt.data.fullscreen == true) {
+		var wid = stacker.width;
+		if(view.config['controlbar'] == 'over' || evt.data.fullscreen == true) {
 			bar.y = evt.data.height - view.config['controlbarsize']*2;
 			if(evt.data.width > 640) { 
-				bar.x = Math.round(evt.data.width/2 - 300);
-				try { bar.back.width = 600; } catch (err:Error) {}
+				bar.x = Math.round(evt.data.width/2-300);
+				wid = 600;
 			} else { 
 				bar.x = view.config['controlbarsize'];
-				try { bar.back.width = evt.data.width - view.config['controlbarsize']*2;  } catch (err:Error) {}
+				wid = evt.data.width - view.config['controlbarsize']*2;
 			}
 		} else {
 			bar.x = 0;
-			try { bar.back.width = evt.data.width;  } catch (err:Error) {}
+			wid = evt.data.width;
 			bar.y = evt.data.height;
-			if(view.config['playlist'] == 'right') { 
-				try { bar.back.width += view.config['playlistsize'];  } catch (err:Error) {}
+			if(view.config['playlist'] == 'right') {
+				wid += view.config['playlistsize'];
 			}
 		}
-		try { 
-			if(evt.data.fullscreen == true) { 
-				bar.fullscreenButton.icn.visible = false;
-				bar.fullscreenButton.alt.visible = true;
-			} else { 
-				bar.fullscreenButton.icn.visible = true;
-				bar.fullscreenButton.alt.visible = false;
-			}
-		} catch (err:Error) {}
-		setButtons();
+		if(view.config['fullscreen'] == false || bar.stage.displayState == null) {
+			bar.fullscreenButton.visible = false;
+			bar.normalscreenButton.visible = false;
+		} else if(evt.data.fullscreen == true) {
+			bar.fullscreenButton.visible = false;
+			bar.normalscreenButton.visible = true;
+		} else {
+			bar.fullscreenButton.visible = false;
+			bar.normalscreenButton.visible = true;
+		}
+		stacker.rearrange(wid);
+		bar.timeSlider.icon.scaleX = 1/bar.timeSlider.scaleX;
 	};
 
 
 	/** Send the new scrub position to the controller **/
 	private function sendScrub(evt:MouseEvent) {
-		bar.timeSlider.icn.stopDrag();
-		var xps = bar.timeSlider.icn.x - bar.timeSlider.bck.x;
+		bar.timeSlider.icon.stopDrag();
+		var xps = bar.timeSlider.icon.x - bar.timeSlider.rail.x;
 		var dur = view.playlist[view.config['item']]['duration'];
-		var pct = Math.round(xps*dur*10/bar.timeSlider.bck.width)/10;
+		var pct = Math.round(xps*dur*10/bar.timeSlider.rail.width)/10;
 		view.sendEvent(ViewEvent.SEEK,pct);
 	}
 
 
 	/** Send the new volume to the controlbar **/
 	private function sendVolume(evt:MouseEvent) {
-		bar.volumeSlider.icn.stopDrag();
-		var xps = bar.volumeSlider.icn.x - bar.volumeSlider.sld.x;
-		var pct = Math.round(xps*100/bar.volumeSlider.sld.width);
+		bar.volumeSlider.icon.stopDrag();
+		var xps = bar.volumeSlider.icon.x - bar.volumeSlider.rail.x;
+		var pct = Math.round(xps*100/bar.volumeSlider.mark.width);
 		view.sendEvent(ViewEvent.VOLUME,pct);
-	};
-
-
-	/** Set all buttons to their correct positions. **/
-	private function setButtons() {
-		var rdf = bar.back.width-left[0].w;
-		var ldf = 0;
-		for(var i=0; i<right.length; i++) {
-			if(hideButton(right[i].n)) {
-				right[i].c.visible = false;
-				rdf += right[i-1].x - right[i].x;
-			} else { 
-				right[i].c.visible = true;
-				right[i].c.x = right[i].x + rdf;
-			}
-		}
-		for(var j=0; j<left.length; j++) {
-			if(hideButton(left[j].n)) {
-				left[j].c.visible = false;
-				ldf += left[j+1].x - left[j].x;
-			} else {
-				left[j].c.visible = true;
-				left[j].c.x = left[j].x - ldf;
-			}
-			if(left[j].n == 'timeSlider') {
-				var old = bar.timeSlider.bck.width;
-				var wid = left[j].w+rdf+ldf;
-				bar.timeSlider.bck.width = wid;
-				bar.timeSlider.bar.width *= wid/old;
-				bar.timeSlider.bar.x *= wid/old;
-				bar.timeSlider.icn.x = Math.round(bar.timeSlider.icn.x*wid/old);
-			}
-		}
 	};
 
 
@@ -300,8 +208,8 @@ public class ControlbarView {
 					view.skin.addEventListener(MouseEvent.MOUSE_MOVE, moveHandler);
 				}
 			case ModelStates.BUFFERING:
-				bar.playButton.icn.visible = false;
-				bar.playButton.alt.visible = true;
+				bar.playButton.visible = false;
+				bar.pauseButton.visible = true;
 				break;
 			default: 
 				if(view.config['controlbar'] == 'over') {
@@ -309,8 +217,8 @@ public class ControlbarView {
 					bar.visible = true;
 					view.skin.removeEventListener(MouseEvent.MOUSE_MOVE, moveHandler);
 				}
-				bar.playButton.icn.visible = true;
-				bar.playButton.alt.visible = false;
+				bar.playButton.visible = true;
+				bar.pauseButton.visible = false;
 				break;
 		}
 	}
@@ -319,41 +227,37 @@ public class ControlbarView {
 	/** Process time updates given by the model. **/
 	private function timeHandler(evt:ModelEvent) {
 		var dur = evt.data.duration;
-		try {
-			bar.elapsedText.txt.text = Strings.digits(evt.data.position);
-			bar.totalText.txt.text = Strings.digits(evt.data.duration);
-		} catch(err:Error) {}
+		bar.elapsedText.field.text = Strings.digits(evt.data.position);
+		bar.totalText.field.text = Strings.digits(evt.data.duration)
 		var pct = evt.data.position/evt.data.duration;
-		try {
-			var xps = Math.floor(pct*bar.timeSlider.bck.width);
-			if (dur <= 0) {
-				bar.timeSlider.icn.visible = false;
-			} else {
-				bar.timeSlider.icn.visible = true;
-				bar.timeSlider.icn.x = xps;
-			}
-		} catch(err:Error) {}
+		var xps = Math.floor(pct*bar.timeSlider.rail.width);
+		if (dur <= 0) {
+			bar.timeSlider.icon.visible = false;
+		} else {
+			bar.timeSlider.icon.visible = true;
+			bar.timeSlider.icon.x = xps;
+		}
 	};
 
 
 	/** Handle a move over the timeslider **/
 	private function timeslideHandler(evt:MouseEvent) {
-		var rct = new Rectangle(bar.timeSlider.bck.x,bar.timeSlider.icn.y,bar.timeSlider.bck.width,0);
-		bar.timeSlider.icn.startDrag(true,rct);
+		var rct = new Rectangle(bar.timeSlider.rail.x,bar.timeSlider.icon.y,bar.timeSlider.rail.width,0);
+		bar.timeSlider.icon.startDrag(true,rct);
 		sliding = true;
 	};
 
 
 	/** Reflect the new volume in the controlbar **/
 	private function volumeHandler(evt:ControllerEvent) {
-		bar.volumeSlider.bar.scaleX = evt.data.percentage/100;
+		bar.volumeSlider.mark.scaleX = evt.data.percentage/100;
 	};
 
 
 	/** Handle a move over the volume bar **/
 	private function volumeslideHandler(evt:MouseEvent) {
-		var rct = new Rectangle(bar.volumeSlider.sld.x,bar.volumeSlider.icn.y,bar.volumeSlider.sld.width,0);
-		bar.volumeSlider.icn.startDrag(true,rct);
+		var rct = new Rectangle(bar.volumeSlider.rail.x,bar.volumeSlider.icon.y,bar.volumeSlider.rail.width,0);
+		bar.volumeSlider.icon.startDrag(true,rct);
 		sliding = true;
 	};
 

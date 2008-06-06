@@ -162,6 +162,10 @@ public class DisplayView {
 		} else if (state == ModelStates.BUFFERING) {
 			setIcon('bufferIcon');
 		} else {
+			if(view.config['playlist'] == 'over') { 
+				setIcon();
+				return;
+			}
 			switch(view.config.displayclick) {
 				case 'play':
 					setIcon('playIcon');

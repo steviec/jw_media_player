@@ -6,7 +6,6 @@ package com.jeroenwijering.player {
 
 import flash.display.MovieClip;
 import flash.events.EventDispatcher;
-import flash.external.ExternalInterface;
 import flash.system.Capabilities;
 import com.jeroenwijering.events.*;
 import com.jeroenwijering.player.*;
@@ -43,18 +42,12 @@ public class View extends EventDispatcher {
 	private function addViews() {
 		views = new Array();
 		views.push(new CaptionsView(this));
+		views.push(new ControlbarView(this));
 		views.push(new DisplayView(this));
+		views.push(new ExternalView(this));
 		views.push(new KeyboardView(this));
 		views.push(new RightclickView(this));
-		if(_skin['controlbar']) {
-			//views.push(new ControlbarView(this));
-		}
-		if(_skin['playlist']) {
-			//views.push(new PlaylistView(this));
-		}
-		if(ExternalInterface.available || Capabilities.playerType == 'External') {
-			views.push(new ExternalView(this));
-		}
+		views.push(new PlaylistView(this));
 	};
 
 

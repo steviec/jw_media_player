@@ -10,24 +10,6 @@ import flash.text.TextField;
 public class Strings {
 
 
-	/** 
-	* Fit string in a certain textbox, keeping full words. 
-	* 
-	* @param str	The string to chop.
-	* @param fld	The textfield the string should fit into.
-	**/
-	public static function fit(str:String,fld:TextField):String {
-		var wid = fld.width;
-		var lns = Math.round(fld.height/18);
-		var mxm = Math.round(wid*lns/6)-5;
-		if(str.length < mxm || str.indexOf(" ",mxm) == -1) { 
-			return str;
-		} else {
-			return str.substr(0,str.indexOf(" ",mxm)) + ' ..';
-		}
-	};
-
-
 	/** Strip tags and trim a string; convert <br> breaks to \n. **/
 	public static function strip(str:String):String {
 		var tmp = str.split("\n");
