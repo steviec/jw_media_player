@@ -93,7 +93,9 @@ public class ObjectParser {
 
 	/** Detect the mediatype of a playlistitem and save to its type var. **/
 	public static function detect(itm:Object):Object {
-		if(ObjectParser.TYPES[itm['type']] != undefined) {
+		if(itm['file'] == undefined) { 
+			return itm;
+		} else if(ObjectParser.TYPES[itm['type']] != undefined) {
 			// assume the developer knows what he does...
 		} else if(itm['file'].substr(0,4) == 'rtmp') {
 			itm['type'] = 'rtmp';

@@ -42,12 +42,20 @@ public class View extends EventDispatcher {
 	private function addViews() {
 		views = new Array();
 		views.push(new CaptionsView(this));
-		views.push(new ControlbarView(this));
 		views.push(new DisplayView(this));
 		views.push(new ExternalView(this));
 		views.push(new KeyboardView(this));
 		views.push(new RightclickView(this));
-		views.push(new PlaylistView(this));
+		if(_skin.controlbar && config['controlbar'] != 'none') {
+			views.push(new ControlbarView(this));
+		} else { 
+			_skin.controlbar.visible = false;
+		}
+		if(_skin.playlist && config['playlist'] != 'none') {
+			views.push(new PlaylistView(this));
+		} else { 
+			_skin.playlist.visible = false;
+		}
 	};
 
 

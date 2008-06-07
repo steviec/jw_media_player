@@ -52,7 +52,7 @@ public class Model extends EventDispatcher {
 
 	/** Item change: switch the curently active model if there's a new URL **/
 	private function itemHandler(evt:ControllerEvent) {
-		// skin.display.media.visible = false;
+		skin.display.media.visible = false;
 		if(current) { current.stop(); }
 		sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
 		switch(playlist[evt.data.index]['type']) {
@@ -80,36 +80,32 @@ public class Model extends EventDispatcher {
 				break;
 		}
 		if(playlist[evt.data.index]['image']) {
-			// skin.display.thumb.visible = true;
+			skin.display.thumb.visible = true;
 			loader.load(new URLRequest(playlist[evt.data.index]['image']));
 		} else {
-			// skin.display.thumb.visible = false;
+			skin.display.thumb.visible = false;
 		}
 	};
 
 
 	/** Place a loaded thumb on stage. **/
 	private function thumbHandler(evt:Event) {
-		/*
 		var obj = skin.display.thumb;
 		Draw.clear(obj);
 		obj.addChild(loader);
 		Bitmap(loader.content).smoothing = config['quality'];
 		Stretcher.stretch(obj,config['width'],config['height'],config['stretching']);
-		*/
 	};
 
 
 	/** Place a loaded mediafile on stage **/
 	public function mediaHandler(chd:DisplayObject) {
-		/*
 		var obj = skin.display.media;
 		Draw.clear(obj);
 		obj.addChild(chd);
 		Stretcher.stretch(obj,config['width'],config['height'],config['stretching']);
 		skin.display.thumb.visible = false;
 		skin.display.media.visible = true;
-		*/
 	};
 
 
@@ -147,10 +143,8 @@ public class Model extends EventDispatcher {
 
 	/** Resize the media and thumb. **/
 	private function resizeHandler(evt:ControllerEvent) {
-		/*
 		Stretcher.stretch(skin.display.thumb,evt.data.width,evt.data.height,config['stretching']);
 		Stretcher.stretch(skin.display.media,evt.data.width,evt.data.height,config['stretching']);
-		*/
 	};
 
 

@@ -75,7 +75,6 @@ public class DisplayView {
 
 	/** Receive and print errors. **/
 	private function errorHandler(evt) {
-		display.errorIcon.msg.text = evt.data.message;
 		setIcon('errorIcon');
 	};
 
@@ -111,6 +110,11 @@ public class DisplayView {
 	private function resizeHandler(evt:ControllerEvent) {
 		var wid = evt.data.width;
 		var hei = evt.data.height;
+		if(hei > 0) { 
+			display.visible = true;
+		} else { 
+			display.visible = false;
+		}
 		display.back.width = display.masker.width = wid;
 		display.back.height = display.masker.height =  hei;
 		for(var i in ICONS) {
@@ -162,10 +166,6 @@ public class DisplayView {
 		} else if (state == ModelStates.BUFFERING) {
 			setIcon('bufferIcon');
 		} else {
-			if(view.config['playlist'] == 'over') { 
-				setIcon();
-				return;
-			}
 			switch(view.config.displayclick) {
 				case 'play':
 					setIcon('playIcon');

@@ -20,23 +20,22 @@ public class Player extends MovieClip {
 		captions:undefined,
 		description:undefined,
 		duration:0,
-		file:'http://www.jeroenwijering.com/upload/xspf.xml',
+		file:undefined,
 		image:undefined,
 		link:undefined,
 		start:0,
 		title:undefined,
 		type:undefined,
 
-		controlbar:'over',
+		controlbar:'bottom',
 		logo:undefined,
-		playlist:'bottom',
+		playlist:'none',
 		playlistsize:180,
 		skin:undefined,
 
 		autostart:false,
 		bufferlength:1,
 		caption:true,
-		digits:true,
 		displayclick:'play',
 		fullscreen:false,
 		item:0,
@@ -44,7 +43,7 @@ public class Player extends MovieClip {
 		quality:true,
 		repeat:false,
 		shuffle:false,
-		stretching:'uniform',
+		stretching:'fill',
 		volume:80,
 
 		abouttext:"About JW Player 4.0...",
@@ -56,6 +55,7 @@ public class Player extends MovieClip {
 		client:undefined,
 		controlbarheight:20,
 		height:300,
+		state:'IDLE',
 		version:'4.0 r3',
 		width:400
 	};

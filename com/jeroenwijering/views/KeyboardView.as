@@ -25,7 +25,6 @@ public class KeyboardView {
 
 	/** Process keyboard events. **/
 	private function keyHandler(evt:KeyboardEvent) {
-		trace(evt.keyCode);
 		switch(evt.keyCode) {
 			case 37:
 				view.sendEvent('prev');

@@ -46,15 +46,15 @@ public class PlaylistView {
 		buttonheight = clip.list.button.height;
 		clip.list.button.visible = false;
 		clip.list.mask = clip.masker;
-		clip.slider.buttonMode = true;
-		clip.slider.mouseChildren = false;
 		clip.list.addEventListener(MouseEvent.CLICK,clickHandler);
 		clip.list.addEventListener(MouseEvent.MOUSE_OVER,overHandler);
 		clip.list.addEventListener(MouseEvent.MOUSE_OUT,outHandler);
-		clip.list.addEventListener(MouseEvent.MOUSE_UP,stopHandler);
-		clip.slider.addEventListener(MouseEvent.MOUSE_DOWN,startHandler);
+		clip.slider.buttonMode = true;
+		clip.slider.mouseChildren = false;
+		clip.slider.addEventListener(MouseEvent.MOUSE_DOWN,sdownHandler);
+		clip.slider.addEventListener(MouseEvent.MOUSE_OVER,soverHandler);
+		clip.slider.addEventListener(MouseEvent.MOUSE_OUT,soutHandler);
 		clip.visible = false;
-		trace(clip);
 	};
 
 
@@ -118,9 +118,9 @@ public class PlaylistView {
 	private function itemHandler(evt:ControllerEvent) {
 		var idx = evt.data.index;
 		if(!isNaN(active)) {
-			buttons[active].c.gotoAndStop('out');
+			buttons[active].c.gotoAndPlay('out');
 		}
-		buttons[idx].c.gotoAndStop('active');
+		buttons[idx].c.gotoAndPlay('active');
 		active = idx;
 	};
 
@@ -135,7 +135,7 @@ public class PlaylistView {
 	/** Handle a button rollover. **/
 	private function overHandler(evt:MouseEvent) {
 		var idx = Number(evt.target.name);
-		buttons[idx].c.gotoAndStop('over');
+		buttons[idx].c.gotoAndPlay('over');
 	};
 
 
@@ -143,9 +143,9 @@ public class PlaylistView {
 	private function outHandler(evt:MouseEvent) {
 		var idx = Number(evt.target.name);
 		if(idx == active) {
-			buttons[idx].c.gotoAndStop('active');
+			buttons[idx].c.gotoAndPlay('active');
 		} else { 
-			buttons[idx].c.gotoAndStop('out');
+			buttons[idx].c.gotoAndPlay('out');
 		}
 	};
 
@@ -175,8 +175,12 @@ public class PlaylistView {
 			clip.back.width = evt.data.width;
 		} else if (view.config['playlist'] == 'over') {
 			clip.x = clip.y = 0;
-			clip.back.height = evt.data.height;
 			clip.back.width = evt.data.width;
+			if(proportion > 1) {
+				clip.back.height = evt.data.height;
+			} else if(buttons) { 
+				clip.back.height = buttons.length*buttonheight;
+			}
 		}
 		buildList(false);
 	};
@@ -234,28 +238,44 @@ public class PlaylistView {
 	};
 
 
-	/** Start scrolling the playlist. **/
-	private function startHandler(evt:MouseEvent) {
+	/** Start scrolling the playlist on mousedown. **/
+	private function sdownHandler(evt:MouseEvent) {
 		clearInterval(scrollInterval);
+    	clip.stage.addEventListener(MouseEvent.MOUSE_UP,supHandler);
 		scrollHandler();
 		scrollInterval = setInterval(scrollHandler,50);
 	};
 
-	/** Process state changes **/
-	private function stateHandler(evt:ModelEvent) {
-		if(view.config['playlist'] == 'over') {
-			if(evt.data.newstate == ModelStates.PLAYING || evt.data.newstate == ModelStates.BUFFERING) {
-				clip.visible = false;
-			} else {
-				clip.visible = true;
-			}
-		}
+
+	/** Revert the highlight on mouseout. **/
+	private function soutHandler(evt:MouseEvent) {
+		clip.slider.icon.gotoAndPlay('out');
 	};
 
 
-	/** Stop scrolling the playlist. **/
-	private function stopHandler(evt:MouseEvent) {
+	/** Highlight the icon on rollover. **/
+	private function soverHandler(evt:MouseEvent) {
+		clip.slider.icon.gotoAndPlay('over');
+	};
+
+
+	/** Stop scrolling the playlist on mouseout. **/
+	private function supHandler(evt:MouseEvent) {
 		clearInterval(scrollInterval);
+    	clip.stage.removeEventListener(MouseEvent.MOUSE_UP,supHandler);
+	};
+
+
+	/** Process state changes **/
+	private function stateHandler(evt:ModelEvent) {
+		if(view.config['playlist'] == 'over') {
+			if(evt.data.newstate == ModelStates.PLAYING || 
+				evt.data.newstate == ModelStates.BUFFERING) {
+				Animations.fade(clip,0);
+			} else {
+				Animations.fade(clip,1);
+			}
+		}
 	};
 
 

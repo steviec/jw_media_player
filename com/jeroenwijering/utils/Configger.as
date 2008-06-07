@@ -1,8 +1,6 @@
 /**
 * Loads application configuration data (from xml, cookies and flashvars).
 **/
-
-
 package com.jeroenwijering.utils {
 
 

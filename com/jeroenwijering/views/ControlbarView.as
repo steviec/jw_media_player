@@ -6,15 +6,12 @@ package com.jeroenwijering.views {
 
 import com.jeroenwijering.events.*;
 import com.jeroenwijering.player.View;
-import com.jeroenwijering.utils.Stacker;
-import com.jeroenwijering.utils.Strings;
+import com.jeroenwijering.utils.*;
 import flash.display.MovieClip;
 import flash.events.MouseEvent;
 import flash.geom.Rectangle;
 import flash.utils.setTimeout;
 import flash.utils.clearTimeout;
-import fl.transitions.*;
-import fl.transitions.easing.*;
 
 
 public class ControlbarView {
@@ -22,14 +19,25 @@ public class ControlbarView {
 
 	/** Reference to the view. **/
 	private var view:View;
-	/** A list with all controls. **/
-	private var stacker:Stacker;
 	/** Reference to the controlbar **/
 	private var bar:MovieClip;
-	/** Save whether sliding is enabled. **/
-	private var sliding:Boolean;
+	/** A list with all controls. **/
+	private var stacker:Stacker;
 	/** Timeout for hiding the bar. **/
 	private var hiding:Number;
+	/** The actions for all controlbar buttons. **/
+	private var BUTTONS = {
+		playButton:'PLAY',
+		pauseButton:'PLAY',
+		stopButton:'STOP',
+		prevButton:'PREV',
+		nextButton:'NEXT',
+		linkButton:'LINK',
+		fullscreenButton:'FULLSCREEN',
+		normalscreenButton:'FULLSCREEN',
+		muteButton:'MUTE',
+		unmuteButton:'MUTE'
+	};
 
 
 	/** Constructor. **/
@@ -44,11 +52,7 @@ public class ControlbarView {
 		view.addModelListener(ModelEvent.TIME,timeHandler);
 		bar = view.skin['controlbar'];
 		stacker = new Stacker(bar);
-		bar.addEventListener(MouseEvent.CLICK, clickHandler);
-		bar.timeSlider.addEventListener(MouseEvent.MOUSE_DOWN,timeslideHandler);
-		bar.timeSlider.addEventListener(MouseEvent.MOUSE_OUT,outHandler);
-		bar.volumeSlider.addEventListener(MouseEvent.MOUSE_DOWN,volumeslideHandler);
-		bar.volumeSlider.addEventListener(MouseEvent.MOUSE_OUT,outHandler);
+		setButtons();
 		loadedHandler(new ModelEvent(ModelEvent.LOADED,{loaded:0,total:0}));
 		muteHandler(new ControllerEvent(ControllerEvent.MUTE,{state:view.config['mute']}));
 		stateHandler(new ModelEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE}));
@@ -59,15 +63,7 @@ public class ControlbarView {
 
 	/** Handle clicks from all buttons **/
 	private function clickHandler(evt:MouseEvent) {
-		if(evt.target.name.indexOf('Button') > 0) {
-			var str = evt.target.name.substr(0,-6).toUpperCase();
-			view.sendEvent(str);
-		} else if (evt.target.name == 'timeSlider') {
-			sendScrub(evt);
-		} else if (evt.target.name == 'volumeSlider') {
-			sendVolume(evt);
-		}
-		sliding = false;
+		view.sendEvent(BUTTONS[evt.target.name]);
 	};
 
 
@@ -82,11 +78,6 @@ public class ControlbarView {
 			bar.linkButton.visible = true;
 		} else { 
 			bar.linkButton.visible = false;
-		}
-		if(view.config['digits'] == false) {
-			bar.elapsedText.visible = bar.totalText.visible = false;
-		} else { 
-			bar.elapsedText.visible = bar.totalText.visible = true;
 		}
 	};
 
@@ -111,7 +102,7 @@ public class ControlbarView {
 
 	/** Show above controlbar on mousemove. **/
 	private function moveHandler(evt:MouseEvent) {
-		bar.visible = true;
+		Animations.fade(bar,1);
 		clearTimeout(hiding);
 		hiding = setTimeout(moveTimeout,1000);
 	};
@@ -120,7 +111,7 @@ public class ControlbarView {
 	/** Hide above controlbar again when move has timed out. **/
 	private function moveTimeout() {
 		if(bar.mouseY < -10) {
-			bar.visible = false;
+			Animations.fade(bar,0);
 		}
 	};
 
@@ -141,7 +132,13 @@ public class ControlbarView {
 
 	/** Handle mouseouts from all buttons **/
 	private function outHandler(evt:MouseEvent) {
-		if(sliding) { clickHandler(evt); }
+		bar[evt.target.name].gotoAndPlay('out');
+	};
+
+
+	/** Handle clicks from all buttons **/
+	private function overHandler(evt:MouseEvent) {
+		bar[evt.target.name].gotoAndPlay('over');
 	};
 
 
@@ -176,26 +173,30 @@ public class ControlbarView {
 			bar.normalscreenButton.visible = true;
 		}
 		stacker.rearrange(wid);
-		bar.timeSlider.icon.scaleX = 1/bar.timeSlider.scaleX;
 	};
 
 
-	/** Send the new scrub position to the controller **/
-	private function sendScrub(evt:MouseEvent) {
-		bar.timeSlider.icon.stopDrag();
-		var xps = bar.timeSlider.icon.x - bar.timeSlider.rail.x;
-		var dur = view.playlist[view.config['item']]['duration'];
-		var pct = Math.round(xps*dur*10/bar.timeSlider.rail.width)/10;
-		view.sendEvent(ViewEvent.SEEK,pct);
-	}
-
-
-	/** Send the new volume to the controlbar **/
-	private function sendVolume(evt:MouseEvent) {
-		bar.volumeSlider.icon.stopDrag();
-		var xps = bar.volumeSlider.icon.x - bar.volumeSlider.rail.x;
-		var pct = Math.round(xps*100/bar.volumeSlider.mark.width);
-		view.sendEvent(ViewEvent.VOLUME,pct);
+	/** Clickhandler for all buttons. **/
+	private function setButtons() {
+		for(var itm in BUTTONS) { 
+			if(bar[itm]) {
+				bar[itm].mouseChildren = false;
+				bar[itm].buttonMode = true;
+				bar[itm].addEventListener(MouseEvent.CLICK, clickHandler);
+				bar[itm].addEventListener(MouseEvent.MOUSE_OVER, overHandler);
+				bar[itm].addEventListener(MouseEvent.MOUSE_OUT, outHandler);
+			}
+		}
+		bar.timeSlider.mouseChildren = false;
+		bar.timeSlider.buttonMode = true;
+		bar.timeSlider.addEventListener(MouseEvent.MOUSE_DOWN,timedownHandler);
+		bar.timeSlider.addEventListener(MouseEvent.MOUSE_OUT,timeoutHandler);
+		bar.timeSlider.addEventListener(MouseEvent.MOUSE_OVER,timeoverHandler);
+		bar.volumeSlider.mouseChildren = false;
+		bar.volumeSlider.buttonMode = true;
+		bar.volumeSlider.addEventListener(MouseEvent.MOUSE_DOWN,volumedownHandler);
+		bar.volumeSlider.addEventListener(MouseEvent.MOUSE_OUT,volumeoutHandler);
+		bar.volumeSlider.addEventListener(MouseEvent.MOUSE_OVER,volumeoverHandler);
 	};
 
 
@@ -214,7 +215,7 @@ public class ControlbarView {
 			default: 
 				if(view.config['controlbar'] == 'over') {
 					clearTimeout(hiding);
-					bar.visible = true;
+					Animations.fade(bar,1);
 					view.skin.removeEventListener(MouseEvent.MOUSE_MOVE, moveHandler);
 				}
 				bar.playButton.visible = true;
@@ -240,11 +241,33 @@ public class ControlbarView {
 	};
 
 
-	/** Handle a move over the timeslider **/
-	private function timeslideHandler(evt:MouseEvent) {
+	/** Handle a press on the timeslider **/
+	private function timedownHandler(evt:MouseEvent) {
 		var rct = new Rectangle(bar.timeSlider.rail.x,bar.timeSlider.icon.y,bar.timeSlider.rail.width,0);
 		bar.timeSlider.icon.startDrag(true,rct);
-		sliding = true;
+    	bar.stage.addEventListener(MouseEvent.MOUSE_UP,timeupHandler);
+	};
+
+	/** Handle a move out the timeslider **/
+	private function timeoutHandler(evt:MouseEvent) {
+		bar.timeSlider.icon.gotoAndPlay('out');
+	};
+
+
+	/** Handle a press release on the timeslider **/
+	private function timeupHandler(evt:MouseEvent) {
+		bar.timeSlider.icon.stopDrag();
+    	bar.stage.removeEventListener(MouseEvent.MOUSE_UP,timeupHandler);
+		var xps = bar.timeSlider.icon.x - bar.timeSlider.rail.x;
+		var dur = view.playlist[view.config['item']]['duration'];
+		var pct = Math.round(xps*dur*10/bar.timeSlider.rail.width)/10;
+		view.sendEvent(ViewEvent.SEEK,pct);
+	};
+
+
+	/** Handle a move over the timeslider **/
+	private function timeoverHandler(evt:MouseEvent) {
+		bar.timeSlider.icon.gotoAndPlay('over');
 	};
 
 
@@ -254,11 +277,33 @@ public class ControlbarView {
 	};
 
 
-	/** Handle a move over the volume bar **/
-	private function volumeslideHandler(evt:MouseEvent) {
+	/** Handle a move over the volumebar **/
+	private function volumedownHandler(evt:MouseEvent) {
 		var rct = new Rectangle(bar.volumeSlider.rail.x,bar.volumeSlider.icon.y,bar.volumeSlider.rail.width,0);
 		bar.volumeSlider.icon.startDrag(true,rct);
-		sliding = true;
+		bar.stage.addEventListener(MouseEvent.MOUSE_UP,volumeupHandler);
+	};
+
+
+	/** Handle a move out the volumebar. **/
+	private function volumeoutHandler(evt:MouseEvent) {
+		bar.volumeSlider.icon.gotoAndPlay('out');
+	};
+
+
+	/** Handle a move over the volumebar. **/
+	private function volumeoverHandler(evt:MouseEvent) {
+		bar.volumeSlider.icon.gotoAndPlay('over');
+	};
+
+
+	/** Handle a press release on the volumebar. **/
+	private function volumeupHandler(evt:MouseEvent) {
+		bar.volumeSlider.icon.stopDrag();
+    	bar.stage.removeEventListener(MouseEvent.MOUSE_UP,volumeupHandler);
+		var xps = bar.volumeSlider.icon.x - bar.volumeSlider.rail.x;
+		var pct = Math.round(xps*100/bar.volumeSlider.rail.width);
+		view.sendEvent(ViewEvent.VOLUME,pct);
 	};
 
 

@@ -107,11 +107,15 @@ public class HTTPModel implements ModelInterface {
 				url += '?start='+offset;
 			}
 		} else {
-			url = model.config["streamscript"]+"?file="+url+'&start='+offset;
+			if(model.config["streamscript"].indexOf('?') > -1) { 
+				url = model.config["streamscript"]+"&file="+url+'&start='+offset;
+			} else {
+				url = model.config["streamscript"]+"?file="+url+'&start='+offset;
+			}
 		}
 		url += '&width='+model.config['width'];
 		url += '&client='+encodeURI(model.config['client']);
-		trace(url);
+		url += '&version='+encodeURI(model.config['version']);
 		stream.play(url);
 		clearInterval(loadinterval);
 		clearInterval(timeinterval);
