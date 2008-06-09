@@ -31,7 +31,7 @@ public class View extends EventDispatcher {
 	public function View(cfg:Object,skn:MovieClip,ctr:Controller,mdl:Model) {
 		_config = cfg;
 		_skin = skn;
-		_config['controlbarsize'] = _skin['controlbar'].height;
+		_config['controlbarheight'] = _skin['controlbar'].height;
 		controller = ctr;
 		model = mdl;
 		addViews();
@@ -46,15 +46,19 @@ public class View extends EventDispatcher {
 		views.push(new ExternalView(this));
 		views.push(new KeyboardView(this));
 		views.push(new RightclickView(this));
-		if(_skin.controlbar && config['controlbar'] != 'none') {
-			views.push(new ControlbarView(this));
-		} else { 
-			_skin.controlbar.visible = false;
+		if(_skin.controlbar) {
+			if(config['controlbar'] == 'none') { 
+				_skin.controlbar.visible = false;
+			} else { 
+				views.push(new ControlbarView(this));
+			}
 		}
-		if(_skin.playlist && config['playlist'] != 'none') {
-			views.push(new PlaylistView(this));
-		} else { 
-			_skin.playlist.visible = false;
+		if(_skin.playlist) {
+			if(config['playlist'] == 'none') {
+				_skin.playlist.visible = false;
+			} else { 
+				views.push(new PlaylistView(this));
+			}
 		}
 	};
 

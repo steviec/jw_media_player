@@ -73,6 +73,7 @@ public class Player extends MovieClip {
 
 	/** Constructor; Loads config parameters. **/
 	public function Player() {
+		this.visible = false;
 		configger = new Configger(this);
 		configger.addEventListener(Event.COMPLETE,configHandler);
 		configger.load(defaults);
@@ -83,12 +84,13 @@ public class Player extends MovieClip {
 	private function configHandler(evt:Event) {
 		skinner = new Skinner(this);
 		skinner.addEventListener(Event.COMPLETE,skinHandler);
-		skinner.load(configger.config['skin']);
+		skinner.load(configger.config);
 	};
 
 
 	/** Skin loading completed, now load MVC and plugins. **/
 	private function skinHandler(evt:Event) {
+		this.visible = true;
 		controller = new Controller(configger.config,skinner.skin);
 		model = new Model(configger.config,skinner.skin,controller);
 		_view = new View(configger.config,skinner.skin,controller,model);

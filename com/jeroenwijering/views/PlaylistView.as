@@ -34,6 +34,8 @@ public class PlaylistView {
 	private var proportion:Number;
 	/** Interval ID for scrolling **/
 	private var scrollInterval:Number;
+	/** Image dimensions. **/
+	private var image:Array;
 
 
 	public function PlaylistView(vie:View) {
@@ -44,6 +46,7 @@ public class PlaylistView {
 		view.addModelListener(ModelEvent.STATE,stateHandler);
 		clip = view.skin['playlist'];
 		buttonheight = clip.list.button.height;
+		image = new Array(clip.list.button.image.width,clip.list.button.image.height);
 		clip.list.button.visible = false;
 		clip.list.mask = clip.masker;
 		clip.list.addEventListener(MouseEvent.CLICK,clickHandler);
@@ -54,6 +57,7 @@ public class PlaylistView {
 		clip.slider.addEventListener(MouseEvent.MOUSE_DOWN,sdownHandler);
 		clip.slider.addEventListener(MouseEvent.MOUSE_OVER,soverHandler);
 		clip.slider.addEventListener(MouseEvent.MOUSE_OUT,soutHandler);
+		clip.slider.addEventListener(MouseEvent.MOUSE_WHEEL,wheelHandler);
 		clip.visible = false;
 	};
 
@@ -83,7 +87,7 @@ public class PlaylistView {
 			if(clr) {
 				var btn = Draw.clone(clip.list.button);
 				clip.list.addChild(btn);
-				var stc = new Stacker(btn);
+				var stc = new Stacker(btn);Loader
 				btn.y = i*buttonheight;
 				btn.buttonMode = true;
 				btn.mouseChildren =false;
@@ -131,7 +135,7 @@ public class PlaylistView {
 	/** Loading of image completed; resume loading **/
 	private function loaderHandler(evt:Event) {
 		var ldr = Loader(evt.target.loader);
-		Stretcher.stretch(ldr,ldr.mask.width,ldr.mask.height,Stretcher.FILL);
+		Stretcher.stretch(ldr,image[0],image[1],Stretcher.FILL);
 	};
 
 
@@ -172,7 +176,7 @@ public class PlaylistView {
 			clip.x = 0;
 			clip.y = evt.data.height;
 			if (view.config['controlbar'] == 'bottom') {
-				clip.y += view.config['controlbarsize'];
+				clip.y += view.config['controlbarheight'];
 			}
 			clip.back.height = view.config['playlistsize'];
 			clip.back.width = evt.data.width;
@@ -221,10 +225,7 @@ public class PlaylistView {
 				continue;
 			} else if(itm == 'image') {
 				var ldr = new Loader();
-				buttons[idx].c.addChild(ldr);
-				ldr.x = buttons[idx].c.image.x;
-				ldr.y = buttons[idx].c.image.y;
-				ldr.mask = buttons[idx].c.image;
+				buttons[idx].c.image.addChild(ldr);
 				ldr.contentLoaderInfo.addEventListener(Event.COMPLETE,loaderHandler);
 				ldr.load(new URLRequest(view.playlist[idx]['image']));
 			} else if(itm == 'duration') {
@@ -279,6 +280,12 @@ public class PlaylistView {
 				Animations.fade(clip,1);
 			}
 		}
+	};
+
+
+	/** Process mousewheel usage. **/
+	private function wheelHandler(evt:MouseEvent) {
+		trace('yo!!!');
 	};
 
 

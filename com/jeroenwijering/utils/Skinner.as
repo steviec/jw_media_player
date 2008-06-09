@@ -22,8 +22,8 @@ public class Skinner extends EventDispatcher {
 	private var loader:Loader;
 	/** Reference to the player itself. **/
 	private var player:MovieClip;
-	/** Skinnable elements **/
-	private var ELEMENTS:Array = new Array("controlbar","display","playlist");
+	/** Reference to the config object. **/
+	private var config:Object;
 
 
 	/**
@@ -39,15 +39,16 @@ public class Skinner extends EventDispatcher {
 	/**
 	* Start the loading process.
 	*
-	* @param cfg	Object that contains all docking parameters.
+	* @param cfg	Object that contains all configuration parameters.
 	**/
-	public function load(url:String=undefined) {
-		if(url) {
+	public function load(cfg:Object=undefined) {
+		config = cfg;
+		if(config['skin']) {
 			loader = new Loader();
 			loader.contentLoaderInfo.addEventListener(Event.COMPLETE,loaderHandler);
 			loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
 			try {
-				loader.load(new URLRequest(url));
+				loader.load(new URLRequest(config['skin']));
 			} catch (err:Error) { 
 				dispatchEvent(new Event(Event.COMPLETE));
 			}
@@ -60,6 +61,7 @@ public class Skinner extends EventDispatcher {
 
 	/** SWF loading failed; use default skin. **/
 	private function errorHandler(evt:IOErrorEvent) {
+		skin = player.root['player'];
 		dispatchEvent(new Event(Event.COMPLETE));
 	};
 
@@ -68,23 +70,14 @@ public class Skinner extends EventDispatcher {
 	private function loaderHandler(evt:Event) {
 		if(loader.content['player']) {
 			skin = MovieClip(loader.content['player']);
-			trace(loader.content['player']);
 		} else {
 			skin = MovieClip(loader.content);
 		}
 		Draw.clear(player);
 		player.addChild(skin);
-		/*
-		for(var i=0; i<cnt.numChildren; i++) {
-			var ncd = cnt.getChildAt(i);
-			var ocd = skin.getChildByName(ncd.name);
-			if(ocd) {
-				skin.removeChild(ocd);
-				skin.addChild(ncd);
-				skin[ncd.name] = ncd;
-			}
+		if(skin['controlbar']) { 
+			config['controlbarheight'] = skin['controlbar'].height;
 		}
-		*/
 		dispatchEvent(new Event(Event.COMPLETE));
 	};
 

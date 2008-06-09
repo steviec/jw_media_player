@@ -43,21 +43,25 @@ public class ControlbarView {
 	/** Constructor. **/
 	public function ControlbarView(vie:View) {
 		view = vie;
-		view.addControllerListener(ControllerEvent.ITEM,itemHandler);
-		view.addControllerListener(ControllerEvent.MUTE,muteHandler);
-		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
-		view.addControllerListener(ControllerEvent.VOLUME,volumeHandler);
-		view.addModelListener(ModelEvent.LOADED,loadedHandler);
-		view.addModelListener(ModelEvent.STATE,stateHandler);
-		view.addModelListener(ModelEvent.TIME,timeHandler);
 		bar = view.skin['controlbar'];
 		stacker = new Stacker(bar);
 		setButtons();
+		view.addControllerListener(ControllerEvent.ITEM,itemHandler);
+		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
+		view.addModelListener(ModelEvent.LOADED,loadedHandler);
 		loadedHandler(new ModelEvent(ModelEvent.LOADED,{loaded:0,total:0}));
-		muteHandler(new ControllerEvent(ControllerEvent.MUTE,{state:view.config['mute']}));
+		view.addModelListener(ModelEvent.STATE,stateHandler);
 		stateHandler(new ModelEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE}));
+		view.addModelListener(ModelEvent.TIME,timeHandler);
 		timeHandler(new ModelEvent(ModelEvent.TIME,{position:0,duration:0}));
-		volumeHandler(new ControllerEvent(ControllerEvent.VOLUME,{percentage:view.config['volume']}));
+		if(bar['muteButton']) { 
+			view.addControllerListener(ControllerEvent.MUTE,muteHandler);
+			muteHandler(new ControllerEvent(ControllerEvent.MUTE,{state:view.config['mute']}));
+		}
+		if(bar['volumeSlider']) { 
+			view.addControllerListener(ControllerEvent.VOLUME,volumeHandler);
+			volumeHandler(new ControllerEvent(ControllerEvent.VOLUME,{percentage:view.config['volume']}));
+		}
 	};
 
 
@@ -80,15 +84,19 @@ public class ControlbarView {
 
 	/** Handle a change in the current item **/
 	private function itemHandler(evt:ControllerEvent) {
-		if(view.playlist.length > 1) { 
-			bar.prevButton.visible = bar.nextButton.visible = true;
-		} else {
-			bar.prevButton.visible = bar.nextButton.visible = false;
+		if(bar['prevButton'] && bar['nextButton']) { 
+			if(view.playlist.length > 1) { 
+				bar.prevButton.visible = bar.nextButton.visible = true;
+			} else {
+				bar.prevButton.visible = bar.nextButton.visible = false;
+			}
 		}
-		if(view.playlist[view.config['item']]['link']) { 
-			bar.linkButton.visible = true;
-		} else { 
-			bar.linkButton.visible = false;
+		if(bar['linkButton']) { 
+			if(view.playlist[view.config['item']]['link']) { 
+				bar.linkButton.visible = true;
+			} else { 
+				bar.linkButton.visible = false;
+			}
 		}
 		stacker.rearrange();
 	};
@@ -158,13 +166,13 @@ public class ControlbarView {
 	private function resizeHandler(evt:ControllerEvent) {
 		var wid = stacker.width;
 		if(view.config['controlbar'] == 'over' || evt.data.fullscreen == true) {
-			bar.y = evt.data.height - view.config['controlbarsize']*2;
+			bar.y = evt.data.height - view.config['controlbarheight']*2;
 			if(evt.data.width > 640) { 
 				bar.x = Math.round(evt.data.width/2-300);
 				wid = 600;
 			} else { 
-				bar.x = view.config['controlbarsize'];
-				wid = evt.data.width - view.config['controlbarsize']*2;
+				bar.x = view.config['controlbarheight'];
+				wid = evt.data.width - view.config['controlbarheight']*2;
 			}
 		} else {
 			bar.x = 0;
@@ -174,15 +182,17 @@ public class ControlbarView {
 				wid += view.config['playlistsize'];
 			}
 		}
-		if(view.config['fullscreen'] == false || bar.stage.displayState == null) {
-			bar.fullscreenButton.visible = false;
-			bar.normalscreenButton.visible = false;
-		} else if(evt.data.fullscreen == true) {
-			bar.fullscreenButton.visible = false;
-			bar.normalscreenButton.visible = true;
-		} else {
-			bar.fullscreenButton.visible = true;
-			bar.normalscreenButton.visible = false;
+		if(bar.fullscreenButton) {
+			if(view.config['fullscreen'] == false || bar.stage.displayState == null) {
+				bar.fullscreenButton.visible = false;
+				bar.normalscreenButton.visible = false;
+			} else if(evt.data.fullscreen == true) {
+				bar.fullscreenButton.visible = false;
+				bar.normalscreenButton.visible = true;
+			} else {
+				bar.fullscreenButton.visible = true;
+				bar.normalscreenButton.visible = false;
+			}
 		}
 		stacker.rearrange(wid);
 		fixTime();
@@ -200,16 +210,20 @@ public class ControlbarView {
 				bar[itm].addEventListener(MouseEvent.MOUSE_OUT, outHandler);
 			}
 		}
-		bar.timeSlider.mouseChildren = false;
-		bar.timeSlider.buttonMode = true;
-		bar.timeSlider.addEventListener(MouseEvent.MOUSE_DOWN,timedownHandler);
-		bar.timeSlider.addEventListener(MouseEvent.MOUSE_OUT,timeoutHandler);
-		bar.timeSlider.addEventListener(MouseEvent.MOUSE_OVER,timeoverHandler);
-		bar.volumeSlider.mouseChildren = false;
-		bar.volumeSlider.buttonMode = true;
-		bar.volumeSlider.addEventListener(MouseEvent.MOUSE_DOWN,volumedownHandler);
-		bar.volumeSlider.addEventListener(MouseEvent.MOUSE_OUT,volumeoutHandler);
-		bar.volumeSlider.addEventListener(MouseEvent.MOUSE_OVER,volumeoverHandler);
+		try {
+			bar.timeSlider.mouseChildren = false;
+			bar.timeSlider.buttonMode = true;
+			bar.timeSlider.addEventListener(MouseEvent.MOUSE_DOWN,timedownHandler);
+			bar.timeSlider.addEventListener(MouseEvent.MOUSE_OUT,timeoutHandler);
+			bar.timeSlider.addEventListener(MouseEvent.MOUSE_OVER,timeoverHandler);
+		} catch (err:Error) {}
+		try {
+			bar.volumeSlider.mouseChildren = false;
+			bar.volumeSlider.buttonMode = true;
+			bar.volumeSlider.addEventListener(MouseEvent.MOUSE_DOWN,volumedownHandler);
+			bar.volumeSlider.addEventListener(MouseEvent.MOUSE_OUT,volumeoutHandler);
+			bar.volumeSlider.addEventListener(MouseEvent.MOUSE_OVER,volumeoverHandler);
+		} catch (err:Error) {}
 	};
 
 
@@ -241,8 +255,12 @@ public class ControlbarView {
 	/** Process time updates given by the model. **/
 	private function timeHandler(evt:ModelEvent) {
 		var dur = evt.data.duration;
-		bar.elapsedText.text = Strings.digits(evt.data.position);
-		bar.totalText.text = Strings.digits(evt.data.duration)
+		if(bar.elapsedText) {
+			bar.elapsedText.text = Strings.digits(evt.data.position);
+		}
+		if(evt.data.duration > 0 && bar.totalText) { 
+			bar.totalText.text = Strings.digits(evt.data.duration);
+		}
 		var pct = evt.data.position/evt.data.duration;
 		var xps = Math.round(pct*bar.timeSlider.rail.width);
 		if (dur <= 0) {

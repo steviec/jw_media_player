@@ -243,7 +243,7 @@ public class Controller extends EventDispatcher {
 			fullscreen:false
 		};
 		if(config['controlbar'] == 'bottom') {
-			dat.height -= config['controlbarsize'];
+			dat.height -= config['controlbarheight'];
 		}
 		if(config['playlist'] == 'right') {
 			dat.width -= config['playlistsize'];

@@ -53,8 +53,10 @@ public class DisplayView {
 		display.addEventListener(MouseEvent.CLICK,clickHandler);
 		display.mouseChildren = false;
 		display.buttonMode = true;
-		Draw.clear(display.logo);
-		if(view.config['logo']) { setLogo(); }
+		try { 
+			Draw.clear(display.logo);
+			if(view.config['logo']) { setLogo(); }
+		} catch (err:Error) {}
 		setIcon('bufferIcon');
 	};
 
@@ -115,11 +117,17 @@ public class DisplayView {
 		} else { 
 			display.visible = false;
 		}
-		display.back.width = display.masker.width = wid;
-		display.back.height = display.masker.height =  hei;
+		display.back.width  = wid;
+		display.back.height = hei;
+		try { 
+			display.masker.width = wid;
+			display.masker.height = hei;
+		} catch (err:Error) {}
 		for(var i in ICONS) {
-			display[ICONS[i]].x = Math.round(wid/2);
-			display[ICONS[i]].y = Math.round(hei/2);
+			try { 
+				display[ICONS[i]].x = Math.round(wid/2);
+				display[ICONS[i]].y = Math.round(hei/2);
+			} catch (err:Error) {}
 		}
 		if(view.config['logo']) {
 			logoHandler(new Event(Event.COMPLETE));
@@ -130,10 +138,12 @@ public class DisplayView {
 	/** Set a specific icon in the display. **/
 	private function setIcon(icn:String=undefined) {
 		for(var i in ICONS) {
-			if(icn == ICONS[i]) {
-				display[ICONS[i]].visible = true;
-			} else {
-				display[ICONS[i]].visible = false;
+			if(display[ICONS[i]]) { 
+				if(icn == ICONS[i]) {
+					display[ICONS[i]].visible = true; 
+				} else {
+					display[ICONS[i]].visible = false; 
+				}
 			}
 		}
 	};

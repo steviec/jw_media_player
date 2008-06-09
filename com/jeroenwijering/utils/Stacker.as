@@ -46,12 +46,13 @@ public class Stacker {
 
 
 	/** Check if an child overlaps with others. **/
-	private function overlaps(idx:Number):Boolean { 
+	private function overlaps(idx:Number):Boolean {
 		var min = stack[idx].x;
 		var max = stack[idx].x+stack[idx].w;
 		for (var i in stack) {
 			if(i!=idx && stack[i].c.visible==true && stack[i].n!='back' &&
 				stack[i].x < max && stack[i].x+stack[i].w > min) {
+				//trace(stack[i].x+'-'+max+' / '+(stack[i].x+stack[i].w)+'-'+min);
 				return true;
 			}
 		}
