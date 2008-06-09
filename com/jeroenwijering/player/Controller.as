@@ -4,12 +4,14 @@
 package com.jeroenwijering.player {
 
 
-import flash.display.MovieClip;
-import flash.events.*;
-import flash.net.*;
 import com.jeroenwijering.events.*;
 import com.jeroenwijering.player.*;
 import com.jeroenwijering.utils.*;
+import flash.display.MovieClip;
+import flash.events.*;
+import flash.geom.Rectangle;
+import flash.net.*;
+import flash.system.Capabilities;
 
 
 public class Controller extends EventDispatcher {
@@ -27,8 +29,6 @@ public class Controller extends EventDispatcher {
 	private var view:View;
 	/** object that povides randomization. **/
 	private var randomizer:Randomizer;
-	/** save the state of the model. **/
-	private var state:String;
 
 
 	/** Constructor, set up stage and playlist listeners. **/
@@ -38,7 +38,6 @@ public class Controller extends EventDispatcher {
 		skin.stage.scaleMode = "noScale";
 		skin.stage.align = "TL";
 		skin.stage.addEventListener(Event.RESIZE,resizeHandler);
-		skin.stage.addEventListener(Event.FULLSCREEN,resizeHandler);
 		playlister = new Playlister();
 		playlister.addEventListener(Event.COMPLETE,playlistHandler);
 		playlister.addEventListener(ErrorEvent.ERROR,errorHandler);
@@ -48,7 +47,6 @@ public class Controller extends EventDispatcher {
 	/** Register view and model with controller, start loading playlist. **/
 	public function start(mdl:Model,vie:View) {
 		model= mdl;
-		model.addEventListener(ModelEvent.STATE,stateHandler);
 		model.addEventListener(ModelEvent.META,metaHandler);
 		model.addEventListener(ModelEvent.TIME,metaHandler);
 		view = vie;
@@ -93,6 +91,8 @@ public class Controller extends EventDispatcher {
 		if(skin.stage.displayState == 'fullScreen') {
 			skin.stage.displayState = 'normal';
 		} else {
+			skin.stage["fullScreenSourceRect"] = new Rectangle(0,0,
+				Capabilities.screenResolutionX,Capabilities.screenResolutionY);
 			skin.stage.displayState = 'fullScreen';
 		}
 	};
@@ -100,6 +100,7 @@ public class Controller extends EventDispatcher {
 
 	/** Jump to a userdefined item in the playlist. **/
 	private function itemHandler(evt:ViewEvent) {
+		if(playlist[config['item']]['author'] == 'commercial') { return; }
 		var itm = evt.data.index;
 		if (itm < 0) {
 			playItem(0);
@@ -162,6 +163,7 @@ public class Controller extends EventDispatcher {
 
 	/** Jump to the next item in the playlist. **/
 	private function nextHandler(evt:ViewEvent) {
+		if(playlist[config['item']]['author'] == 'commercial') { return; }
 		if(config['shuffle'] == true) { 
 			playItem(randomizer.pick());
 		} else if (config['item'] == playlist.length - 1) {
@@ -176,7 +178,7 @@ public class Controller extends EventDispatcher {
 	private function playHandler(evt:ViewEvent) {
 		if(evt.data.state) {
 			dispatchEvent(new ControllerEvent(ControllerEvent.PLAY,{state:evt.data.state}));
-		} else if(state == ModelStates.PLAYING || state == ModelStates.BUFFERING) {
+		} else if(config['state'] == ModelStates.PLAYING || config['state'] == ModelStates.BUFFERING) {
 			dispatchEvent(new ControllerEvent(ControllerEvent.PLAY,{state:false}));
 		} else { 
 			dispatchEvent(new ControllerEvent(ControllerEvent.PLAY,{state:true}));
@@ -210,6 +212,7 @@ public class Controller extends EventDispatcher {
 
 	/** Jump to the previous item in the playlist. **/
 	private function prevHandler(evt:ViewEvent) {
+		if(playlist[config['item']]['author'] == 'commercial') { return; }
 		if(config['shuffle'] == true) { 
 			playItem(randomizer.back());
 		} else if (config['item'] == 0) {
@@ -260,6 +263,7 @@ public class Controller extends EventDispatcher {
 
 	/** Seek to a specific part in a mediafile. **/
 	private function seekHandler(evt:ViewEvent) {
+		if(playlist[config['item']]['author'] == 'commercial') { return; }
 		var pos = evt.data.position;
 		if(pos < 2) { pos = 0; }
 		if(playlist[config['item']]['duration'] > 0) {
@@ -276,7 +280,6 @@ public class Controller extends EventDispatcher {
 
 	/** Manage playback state changes **/
 	private function stateHandler(evt:ModelEvent) {
-		state = evt.data.newstate;
 		if(evt.data.newstate == ModelStates.COMPLETED && (config['repeat'] == true ||
 			(config['shuffle'] == true && randomizer.length > 0) || 
 			(config['shuffle'] == false && config['item'] < playlist.length-1))) {

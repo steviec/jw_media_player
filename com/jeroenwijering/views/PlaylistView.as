@@ -93,6 +93,9 @@ public class PlaylistView {
 			}
 			buttons[i].s.rearrange(wid);
 		}
+		if(clr && proportion < 1) { 
+			clip.back.height = buttons.length*buttonheight;
+		}
 	};
 
 
@@ -176,9 +179,9 @@ public class PlaylistView {
 		} else if (view.config['playlist'] == 'over') {
 			clip.x = clip.y = 0;
 			clip.back.width = evt.data.width;
-			if(proportion > 1) {
+			if(proportion > 1 || buttons == null) {
 				clip.back.height = evt.data.height;
-			} else if(buttons) { 
+			} else {
 				clip.back.height = buttons.length*buttonheight;
 			}
 		}
@@ -226,10 +229,10 @@ public class PlaylistView {
 				ldr.load(new URLRequest(view.playlist[idx]['image']));
 			} else if(itm == 'duration') {
 				if(view.playlist[idx][itm] > 0) {
-					buttons[idx].c[itm].field.text = Strings.digits(view.playlist[idx][itm]);
+					buttons[idx].c[itm].text = Strings.digits(view.playlist[idx][itm]);
 				}
 			} else {
-				buttons[idx].c[itm].field.text = view.playlist[idx][itm];
+				buttons[idx].c[itm].text = view.playlist[idx][itm];
 			}
 		}
 		if(!view.playlist[idx]['image'] && buttons[idx].c['image']) {

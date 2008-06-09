@@ -26,8 +26,6 @@ public class Model extends EventDispatcher {
 	private var controller:Controller;
 	/** Currently active model. **/
 	private var current:Object;
-	/** Current playback state **/
-	public var state:String;
 	/** Loader for the preview image. **/
 	private var loader:Loader;
 
@@ -122,9 +120,9 @@ public class Model extends EventDispatcher {
 	/** Togge the playback state. **/
 	private function playHandler(evt:ControllerEvent) {
 		if(evt.data.state == true) {
-			if(state == ModelStates.IDLE) {
+			if(config['state'] == ModelStates.IDLE) {
 				current.load();
-			} else if(state != ModelStates.PAUSED) {
+			} else if(config['state'] != ModelStates.PAUSED) {
 				current.seek(playlist[config['item']]['start']);
 			} else {
 				current.play();
@@ -150,7 +148,7 @@ public class Model extends EventDispatcher {
 
 	/** Seek inside a file. **/
 	private function seekHandler(evt:ControllerEvent) {
-		if(state != ModelStates.IDLE) {
+		if(config['state'] != ModelStates.IDLE) {
 			current.seek(evt.data.position);
 		}
 	};
@@ -165,9 +163,9 @@ public class Model extends EventDispatcher {
 
 	/**  Dispatch events. State switch is saved. **/
 	public function sendEvent(typ:String,dat:Object) {
-		if(typ == ModelEvent.STATE && dat.newstate != state) {
-			dat.oldstate = state;
-			state = dat.newstate;
+		if(typ == ModelEvent.STATE && dat.newstate != config['state']) {
+			dat.oldstate = config['state'];
+			config['state'] = dat.newstate;
 			dispatchEvent(new ModelEvent(typ,dat));
 		} else if (typ != ModelEvent.STATE) {
 			dispatchEvent(new ModelEvent(typ,dat));

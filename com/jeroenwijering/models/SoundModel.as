@@ -144,13 +144,13 @@ public class SoundModel implements ModelInterface {
 		position = Math.round(channel.position/100)/10;
 		var dur = Math.round(sound.length*sound.bytesTotal/sound.bytesLoaded/100)/10;
 		if(sound.isBuffering == true) {
-			if(model.state != ModelStates.BUFFERING) {
+			if(model.config['state'] != ModelStates.BUFFERING) {
 				model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 			} else {
 				var pct = Math.floor(sound.length/(channel.position+model.config['bufferlength']*1000)*100);
 				model.sendEvent(ModelEvent.BUFFER,{percentage:pct});
 			}
-		} else if (model.state == ModelStates.BUFFERING && sound.isBuffering == false) {
+		} else if (model.config['state'] == ModelStates.BUFFERING && sound.isBuffering == false) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 		}
 		if(dur > position) {

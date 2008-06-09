@@ -191,10 +191,10 @@ public class VideoModel implements ModelInterface {
 		var dur = model.playlist[model.config['item']]['duration'];
 		if(bfr < 100 && pos < dur-stream.bufferTime-1) {
 			model.sendEvent(ModelEvent.BUFFER,{percentage:bfr});
-			if(model.state != ModelStates.BUFFERING) {
+			if(model.config['state'] != ModelStates.BUFFERING) {
 				model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 			}
-		} else if (model.state == ModelStates.BUFFERING) {
+		} else if (model.config['state'] == ModelStates.BUFFERING) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 		}
 		if( dur > 0) {

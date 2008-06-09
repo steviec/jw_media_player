@@ -240,7 +240,7 @@ public class HTTPModel implements ModelInterface {
 	/** Receive NetStream status updates. **/
 	private function statusHandler(evt:NetStatusEvent) {
 		if(evt.info.code == "NetStream.Play.Stop") {
-			if(model.state == ModelStates.COMPLETED) {
+			if(model.config['state'] == ModelStates.COMPLETED) {
 				stream.close();
 			} else { 
 				clearInterval(timeinterval);
@@ -272,10 +272,10 @@ public class HTTPModel implements ModelInterface {
 		var dur = model.playlist[model.config['item']]['duration'];
 		if(bfr < 100 && pos < Math.abs(dur-stream.bufferTime-1)) {
 			model.sendEvent(ModelEvent.BUFFER,{percentage:bfr});
-			if(model.state != ModelStates.BUFFERING) {
+			if(model.config['state'] != ModelStates.BUFFERING) {
 				model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 			}
-		} else if (model.state == ModelStates.BUFFERING) {
+		} else if (model.config['state'] == ModelStates.BUFFERING) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 		}
 		if(dur > 0) {

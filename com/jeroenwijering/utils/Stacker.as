@@ -46,8 +46,16 @@ public class Stacker {
 
 
 	/** Check if an child overlaps with others. **/
-	private function overlaps() { 
-		// working on this...
+	private function overlaps(idx:Number):Boolean { 
+		var min = stack[idx].x;
+		var max = stack[idx].x+stack[idx].w;
+		for (var i in stack) {
+			if(i!=idx && stack[i].c.visible==true && stack[i].n!='back' &&
+				stack[i].x < max && stack[i].x+stack[i].w > min) {
+				return true;
+			}
+		}
+		return false;
 	};
 
 
@@ -60,14 +68,41 @@ public class Stacker {
 		if(wid) { latest = wid; }
 		var rdf = latest-width;
 		var ldf = 0;
+		// first run through the entire stack, closing the gaps.
 		for(var i=0; i<stack.length; i++) {
-			if(stack[i].x > stack[0].w/2) { 
+			if(stack[i].x > width/2) {
 				stack[i].c.x = stack[i].x + rdf;
+				if(stack[i].c.visible == false && overlaps(i) == false) {
+					if(stack[i+1].x > stack[i].w+stack[i].x) {
+						rdf -= stack[i].w;
+					} else { 
+						rdf -= stack[i+1].x - stack[i].x;
+					}
+				}
 			} else {
-				stack[i].c.x = stack[i].x+ldf;
+				stack[i].c.x = stack[i].x-ldf;
+				if(stack[i].c.visible == false && overlaps(i) == false) {
+					if(stack[i+1].x > stack[i].w+stack[i].x) {
+						ldf += stack[i].w;
+					} else { 
+						ldf += stack[i+1].x - stack[i].x;
+					}
+				}
 			}
 			if(stack[i].w > width/3) {
 				stack[i].c.width = stack[i].w+rdf+ldf;
+			}
+		}
+		// if gaps were closed, move all rightside stuff to fill the width.
+		var dif = latest-width-rdf;
+		if(dif>0) {
+			for(var j=0; j<stack.length; j++) {
+				if(stack[j].x > width/2) {
+					stack[j].c.x += dif;
+				}
+				if(stack[j].w>width/3 && stack[j].n!='back') {
+					stack[j].c.width += dif;
+				}
 			}
 		}
 	};

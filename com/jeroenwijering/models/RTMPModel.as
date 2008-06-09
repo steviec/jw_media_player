@@ -11,8 +11,7 @@ import flash.display.DisplayObject;
 import flash.events.*;
 import flash.media.*;
 import flash.net.*;
-import flash.utils.clearInterval;
-import flash.utils.setInterval;
+import flash.utils.*;
 
 
 public class RTMPModel implements ModelInterface {
@@ -30,6 +29,8 @@ public class RTMPModel implements ModelInterface {
 	private var transform:SoundTransform;
 	/** Interval ID for the time. **/
 	private var timeinterval:Number;
+	/** Timeout ID for cleaning up idle streams. **/
+	private var timeout:Number;
 	/** Metadata received switch. **/
 	private var metadata:Boolean;
 
@@ -167,11 +168,13 @@ public class RTMPModel implements ModelInterface {
 		clearInterval(timeinterval);
 		stream.pause();
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PAUSED});
+		timeout = setTimeout(stop,10000);
 	};
 
 
 	/** Resume playing. **/
 	public function play() {
+		clearTimeout(timeout);
 		stream.resume();
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 		timeinterval = setInterval(timeHandler,100);
@@ -193,7 +196,7 @@ public class RTMPModel implements ModelInterface {
 	/** Change the smoothing mode. **/
 	public function seek(pos:Number) {
 		clearInterval(timeinterval);
-		if(model.state == ModelStates.PAUSED) {
+		if(model.config['state'] == ModelStates.PAUSED) {
 			stream.resume();
 		}
 		stream.seek(pos);
@@ -232,7 +235,7 @@ public class RTMPModel implements ModelInterface {
 	};
 
 
-	/** Destroy the videocamera. **/
+	/** Destroy the stream. **/
 	public function stop() {
 		clearInterval(timeinterval);
 		connection.close();
@@ -249,10 +252,10 @@ public class RTMPModel implements ModelInterface {
 		var dur = model.playlist[model.config['item']]['duration'];
 		if(bfr < 100 && pos < dur-stream.bufferTime-1) {
 			model.sendEvent(ModelEvent.BUFFER,{percentage:bfr});
-			if(model.state != ModelStates.BUFFERING) {
+			if(model.config['state'] != ModelStates.BUFFERING) {
 				model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 			}
-		} else if (model.state == ModelStates.BUFFERING) {
+		} else if (model.config['state'] == ModelStates.BUFFERING) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 		}
 		if(dur > 0) {

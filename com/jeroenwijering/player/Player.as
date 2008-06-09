@@ -47,7 +47,7 @@ public class Player extends MovieClip {
 		volume:80,
 
 		abouttext:"About JW Player 4.0...",
-		aboutlink:"http://www.jeroenwijering.com/?page=about",
+		aboutlink:"http://www.jeroenwijering.com/?page=player",
 		linktarget:'_self',
 		streamscript:undefined,
 		tracecall:undefined,
@@ -55,8 +55,8 @@ public class Player extends MovieClip {
 		client:undefined,
 		controlbarheight:20,
 		height:300,
-		state:'IDLE',
-		version:'4.0 r3',
+		state:undefined,
+		version:'4.0 r4',
 		width:400
 	};
 	/** Object that loads all configuration variables. **/
@@ -71,7 +71,7 @@ public class Player extends MovieClip {
 	private var _view:View;
 
 
-	/** Constructor; Loads config. **/
+	/** Constructor; Loads config parameters. **/
 	public function Player() {
 		configger = new Configger(this);
 		configger.addEventListener(Event.COMPLETE,configHandler);

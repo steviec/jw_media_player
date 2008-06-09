@@ -61,9 +61,20 @@ public class ControlbarView {
 	};
 
 
-	/** Handle clicks from all buttons **/
+	/** Handle clicks from all buttons. **/
 	private function clickHandler(evt:MouseEvent) {
 		view.sendEvent(BUTTONS[evt.target.name]);
+	};
+
+
+	/** Fix the timeline display. **/
+	private function fixTime() {
+		var scp = bar.timeSlider.scaleX;
+		bar.timeSlider.scaleX = 1;
+		bar.timeSlider.icon.x = Math.round(scp*bar.timeSlider.icon.x);
+		bar.timeSlider.mark.x = Math.round(scp*bar.timeSlider.mark.x);
+		bar.timeSlider.mark.width = Math.round(scp*bar.timeSlider.mark.width);
+		bar.timeSlider.rail.width = Math.round(scp*bar.timeSlider.rail.width);
 	};
 
 
@@ -79,6 +90,7 @@ public class ControlbarView {
 		} else { 
 			bar.linkButton.visible = false;
 		}
+		stacker.rearrange();
 	};
 
 
@@ -169,10 +181,11 @@ public class ControlbarView {
 			bar.fullscreenButton.visible = false;
 			bar.normalscreenButton.visible = true;
 		} else {
-			bar.fullscreenButton.visible = false;
-			bar.normalscreenButton.visible = true;
+			bar.fullscreenButton.visible = true;
+			bar.normalscreenButton.visible = false;
 		}
 		stacker.rearrange(wid);
+		fixTime();
 	};
 
 
@@ -204,7 +217,7 @@ public class ControlbarView {
 	private function stateHandler(evt:ModelEvent) {
 		switch(evt.data.newstate) { 
 			case ModelStates.PLAYING:
-				if(view.config['controlbar'] == 'over') {
+				if(view.config['controlbar'] == 'over' || bar.stage.displayState == 'fullScreen') {
 					hiding = setTimeout(moveTimeout,1000);
 					view.skin.addEventListener(MouseEvent.MOUSE_MOVE, moveHandler);
 				}
@@ -213,7 +226,7 @@ public class ControlbarView {
 				bar.pauseButton.visible = true;
 				break;
 			default: 
-				if(view.config['controlbar'] == 'over') {
+				if(view.config['controlbar'] == 'over' || bar.stage.displayState == 'fullScreen') {
 					clearTimeout(hiding);
 					Animations.fade(bar,1);
 					view.skin.removeEventListener(MouseEvent.MOUSE_MOVE, moveHandler);
@@ -228,10 +241,10 @@ public class ControlbarView {
 	/** Process time updates given by the model. **/
 	private function timeHandler(evt:ModelEvent) {
 		var dur = evt.data.duration;
-		bar.elapsedText.field.text = Strings.digits(evt.data.position);
-		bar.totalText.field.text = Strings.digits(evt.data.duration)
+		bar.elapsedText.text = Strings.digits(evt.data.position);
+		bar.totalText.text = Strings.digits(evt.data.duration)
 		var pct = evt.data.position/evt.data.duration;
-		var xps = Math.floor(pct*bar.timeSlider.rail.width);
+		var xps = Math.round(pct*bar.timeSlider.rail.width);
 		if (dur <= 0) {
 			bar.timeSlider.icon.visible = false;
 		} else {

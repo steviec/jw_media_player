@@ -6,6 +6,7 @@
 package com.jeroenwijering.utils {
 
 
+import com.jeroenwijering.utils.Draw;
 import flash.display.Loader;
 import flash.display.MovieClip;
 import flash.events.*;
@@ -28,7 +29,7 @@ public class Skinner extends EventDispatcher {
 	/**
 	* Constructor.
 	*
-	* @param skn	The MovieClip that contains the display, playlist and controlbar.
+	* @param skn	The player instance.
 	**/
 	public function Skinner(ply:MovieClip) {
 		player = ply;
@@ -51,7 +52,7 @@ public class Skinner extends EventDispatcher {
 				dispatchEvent(new Event(Event.COMPLETE));
 			}
 		} else {
-			skin = player['player'];
+			skin = player.root['player'];
 			dispatchEvent(new Event(Event.COMPLETE));
 		}
 	};
@@ -65,7 +66,14 @@ public class Skinner extends EventDispatcher {
 
 	/** SWF loading completed; add to stage and populate. **/
 	private function loaderHandler(evt:Event) {
-		var cnt = MovieClip(loader.content);
+		if(loader.content['player']) {
+			skin = MovieClip(loader.content['player']);
+			trace(loader.content['player']);
+		} else {
+			skin = MovieClip(loader.content);
+		}
+		Draw.clear(player);
+		player.addChild(skin);
 		/*
 		for(var i=0; i<cnt.numChildren; i++) {
 			var ncd = cnt.getChildAt(i);

@@ -24,19 +24,22 @@ public class Animations {
 	* @param end	The final alpha value.
 	* @param spd	The amount of alpha change per frame.
 	**/
-	public static function fade(tgt:MovieClip,end:Number,spd:Number=undefined) {
+	public static function fade(tgt:MovieClip,end:Number=undefined,spd:Number=undefined) {
 		if(arguments.length > 2) { 
-			Animations.speed = spd; 
+			tgt.speed = spd; 
+		} else { 
+			tgt.speed = Animations.speed;
 		}
 		if(arguments.length > 1) { 
-			Animations.end = end; 
+			tgt.end = end; 
+		} else { 
+			tgt.end = Animations.end;
 		}
-		if(tgt.alpha > Animations.end) {
-			Animations.speed = -Math.abs(Animations.speed);
+		if(tgt.alpha > tgt.end) {
+			tgt.speed = -Math.abs(tgt.speed);
 		} else {
-			Animations.speed = Math.abs(Animations.speed);
+			tgt.speed = Math.abs(tgt.speed);
 		}
-		tgt.visible = true;
 		tgt.addEventListener(Event.ENTER_FRAME,fadeHandler);
 	};
 
@@ -44,15 +47,16 @@ public class Animations {
 	/** The fade enterframe function. **/
 	private static function fadeHandler(evt:Event) {
 		var tgt = MovieClip(evt.target);
-		if((tgt.alpha >= Animations.end && Animations.speed > 0) ||
-			(tgt.alpha <= Animations.end && Animations.speed < 0)) {
+		if((tgt.alpha >= tgt.end && tgt.speed > 0) ||
+			(tgt.alpha <= tgt.end && tgt.speed < 0)) {
 			tgt.removeEventListener(Event.ENTER_FRAME,fadeHandler);
-			tgt.alpha = Animations.end;
-			if(Animations.end == 0) { 
+			tgt.alpha = tgt.end;
+			if(tgt.end == 0) { 
 				tgt.visible = false; 
 			}
 		} else {
-			tgt.alpha += Animations.speed;
+			tgt.visible = true;
+			tgt.alpha += tgt.speed;
 		}
 	};
 
