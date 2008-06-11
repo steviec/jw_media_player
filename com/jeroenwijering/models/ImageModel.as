@@ -10,6 +10,7 @@ import com.jeroenwijering.player.Model;
 import flash.display.Bitmap;
 import flash.display.Loader;
 import flash.events.*;
+import flash.media.SoundMixer;
 import flash.net.URLRequest;
 import flash.utils.clearInterval;
 import flash.utils.setInterval;
@@ -35,13 +36,12 @@ public class ImageModel implements ModelInterface {
 		loader.contentLoaderInfo.addEventListener(Event.COMPLETE,loaderHandler);
 		loader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS,progressHandler);
 		loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
-		position = model.playlist[model.config['item']]['start'];
-		model.sendEvent(ModelEvent.TIME,{position:position,duration:model.playlist[model.config['item']]['duration']});
 	};
 
 
 	/** load image into screen **/
 	public function load() {
+		position = model.playlist[model.config['item']]['start'];
 		loader.load(new URLRequest(model.playlist[model.config['item']]['file']));
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 		model.sendEvent(ModelEvent.BUFFER,{percentage:0});
@@ -103,6 +103,7 @@ public class ImageModel implements ModelInterface {
 
 	/** Stop the image interval. **/
 	public function stop() {
+		flash.media.SoundMixer.stopAll();
 		clearInterval(interval);
 		if(loader.contentLoaderInfo.bytesLoaded != loader.contentLoaderInfo.bytesTotal) { 
 			loader.close();
@@ -118,6 +119,7 @@ public class ImageModel implements ModelInterface {
 		var dur = model.playlist[model.config['item']]['duration'];
 		if(position >= dur && dur>0) {
 			clearInterval(interval);
+			flash.media.SoundMixer.stopAll();
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
 		} else if (dur>0) {
 			model.sendEvent(ModelEvent.TIME,{position:position,duration:dur});
@@ -126,7 +128,7 @@ public class ImageModel implements ModelInterface {
 
 
 	/** Volume setting **/
-	public function volume(pct:Number) {};
+	public function volume(pct:Number) { };
 
 
 };

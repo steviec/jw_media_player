@@ -60,7 +60,6 @@ public class HTTPModel implements ModelInterface {
 		stream.bufferTime = model.config['bufferlength'];
 		stream.client = this;
 		video = new Video(320,240);
-		video.attachNetStream(stream);
 		transform = new SoundTransform();
 		stream.soundTransform = transform;
 		model.config['mute'] == true ? volume(0): volume(model.config['volume']);
@@ -83,7 +82,7 @@ public class HTTPModel implements ModelInterface {
 			return 0;
 		}
 		for (var i=0; i< keyframes.times.length; i++) {
-			if(keyframes.times[i] <= pos && keyframes.times[i+1] >= pos) {
+			if((keyframes.times[i] <= pos || i ==0) && (keyframes.times[i+1] >= pos || !keyframes.times[i+1])) {
 				if(tme == true) {
 					off = keyframes.times[i];
 				} else { 
@@ -92,12 +91,14 @@ public class HTTPModel implements ModelInterface {
 				break;
 			}
 		}
+		trace(off);
 		return off;
 	};
 
 
 	/** Load content. **/
 	public function load() {
+		video.attachNetStream(stream);
 		stream.close();
 		var url = model.playlist[model.config['item']]['file'];
 		if(model.config["streamscript"] == "lighttpd") {
@@ -146,12 +147,20 @@ public class HTTPModel implements ModelInterface {
 	};
 
 
+	/** Handler for onLastSecond call. **/
+	public function onLastSecond(info:Object) { };
+
+
 	/** Get metadata information from netstream class. **/
 	public function onMetaData(info:Object) {
 		if(h264) { return; }
-		video.width = info.width;
-		video.height = info.height;
-		model.mediaHandler(video);
+		if(info.width) {
+			video.width = info.width;
+			video.height = info.height;
+			model.mediaHandler(video);
+		} else { 
+			model.mediaHandler();
+		}
 		if(info.seekpoints) {
 			h264 = true;
 			keyframes = new Object();
@@ -214,7 +223,9 @@ public class HTTPModel implements ModelInterface {
 			offset = off;
 			timeoffset = getOffset(pos,true);
 			load();
+			trace('===LOADING-===');
 		} else {
+			trace('===SEEKING===');
 			if(h264) {
 				stream.seek(pos-timeoffset);
 			} else { 
@@ -240,9 +251,7 @@ public class HTTPModel implements ModelInterface {
 	/** Receive NetStream status updates. **/
 	private function statusHandler(evt:NetStatusEvent) {
 		if(evt.info.code == "NetStream.Play.Stop") {
-			if(model.config['state'] == ModelStates.COMPLETED) {
-				stream.close();
-			} else { 
+			if(model.config['state'] != ModelStates.COMPLETED) { 
 				clearInterval(timeinterval);
 				model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
 			}
@@ -250,8 +259,9 @@ public class HTTPModel implements ModelInterface {
 			stop();
 			model.sendEvent(ModelEvent.ERROR,{message:"Video stream not found: " + 
 				model.playlist[model.config['item']]['file']});
+		} else { 
+			model.sendEvent(ModelEvent.META,{info:evt.info.code});
 		}
-		model.sendEvent(ModelEvent.META,{info:evt.info.code});
 	};
 
 

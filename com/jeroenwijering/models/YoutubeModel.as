@@ -24,7 +24,8 @@ public class YoutubeModel implements ModelInterface {
 	/** Reference to the Model **/
 	private var model:Model;
 	/** Location of the YT proxy **/
-	private var proxy:String = "http://www.jeroenwijering.com/embed/yt.swf";
+	//private var proxy:String = "http://www.jeroenwijering.com/embed/yt.swf";
+	private var proxy:String = "../misc/yt.swf";
 	/** Loader for loading the YouTube proxy **/
 	private var loader:Loader;
 	/** Connection towards the YT proxy. **/
@@ -127,10 +128,12 @@ public class YoutubeModel implements ModelInterface {
 	public function onStateChange(stt:Number) {
 		switch(Number(stt)) {
 			case -1:
-				model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
+				// model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
 				break;
 			case 0:
-				model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
+				if(model.config['state'] != ModelStates.BUFFERING && model.config['state'] != ModelStates.IDLE) {
+					model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
+				}
 				break;
 			case 1:
 				model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
@@ -140,6 +143,7 @@ public class YoutubeModel implements ModelInterface {
 				break;
 			case 3:
 				model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
+				model.sendEvent(ModelEvent.BUFFER,{percentage:0});
 				break;
 		}
 	};
@@ -174,14 +178,7 @@ public class YoutubeModel implements ModelInterface {
 
 	/** Destroy the youtube video. **/
 	public function stop() {
-		inbound.close();
-		outgoing.send("_AS3_to_AS2","setVolume",0);
 		outgoing.send("_AS3_to_AS2","stopVideo");
-		if(loader.contentLoaderInfo.bytesLoaded != loader.contentLoaderInfo.bytesTotal) { 
-			loader.close();
-		} else { 
-			setTimeout(loader.unload,200);
-		}
 	};
 
 

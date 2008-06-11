@@ -42,9 +42,9 @@ public class RTMPModel implements ModelInterface {
 		connection.addEventListener(SecurityErrorEvent.SECURITY_ERROR,errorHandler);
 		connection.objectEncoding = ObjectEncoding.AMF0;
 		video = new Video(320,240);
+		quality(model.config['quality']);
 		transform = new SoundTransform();
 		model.config['mute'] == true ? volume(0): volume(model.config['volume']);
-		quality(model.config['quality']);
 	};
 
 
@@ -124,9 +124,13 @@ public class RTMPModel implements ModelInterface {
 	public function onMetaData(info:Object) {
 		if(!metadata) {
 			metadata = true;
-			video.width = info.width;
-			video.height = info.height;
-			model.mediaHandler(video);
+			if(info.width) {
+				video.width = info.width;
+				video.height = info.height;
+				model.mediaHandler(video);
+			} else { 
+				model.mediaHandler();
+			}
 			var dat = new Object();
 			for(var i in info) { 
 				dat[i] = info[i];
@@ -237,10 +241,11 @@ public class RTMPModel implements ModelInterface {
 
 	/** Destroy the stream. **/
 	public function stop() {
+		metadata = false;
 		clearInterval(timeinterval);
 		connection.close();
+		stream.close();
 		video.attachNetStream(null);
-		video.clear();
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
 	};
 
@@ -250,7 +255,7 @@ public class RTMPModel implements ModelInterface {
 		var bfr = Math.round(stream.bufferLength/stream.bufferTime*100);
 		var pos = Math.round(stream.time*10)/10;
 		var dur = model.playlist[model.config['item']]['duration'];
-		if(bfr < 100 && pos < dur-stream.bufferTime-1) {
+		if(bfr < 100 && pos < Math.abs(dur-stream.bufferTime-1)) {
 			model.sendEvent(ModelEvent.BUFFER,{percentage:bfr});
 			if(model.config['state'] != ModelStates.BUFFERING) {
 				model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});

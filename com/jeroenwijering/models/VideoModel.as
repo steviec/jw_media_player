@@ -33,6 +33,8 @@ public class VideoModel implements ModelInterface {
 	private var timeinterval:Number;
 	/** Interval ID for the loading. **/
 	private var loadinterval:Number;
+	/** Metadata received switch. **/
+	private var metadata:Boolean;
 
 
 	/** Constructor; sets up the connection and display. **/
@@ -49,15 +51,10 @@ public class VideoModel implements ModelInterface {
 		stream.bufferTime = model.config['bufferlength'];
 		stream.client = this;
 		video = new Video(320,240);
-		video.attachNetStream(stream);
 		transform = new SoundTransform();
 		stream.soundTransform = transform;
 		quality(model.config['quality']);
 		model.config['mute'] == true ? volume(0): volume(model.config['volume']);
-		model.sendEvent(ModelEvent.TIME,{
-			position:model.playlist[model.config['item']]['start'],
-			duration:model.playlist[model.config['item']]['duration']
-		});
 	};
 
 
@@ -69,6 +66,7 @@ public class VideoModel implements ModelInterface {
 
 	/** Load content. **/
 	public function load() {
+		video.attachNetStream(stream);
 		stream.play(model.playlist[model.config['item']]['file']);
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 		loadinterval = setInterval(loadHandler,100);
@@ -97,16 +95,25 @@ public class VideoModel implements ModelInterface {
 	};
 
 
+	/** Handler for onLastSecond call. **/
+	public function onLastSecond(info:Object) { };
+
+
 	/** Get metadata information from netstream class. **/
 	public function onMetaData(info:Object) {
-		video.width = info.width;
-		video.height = info.height;
-		model.mediaHandler(video);
-		var dat = new Object();
-		for(var i in info) { 
-			dat[i] = info[i];
+		if(!metadata) {
+			metadata = true;
+			if(info.width) {
+				video.width = info.width;
+				video.height = info.height;
+				model.mediaHandler(video);
+			} else { 
+				model.mediaHandler();
+			}
+			var dat = new Object();
+			for(var i in info) { dat[i] = info[i]; }
+			model.sendEvent(ModelEvent.META,dat);
 		}
-		model.sendEvent(ModelEvent.META,dat);
 	};
 
 
@@ -160,10 +167,6 @@ public class VideoModel implements ModelInterface {
 	private function statusHandler(evt:NetStatusEvent) {
 		if(evt.info.code == "NetStream.Play.Stop") {
 			clearInterval(timeinterval);
-			model.sendEvent(ModelEvent.TIME,{
-				position:model.playlist[model.config['item']]['start'],
-				duration:model.playlist[model.config['item']]['duration']
-			});
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
 		} else if (evt.info.code == "NetStream.Play.StreamNotFound") {
 			stop();
@@ -175,9 +178,10 @@ public class VideoModel implements ModelInterface {
 
 	/** Destroy the videocamera. **/
 	public function stop() {
+		metadata = false;
 		clearInterval(loadinterval);
 		clearInterval(timeinterval);
-		stream.pause();
+		stream.close();
 		video.attachNetStream(null);
 		video.clear();
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
@@ -189,7 +193,7 @@ public class VideoModel implements ModelInterface {
 		var bfr = Math.round(stream.bufferLength/stream.bufferTime*100);
 		var pos = Math.round(stream.time*10)/10;
 		var dur = model.playlist[model.config['item']]['duration'];
-		if(bfr < 100 && pos < dur-stream.bufferTime-1) {
+		if(bfr < 100 && pos < Math.abs(dur-stream.bufferTime-1)) {
 			model.sendEvent(ModelEvent.BUFFER,{percentage:bfr});
 			if(model.config['state'] != ModelStates.BUFFERING) {
 				model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
@@ -197,7 +201,7 @@ public class VideoModel implements ModelInterface {
 		} else if (model.config['state'] == ModelStates.BUFFERING) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 		}
-		if( dur > 0) {
+		if(dur > 0) {
 			model.sendEvent(ModelEvent.TIME,{position:pos,duration:dur});
 		}
 	};

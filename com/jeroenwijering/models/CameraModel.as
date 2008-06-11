@@ -41,7 +41,6 @@ public class CameraModel implements ModelInterface {
 			camera = Camera.getCamera();
 			microphone = Microphone.getMicrophone();
 			video = new Video(320,240);
-			model.mediaHandler(video);
 		} catch(err:Error) {
 			model.sendEvent(ModelEvent.ERROR,{message:'No webcam found on this computer.'});
 		}
@@ -93,6 +92,7 @@ public class CameraModel implements ModelInterface {
 	public function load() {
 		var url = model.playlist[model.config['item']]['file'];
 		position = model.playlist[model.config['item']]['start'];
+		model.mediaHandler(video);
 		if(url.indexOf('rtmp://') == 0) {
 			connection.connect(getStream(url));
 		} else { 
@@ -164,7 +164,6 @@ public class CameraModel implements ModelInterface {
 	private function statusHandler(evt:NetStatusEvent) {
 		if(evt.info.code == "NetConnection.Connect.Success") {
 			stream = new NetStream(connection);
-			stream.bufferTime = model.config['bufferlength'];
 			stream.addEventListener(NetStatusEvent.NET_STATUS,statusHandler);
 			play();
 		}

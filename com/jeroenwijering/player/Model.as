@@ -24,10 +24,18 @@ public class Model extends EventDispatcher {
 	public var skin:MovieClip;
 	/** Reference to the player's controller. **/
 	private var controller:Controller;
+	/** The list with all active models. **/
+	private var models:Object = {};
 	/** Currently active model. **/
-	private var current:Object;
+	private var currentModel:String;
+	/** Currently active mediafile. **/
+	private var currentURL:String;
+	/** Currently active thumbnail. **/
+	private var currentThumb:String;
 	/** Loader for the preview image. **/
 	private var loader:Loader;
+	/** show thumbnails (in case of audio). **/
+	private var showthumb:Boolean;
 
 
 	/** Constructor, save arrays and set currentItem. **/
@@ -38,6 +46,7 @@ public class Model extends EventDispatcher {
 		controller.addEventListener(ControllerEvent.ITEM,itemHandler);
 		controller.addEventListener(ControllerEvent.MUTE,muteHandler);
 		controller.addEventListener(ControllerEvent.PLAY,playHandler);
+		controller.addEventListener(ControllerEvent.PLAYLIST,playlistHandler);
 		controller.addEventListener(ControllerEvent.QUALITY,qualityHandler);
 		controller.addEventListener(ControllerEvent.RESIZE,resizeHandler);
 		controller.addEventListener(ControllerEvent.SEEK,seekHandler);
@@ -50,92 +59,115 @@ public class Model extends EventDispatcher {
 
 	/** Item change: switch the curently active model if there's a new URL **/
 	private function itemHandler(evt:ControllerEvent) {
-		skin.display.media.visible = false;
-		if(current) { current.stop(); }
-		sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
-		switch(playlist[evt.data.index]['type']) {
+		var typ = playlist[evt.data.index]['type'];
+		var url = playlist[evt.data.index]['file'];
+		if(models[typ] && typ == currentModel) {
+			if(url == currentURL && typ != 'rtmp') {
+				trace('seeking');
+				models[typ].seek(playlist[evt.data.index]['start']);
+			} else {
+				trace('loading');
+				models[typ].load();
+				currentURL = url;
+			}
+		} else {
+			if (currentModel) {
+				trace('stopping');
+				stopHandler();
+			}
+			if(!models[typ]) { 
+				trace('initing');
+				loadModel(typ); 
+			}
+			trace('loading new');
+			models[typ].load();
+			currentModel = typ;
+			currentURL = url;
+		}
+		thumbLoader();
+	};
+
+
+	/** Setup a new model. **/
+	private function loadModel(typ:String) {
+		switch(typ) {
 			case 'camera':
-				current = new CameraModel(this);
+				models[typ] = new CameraModel(this);
 				break;
 			case 'image':
-				current = new ImageModel(this);
+				models[typ] = new ImageModel(this);
 				break;
 			case 'rtmp':
-				current = new RTMPModel(this);
+				models[typ] = new RTMPModel(this);
 				break;
 			case 'sound':
-				current = new SoundModel(this);
+				models[typ] = new SoundModel(this);
 				break;
 			case 'video':
 				if(config['streamscript']) {
-					current = new HTTPModel(this);
+					models[typ] = new HTTPModel(this);
 				} else {
-					current = new VideoModel(this);
+					models[typ] = new VideoModel(this);
 				}
 				break;
 			case 'youtube':
-				current = new YoutubeModel(this);
+				models[typ] = new YoutubeModel(this);
 				break;
 		}
-		if(playlist[evt.data.index]['image']) {
-			skin.display.thumb.visible = true;
-			loader.load(new URLRequest(playlist[evt.data.index]['image']));
-		} else {
-			skin.display.thumb.visible = false;
-		}
 	};
-
-
-	/** Place a loaded thumb on stage. **/
-	private function thumbHandler(evt:Event) {
-		var obj = skin.display.thumb;
-		Draw.clear(obj);
-		obj.addChild(loader);
-		Bitmap(loader.content).smoothing = config['quality'];
-		Stretcher.stretch(obj,config['width'],config['height'],config['stretching']);
-	};
-
 
 	/** Place a loaded mediafile on stage **/
-	public function mediaHandler(chd:DisplayObject) {
+	public function mediaHandler(chd:DisplayObject=undefined) {
 		var obj = skin.display.media;
 		Draw.clear(obj);
-		obj.addChild(chd);
-		Stretcher.stretch(obj,config['width'],config['height'],config['stretching']);
-		skin.display.thumb.visible = false;
-		skin.display.media.visible = true;
+		if(chd) { 
+			showthumb = false;
+			obj.addChild(chd);
+			Stretcher.stretch(obj,config['width'],config['height'],config['stretching']);
+		} else { 
+			skin.display.thumb.visible = true;
+			skin.display.media.visible = false;
+			showthumb = true;
+		}
 	};
 
 
 	/** Load the configuration array. **/
 	private function muteHandler(evt:ControllerEvent) {
-		if(current && evt.data.state == true) {
-			current.volume(0); 
-		} else if(current && evt.data.state == false) {
-			current.volume(config['volume']);
+		if(currentModel && evt.data.state == true) {
+			models[currentModel].volume(0); 
+		} else if(currentModel && evt.data.state == false) {
+			models[currentModel].volume(config['volume']);
 		}
 	};
 
 
 	/** Togge the playback state. **/
 	private function playHandler(evt:ControllerEvent) {
-		if(evt.data.state == true) {
-			if(config['state'] == ModelStates.IDLE) {
-				current.load();
-			} else if(config['state'] != ModelStates.PAUSED) {
-				current.seek(playlist[config['item']]['start']);
-			} else {
-				current.play();
-			}
+		if(currentModel && evt.data.state == true) {
+			models[currentModel].play();
 		} else { 
-			current.pause();
+			models[currentModel].pause();
 		}
+	};
+
+
+	/** Send an idle with new playlist. **/
+	private function playlistHandler(evt:ControllerEvent) {
+		if(currentModel) {
+			stopHandler();
+		} else { 
+			sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
+		}
+		thumbLoader();
 	};
 
 
 	/** Toggle the playback quality. **/
 	private function qualityHandler(evt:ControllerEvent) {
-		current.quality(evt.data.state);
+		if(currentModel) {
+			models[currentModel].quality(evt.data.state);
+		}
 	};
 
 
@@ -148,15 +180,19 @@ public class Model extends EventDispatcher {
 
 	/** Seek inside a file. **/
 	private function seekHandler(evt:ControllerEvent) {
-		if(config['state'] != ModelStates.IDLE) {
-			current.seek(evt.data.position);
+		if(currentModel) {
+			models[currentModel].seek(evt.data.position);
 		}
 	};
 
 
 	/** Load the configuration array. **/
-	private function stopHandler(evt:ControllerEvent) {
-		current.stop();
+	private function stopHandler(evt:ControllerEvent=undefined) {
+		currentURL = undefined;
+		if(currentModel) {
+			models[currentModel].stop();
+		}
+		sendEvent(ModelEvent.LOADED,{loaded:0,total:0});
 		sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
 	};
 
@@ -164,6 +200,17 @@ public class Model extends EventDispatcher {
 	/**  Dispatch events. State switch is saved. **/
 	public function sendEvent(typ:String,dat:Object) {
 		if(typ == ModelEvent.STATE && dat.newstate != config['state']) {
+			if(dat.newstate == ModelStates.IDLE || dat.newstate == ModelStates.COMPLETED) {
+				skin.display.thumb.visible = true;
+				skin.display.media.visible = false;
+				sendEvent(ModelEvent.TIME,{
+					position:playlist[config['item']]['start'],
+					duration:playlist[config['item']]['duration']
+				});
+			} else if (showthumb == false) {
+				skin.display.thumb.visible = false;
+				skin.display.media.visible = true;
+			}
 			dat.oldstate = config['state'];
 			config['state'] = dat.newstate;
 			dispatchEvent(new ModelEvent(typ,dat));
@@ -173,14 +220,40 @@ public class Model extends EventDispatcher {
 	};
 
 
+	/** Load a thumb on stage. **/
+	private function thumbLoader() {
+		var img = playlist[config['item']]['image'];
+		if(currentThumb != img) {
+			if(img) {
+				loader.load(new URLRequest(img));
+				currentThumb = img;
+			} else {
+				Draw.clear(skin.display.thumb);
+				currentThumb = undefined;
+			}
+		}
+	};
+
+	/** Place a loaded thumb on stage. **/
+	private function thumbHandler(evt:Event) {
+		var obj = skin.display.thumb;
+		Draw.clear(obj);
+		obj.addChild(loader);
+		Bitmap(loader.content).smoothing = config['quality'];
+		Stretcher.stretch(obj,config['width'],config['height'],config['stretching']);
+	};
+
+
 	/** Load the configuration array. **/
 	private function volumeHandler(evt:ControllerEvent) {
-		current.volume(evt.data.percentage);
+		if(currentModel) {
+			models[currentModel].volume(evt.data.percentage);
+		}
 	};
 
 
 	/** Getter for the playlist **/
-	public function get playlist():Array { 
+	public function get playlist():Array {
 		return controller.playlist;
 	};
 

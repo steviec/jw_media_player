@@ -38,16 +38,9 @@ public class SoundModel implements ModelInterface {
 	/** Constructor; sets up the connection and display. **/
 	public function SoundModel(mod:Model) {
 		model = mod;
-		sound = new Sound();
-		sound.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
-		sound.addEventListener(ProgressEvent.PROGRESS,progressHandler);
-		sound.addEventListener(Event.ID3,id3Handler);
 		transform = new SoundTransform();
 		model.config['mute'] == true ? volume(0): volume(model.config['volume']);
 		context = new SoundLoaderContext(model.config['bufferlength']*1000);
-		position = model.playlist[model.config['item']]['start'];
-		duration = model.playlist[model.config['item']]['duration'];
-		model.sendEvent(ModelEvent.TIME,{position:position,duration:duration});
 	};
 
 
@@ -85,8 +78,14 @@ public class SoundModel implements ModelInterface {
 
 	/** Load the sound. **/
 	public function load() {
-		var req = new URLRequest(model.playlist[model.config['item']]['file']);
-		sound.load(req,context);
+		position = model.playlist[model.config['item']]['start'];
+		duration = model.playlist[model.config['item']]['duration'];
+		sound = new Sound();
+		sound.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
+		sound.addEventListener(ProgressEvent.PROGRESS,progressHandler);
+		sound.addEventListener(Event.ID3,id3Handler);
+		sound.load(new URLRequest(model.playlist[model.config['item']]['file']),context);
+		model.mediaHandler();
 		play();
 	};
 
@@ -102,6 +101,7 @@ public class SoundModel implements ModelInterface {
 	/** Play the sound. **/
 	public function play() {
 		channel = sound.play(position*1000,0,transform);
+		channel.removeEventListener(Event.SOUND_COMPLETE,completeHandler);
 		channel.addEventListener(Event.SOUND_COMPLETE,completeHandler);
 		interval = setInterval(timeHandler,100);
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
@@ -133,9 +133,7 @@ public class SoundModel implements ModelInterface {
 	public function stop() {
 		clearInterval(interval);
 		if(channel) { channel.stop(); }
-		if(sound.bytesLoaded != sound.bytesTotal) { 
-			sound.close();
-		}
+		if(sound.bytesLoaded != sound.bytesTotal) { sound.close(); }
 	};
 
 

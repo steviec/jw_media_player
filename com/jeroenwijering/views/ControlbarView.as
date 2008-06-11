@@ -47,13 +47,13 @@ public class ControlbarView {
 		stacker = new Stacker(bar);
 		setButtons();
 		view.addControllerListener(ControllerEvent.ITEM,itemHandler);
+		view.addControllerListener(ControllerEvent.PLAYLIST,itemHandler);
 		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
 		view.addModelListener(ModelEvent.LOADED,loadedHandler);
 		loadedHandler(new ModelEvent(ModelEvent.LOADED,{loaded:0,total:0}));
 		view.addModelListener(ModelEvent.STATE,stateHandler);
 		stateHandler(new ModelEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE}));
 		view.addModelListener(ModelEvent.TIME,timeHandler);
-		timeHandler(new ModelEvent(ModelEvent.TIME,{position:0,duration:0}));
 		if(bar['muteButton']) { 
 			view.addControllerListener(ControllerEvent.MUTE,muteHandler);
 			muteHandler(new ControllerEvent(ControllerEvent.MUTE,{state:view.config['mute']}));
@@ -84,7 +84,7 @@ public class ControlbarView {
 
 	/** Handle a change in the current item **/
 	private function itemHandler(evt:ControllerEvent) {
-		if(bar['prevButton'] && bar['nextButton']) { 
+		if(bar['prevButton'] && bar['nextButton']) {
 			if(view.playlist.length > 1) { 
 				bar.prevButton.visible = bar.nextButton.visible = true;
 			} else {
@@ -99,6 +99,7 @@ public class ControlbarView {
 			}
 		}
 		stacker.rearrange();
+		fixTime();
 	};
 
 
@@ -210,20 +211,20 @@ public class ControlbarView {
 				bar[itm].addEventListener(MouseEvent.MOUSE_OUT, outHandler);
 			}
 		}
-		try {
+		if(bar.timeSlider) {
 			bar.timeSlider.mouseChildren = false;
 			bar.timeSlider.buttonMode = true;
 			bar.timeSlider.addEventListener(MouseEvent.MOUSE_DOWN,timedownHandler);
 			bar.timeSlider.addEventListener(MouseEvent.MOUSE_OUT,timeoutHandler);
 			bar.timeSlider.addEventListener(MouseEvent.MOUSE_OVER,timeoverHandler);
-		} catch (err:Error) {}
-		try {
+		} 
+		if(bar.volumeSlider) {
 			bar.volumeSlider.mouseChildren = false;
 			bar.volumeSlider.buttonMode = true;
 			bar.volumeSlider.addEventListener(MouseEvent.MOUSE_DOWN,volumedownHandler);
 			bar.volumeSlider.addEventListener(MouseEvent.MOUSE_OUT,volumeoutHandler);
 			bar.volumeSlider.addEventListener(MouseEvent.MOUSE_OVER,volumeoverHandler);
-		} catch (err:Error) {}
+		}
 	};
 
 
@@ -236,8 +237,10 @@ public class ControlbarView {
 					view.skin.addEventListener(MouseEvent.MOUSE_MOVE, moveHandler);
 				}
 			case ModelStates.BUFFERING:
-				bar.playButton.visible = false;
-				bar.pauseButton.visible = true;
+				if(bar.playButton && bar.pauseButton) {
+					bar.playButton.visible = false;
+					bar.pauseButton.visible = true;
+				}
 				break;
 			default: 
 				if(view.config['controlbar'] == 'over' || bar.stage.displayState == 'fullScreen') {
@@ -245,8 +248,10 @@ public class ControlbarView {
 					Animations.fade(bar,1);
 					view.skin.removeEventListener(MouseEvent.MOUSE_MOVE, moveHandler);
 				}
-				bar.playButton.visible = true;
-				bar.pauseButton.visible = false;
+				if(bar.playButton && bar.pauseButton) {
+					bar.playButton.visible = true;
+					bar.pauseButton.visible = false;
+				}
 				break;
 		}
 	}
@@ -255,19 +260,43 @@ public class ControlbarView {
 	/** Process time updates given by the model. **/
 	private function timeHandler(evt:ModelEvent) {
 		var dur = evt.data.duration;
-		if(bar.elapsedText) {
-			bar.elapsedText.text = Strings.digits(evt.data.position);
-		}
-		if(evt.data.duration > 0 && bar.totalText) { 
-			bar.totalText.text = Strings.digits(evt.data.duration);
-		}
+		var pos = evt.data.position;
 		var pct = evt.data.position/evt.data.duration;
-		var xps = Math.round(pct*bar.timeSlider.rail.width);
-		if (dur <= 0) {
-			bar.timeSlider.icon.visible = false;
-		} else {
-			bar.timeSlider.icon.visible = true;
-			bar.timeSlider.icon.x = xps;
+		var chg = false;
+		if(bar.elapsedText) {
+			if(dur > 0) {
+				if(bar.elapsedText.visible == false) {
+					bar.elapsedText.visible = true;
+					chg = true;
+				}
+				bar.elapsedText.text = Strings.digits(pos);
+			} else if(bar.elapsedText.visible == true) {
+				bar.elapsedText.visible = false;
+				chg = true;
+			}
+		}
+		if(bar.totalText) {
+			if(dur > 0) { 
+				bar.totalText.visible = true;
+				bar.totalText.text = Strings.digits(dur);
+			} else if (bar.totalText.visible == true) {
+				bar.totalText.visible = false;
+			}
+		}
+		if(bar.timeSlider) {
+			var xps = Math.round(pct*bar.timeSlider.rail.width);
+			if (dur > 0) {
+				bar.timeSlider.icon.visible = true;
+				bar.timeSlider.mark.visible = true;
+				bar.timeSlider.icon.x = xps;
+			} else {
+				bar.timeSlider.icon.visible = false;
+				bar.timeSlider.mark.visible = false;
+			}
+		}
+		if(chg) {
+			stacker.rearrange();
+			fixTime();
 		}
 	};
 

@@ -27,7 +27,7 @@ public class Controller extends EventDispatcher {
 	private var model:Model;
 	/** Reference to the player's view. **/
 	private var view:View;
-	/** object that povides randomization. **/
+	/** object that provides randomization. **/
 	private var randomizer:Randomizer;
 
 
@@ -174,38 +174,36 @@ public class Controller extends EventDispatcher {
 	};
 
 
-	/** change the playback state. **/
+	/** Change the playback state. **/
 	private function playHandler(evt:ViewEvent) {
-		if(evt.data.state) {
-			dispatchEvent(new ControllerEvent(ControllerEvent.PLAY,{state:evt.data.state}));
-		} else if(config['state'] == ModelStates.PLAYING || config['state'] == ModelStates.BUFFERING) {
-			dispatchEvent(new ControllerEvent(ControllerEvent.PLAY,{state:false}));
-		} else { 
+		if(evt.data.state != false && config['state'] == ModelStates.PAUSED) {
 			dispatchEvent(new ControllerEvent(ControllerEvent.PLAY,{state:true}));
-		}
+		} else if (evt.data.state != false && config['state'] == ModelStates.COMPLETED) {
+			dispatchEvent(new ControllerEvent(ControllerEvent.SEEK,{position:playlist[config['item']]['start']}));
+		} else if(evt.data.state != false && config['state'] == ModelStates.IDLE) {
+			playItem();
+		} else if (evt.data.state != true && (config['state'] == ModelStates.PLAYING || config['state'] == ModelStates.BUFFERING)) {
+			dispatchEvent(new ControllerEvent(ControllerEvent.PLAY,{state:false}));
+		} 
 	};
 
 
 	/** Direct the model to play a new item. **/
-	private function playItem(nbr:Number) {
-		if(config['item'] != nbr) {
-			config['item'] = nbr;
-			dispatchEvent(new ControllerEvent(ControllerEvent.ITEM,{index:config['item']}));
-		}
-		dispatchEvent(new ControllerEvent(ControllerEvent.PLAY,{state:true}));
+	private function playItem(nbr:Number=undefined) {
+		if(nbr > -1) { config['item'] = nbr; }
+		dispatchEvent(new ControllerEvent(ControllerEvent.ITEM,{index:config['item']}));
 	};
 
 
-	/** Manage playback state changes **/
+	/** Manage loading of a new playlist. **/
 	private function playlistHandler(evt:Event) {
 		dispatchEvent(new ControllerEvent(ControllerEvent.PLAYLIST,{playlist:playlist}));
 		if(config['shuffle'] == true) {
 			randomizer = new Randomizer(playlist.length);
 			config['item'] = randomizer.pick();
 		}
-		dispatchEvent(new ControllerEvent(ControllerEvent.ITEM,{index:config['item']}));
 		if(config['autostart'] == true) {
-			dispatchEvent(new ControllerEvent(ControllerEvent.PLAY,{state:true}));
+			playItem();
 		}
 	};
 
@@ -263,22 +261,27 @@ public class Controller extends EventDispatcher {
 
 	/** Seek to a specific part in a mediafile. **/
 	private function seekHandler(evt:ViewEvent) {
-		if(playlist[config['item']]['author'] == 'commercial') { return; }
-		var pos = evt.data.position;
-		if(pos < 2) { pos = 0; }
-		if(playlist[config['item']]['duration'] > 0) {
+		if(playlist[config['item']]['author'] != 'commercial' &&
+			config['state'] != ModelStates.IDLE && 
+			playlist[config['item']]['duration'] > 0) {
+			var pos = evt.data.position;
+			if(pos < 2) { 
+				pos = 0;
+			} else if (pos > playlist[config['item']]['duration']-2) { 
+				pos = playlist[config['item']]['duration']-2;
+			}
 			dispatchEvent(new ControllerEvent(ControllerEvent.SEEK,{position:pos}));
 		}
 	};
 
 
-	/** Stop all playback and bufering. **/
+	/** Stop all playback and buffering. **/
 	private function stopHandler(evt:ViewEvent) {
 		dispatchEvent(new ControllerEvent(ControllerEvent.STOP));
 	};
 
 
-	/** Manage playback state changes **/
+	/** Manage playback state changes. **/
 	private function stateHandler(evt:ModelEvent) {
 		if(evt.data.newstate == ModelStates.COMPLETED && (config['repeat'] == true ||
 			(config['shuffle'] == true && randomizer.length > 0) || 

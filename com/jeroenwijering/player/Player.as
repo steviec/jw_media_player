@@ -22,7 +22,7 @@ public class Player extends MovieClip {
 		duration:0,
 		file:undefined,
 		image:undefined,
-		link:undefined,
+		link:'http://www.jeroenwijering.com/',
 		start:0,
 		title:undefined,
 		type:undefined,
@@ -56,7 +56,7 @@ public class Player extends MovieClip {
 		controlbarheight:20,
 		height:300,
 		state:undefined,
-		version:'4.0 r4',
+		version:'4.0 r8',
 		width:400
 	};
 	/** Object that loads all configuration variables. **/
