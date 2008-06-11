@@ -61,25 +61,21 @@ public class Model extends EventDispatcher {
 	private function itemHandler(evt:ControllerEvent) {
 		var typ = playlist[evt.data.index]['type'];
 		var url = playlist[evt.data.index]['file'];
+		trace(playlist[evt.data.index]['start']);
 		if(models[typ] && typ == currentModel) {
 			if(url == currentURL && typ != 'rtmp') {
-				trace('seeking');
 				models[typ].seek(playlist[evt.data.index]['start']);
 			} else {
-				trace('loading');
 				models[typ].load();
 				currentURL = url;
 			}
 		} else {
 			if (currentModel) {
-				trace('stopping');
 				stopHandler();
 			}
 			if(!models[typ]) { 
-				trace('initing');
 				loadModel(typ); 
 			}
-			trace('loading new');
 			models[typ].load();
 			currentModel = typ;
 			currentURL = url;

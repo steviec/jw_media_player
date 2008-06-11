@@ -56,7 +56,7 @@ public class Player extends MovieClip {
 		controlbarheight:20,
 		height:300,
 		state:undefined,
-		version:'4.0 r8',
+		version:'4.0 r9',
 		width:400
 	};
 	/** Object that loads all configuration variables. **/
