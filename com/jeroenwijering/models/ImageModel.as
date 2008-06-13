@@ -41,6 +41,7 @@ public class ImageModel implements ModelInterface {
 
 	/** load image into screen **/
 	public function load() {
+		clearInterval(interval);
 		position = model.playlist[model.config['item']]['start'];
 		loader.load(new URLRequest(model.playlist[model.config['item']]['file']));
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});

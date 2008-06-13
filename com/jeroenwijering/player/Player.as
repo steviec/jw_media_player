@@ -22,7 +22,7 @@ public class Player extends MovieClip {
 		duration:0,
 		file:undefined,
 		image:undefined,
-		link:'http://www.jeroenwijering.com/',
+		link:undefined,
 		start:0,
 		title:undefined,
 		type:undefined,
@@ -43,7 +43,7 @@ public class Player extends MovieClip {
 		quality:true,
 		repeat:false,
 		shuffle:false,
-		stretching:'fill',
+		stretching:'uniform',
 		volume:80,
 
 		abouttext:"About JW Player 4.0...",
@@ -56,7 +56,7 @@ public class Player extends MovieClip {
 		controlbarheight:20,
 		height:300,
 		state:undefined,
-		version:'4.0 r9',
+		version:'4.0 r10',
 		width:400
 	};
 	/** Object that loads all configuration variables. **/

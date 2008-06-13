@@ -60,6 +60,7 @@ public class HTTPModel implements ModelInterface {
 		stream.bufferTime = model.config['bufferlength'];
 		stream.client = this;
 		video = new Video(320,240);
+		video.attachNetStream(stream);
 		transform = new SoundTransform();
 		stream.soundTransform = transform;
 		model.config['mute'] == true ? volume(0): volume(model.config['volume']);
@@ -98,7 +99,6 @@ public class HTTPModel implements ModelInterface {
 
 	/** Load content. **/
 	public function load() {
-		video.attachNetStream(stream);
 		stream.close();
 		var url = model.playlist[model.config['item']]['file'];
 		if(model.config["streamscript"] == "lighttpd") {
@@ -223,9 +223,7 @@ public class HTTPModel implements ModelInterface {
 			offset = off;
 			timeoffset = getOffset(pos,true);
 			load();
-			trace('===LOADING-===');
 		} else {
-			trace('===SEEKING===');
 			if(h264) {
 				stream.seek(pos-timeoffset);
 			} else { 

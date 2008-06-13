@@ -25,23 +25,20 @@ public class Model extends EventDispatcher {
 	/** Reference to the player's controller. **/
 	private var controller:Controller;
 	/** The list with all active models. **/
-	private var models:Object = {};
+	private var models:Object;
 	/** Currently active model. **/
 	private var currentModel:String;
 	/** Currently active mediafile. **/
 	private var currentURL:String;
-	/** Currently active thumbnail. **/
-	private var currentThumb:String;
 	/** Loader for the preview image. **/
 	private var loader:Loader;
-	/** show thumbnails (in case of audio). **/
-	private var showthumb:Boolean;
 
 
 	/** Constructor, save arrays and set currentItem. **/
 	public function Model(cfg:Object,skn:MovieClip,ctr:Controller) {
 		config = cfg;
 		skin = skn;
+		Draw.clear(skin.display.media);
 		controller = ctr;
 		controller.addEventListener(ControllerEvent.ITEM,itemHandler);
 		controller.addEventListener(ControllerEvent.MUTE,muteHandler);
@@ -54,6 +51,7 @@ public class Model extends EventDispatcher {
 		controller.addEventListener(ControllerEvent.VOLUME,volumeHandler);
 		loader = new Loader();
 		loader.contentLoaderInfo.addEventListener(Event.INIT,thumbHandler);
+		models = new Object();
 	};
 
 
@@ -61,11 +59,11 @@ public class Model extends EventDispatcher {
 	private function itemHandler(evt:ControllerEvent) {
 		var typ = playlist[evt.data.index]['type'];
 		var url = playlist[evt.data.index]['file'];
-		trace(playlist[evt.data.index]['start']);
 		if(models[typ] && typ == currentModel) {
 			if(url == currentURL && typ != 'rtmp') {
 				models[typ].seek(playlist[evt.data.index]['start']);
 			} else {
+				stopHandler();
 				models[typ].load();
 				currentURL = url;
 			}
@@ -80,7 +78,6 @@ public class Model extends EventDispatcher {
 			currentModel = typ;
 			currentURL = url;
 		}
-		thumbLoader();
 	};
 
 
@@ -116,14 +113,11 @@ public class Model extends EventDispatcher {
 	public function mediaHandler(chd:DisplayObject=undefined) {
 		var obj = skin.display.media;
 		Draw.clear(obj);
-		if(chd) { 
-			showthumb = false;
+		if(chd) {
 			obj.addChild(chd);
 			Stretcher.stretch(obj,config['width'],config['height'],config['stretching']);
-		} else { 
-			skin.display.thumb.visible = true;
-			skin.display.media.visible = false;
-			showthumb = true;
+		} else if(playlist[config['item']]['image']) {
+			thumbLoader();
 		}
 	};
 
@@ -169,7 +163,6 @@ public class Model extends EventDispatcher {
 
 	/** Resize the media and thumb. **/
 	private function resizeHandler(evt:ControllerEvent) {
-		Stretcher.stretch(skin.display.thumb,evt.data.width,evt.data.height,config['stretching']);
 		Stretcher.stretch(skin.display.media,evt.data.width,evt.data.height,config['stretching']);
 	};
 
@@ -197,15 +190,10 @@ public class Model extends EventDispatcher {
 	public function sendEvent(typ:String,dat:Object) {
 		if(typ == ModelEvent.STATE && dat.newstate != config['state']) {
 			if(dat.newstate == ModelStates.IDLE || dat.newstate == ModelStates.COMPLETED) {
-				skin.display.thumb.visible = true;
-				skin.display.media.visible = false;
 				sendEvent(ModelEvent.TIME,{
 					position:playlist[config['item']]['start'],
 					duration:playlist[config['item']]['duration']
 				});
-			} else if (showthumb == false) {
-				skin.display.thumb.visible = false;
-				skin.display.media.visible = true;
 			}
 			dat.oldstate = config['state'];
 			config['state'] = dat.newstate;
@@ -219,24 +207,14 @@ public class Model extends EventDispatcher {
 	/** Load a thumb on stage. **/
 	private function thumbLoader() {
 		var img = playlist[config['item']]['image'];
-		if(currentThumb != img) {
-			if(img) {
-				loader.load(new URLRequest(img));
-				currentThumb = img;
-			} else {
-				Draw.clear(skin.display.thumb);
-				currentThumb = undefined;
-			}
+		if(img) {
+			loader.load(new URLRequest(img));
 		}
 	};
 
 	/** Place a loaded thumb on stage. **/
 	private function thumbHandler(evt:Event) {
-		var obj = skin.display.thumb;
-		Draw.clear(obj);
-		obj.addChild(loader);
-		Bitmap(loader.content).smoothing = config['quality'];
-		Stretcher.stretch(obj,config['width'],config['height'],config['stretching']);
+		mediaHandler(loader);
 	};
 
 

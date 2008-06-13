@@ -64,7 +64,7 @@ public class Controller extends EventDispatcher {
 		view.addEventListener(ViewEvent.STOP,stopHandler);
 		view.addEventListener(ViewEvent.VOLUME,volumeHandler);
 		resizeHandler(new Event(Event.RESIZE));
-		playlister.load(config);
+		if(config['file']) { playlister.load(config); }
 	};
 
 
@@ -190,7 +190,12 @@ public class Controller extends EventDispatcher {
 
 	/** Direct the model to play a new item. **/
 	private function playItem(nbr:Number=undefined) {
-		if(nbr > -1) { config['item'] = nbr; }
+		if(nbr > -1) {
+			if(playlist[nbr]['file'] == playlist[config['item']]['file']) {
+				playlist[nbr]['duration'] = playlist[config['item']]['duration'];
+			}
+			config['item'] = nbr;
+		}
 		dispatchEvent(new ControllerEvent(ControllerEvent.ITEM,{index:config['item']}));
 	};
 

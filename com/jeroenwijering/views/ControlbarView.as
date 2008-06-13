@@ -46,22 +46,29 @@ public class ControlbarView {
 		bar = view.skin['controlbar'];
 		stacker = new Stacker(bar);
 		setButtons();
-		view.addControllerListener(ControllerEvent.ITEM,itemHandler);
-		view.addControllerListener(ControllerEvent.PLAYLIST,itemHandler);
 		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
 		view.addModelListener(ModelEvent.LOADED,loadedHandler);
-		loadedHandler(new ModelEvent(ModelEvent.LOADED,{loaded:0,total:0}));
 		view.addModelListener(ModelEvent.STATE,stateHandler);
-		stateHandler(new ModelEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE}));
 		view.addModelListener(ModelEvent.TIME,timeHandler);
-		if(bar['muteButton']) { 
+		if(bar['prevButton'] && bar['nextButton']) {
+			bar.prevButton.visible = bar.nextButton.visible = false;
+			view.addControllerListener(ControllerEvent.PLAYLIST,itemHandler);
+		}
+		if(bar['linkButton']) {
+			bar.linkButton.visible = false;
+			view.addControllerListener(ControllerEvent.ITEM,itemHandler);
+		}
+		if(bar['muteButton']) {
 			view.addControllerListener(ControllerEvent.MUTE,muteHandler);
 			muteHandler(new ControllerEvent(ControllerEvent.MUTE,{state:view.config['mute']}));
 		}
-		if(bar['volumeSlider']) { 
+		if(bar['volumeSlider']) {
 			view.addControllerListener(ControllerEvent.VOLUME,volumeHandler);
 			volumeHandler(new ControllerEvent(ControllerEvent.VOLUME,{percentage:view.config['volume']}));
 		}
+		loadedHandler(new ModelEvent(ModelEvent.LOADED,{loaded:0,total:0}));
+		timeHandler(new ModelEvent(ModelEvent.TIME,{elapsed:0,duration:0}));
+		stateHandler(new ModelEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE}));
 	};
 
 
@@ -83,7 +90,7 @@ public class ControlbarView {
 
 
 	/** Handle a change in the current item **/
-	private function itemHandler(evt:ControllerEvent) {
+	private function itemHandler(evt:ControllerEvent=undefined) {
 		if(bar['prevButton'] && bar['nextButton']) {
 			if(view.playlist.length > 1) { 
 				bar.prevButton.visible = bar.nextButton.visible = true;
@@ -319,9 +326,11 @@ public class ControlbarView {
 		bar.timeSlider.icon.stopDrag();
     	bar.stage.removeEventListener(MouseEvent.MOUSE_UP,timeupHandler);
 		var xps = bar.timeSlider.icon.x - bar.timeSlider.rail.x;
-		var dur = view.playlist[view.config['item']]['duration'];
-		var pct = Math.round(xps*dur*10/bar.timeSlider.rail.width)/10;
-		view.sendEvent(ViewEvent.SEEK,pct);
+		if(view.playlist.length) {
+			var dur = view.playlist[view.config['item']]['duration'];
+			var pct = Math.round(xps*dur*10/bar.timeSlider.rail.width)/10;
+			view.sendEvent(ViewEvent.SEEK,pct);
+		}
 	};
 
 

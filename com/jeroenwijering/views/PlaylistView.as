@@ -284,9 +284,7 @@ public class PlaylistView {
 
 
 	/** Process mousewheel usage. **/
-	private function wheelHandler(evt:MouseEvent) {
-		trace('yo!!!');
-	};
+	private function wheelHandler(evt:MouseEvent) {};
 
 
 };

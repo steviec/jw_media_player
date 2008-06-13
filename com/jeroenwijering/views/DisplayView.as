@@ -50,28 +50,34 @@ public class DisplayView {
 		view.addModelListener(ModelEvent.STATE,stateHandler);
 		view.addViewListener(ModelEvent.ERROR,errorHandler);
 		display = view.skin['display'];
-		display.addEventListener(MouseEvent.CLICK,clickHandler);
+		if(view.config['displayclick'] != 'none') {
+			display.addEventListener(MouseEvent.CLICK,clickHandler);
+			display.buttonMode = true;
+		}
 		display.mouseChildren = false;
-		display.buttonMode = true;
 		try { 
 			Draw.clear(display.logo);
 			if(view.config['logo']) { setLogo(); }
 		} catch (err:Error) {}
-		setIcon('bufferIcon');
+		setIcon();
 	};
 
 
 	/** Receive buffer updates. **/
 	private function bufferHandler(evt:ModelEvent) {
-		display.bufferIcon.txt.text = Strings.zero(evt.data.percentage);
+		if(display.bufferIcon.txt) { 
+			if(evt.data.percentage > 0) { 
+				display.bufferIcon.txt.text = Strings.zero(evt.data.percentage);
+			} else {
+				display.bufferIcon.txt.text = '';
+			}
+		}
 	};
 
 
 	/** Process a click on the display. **/
 	private function clickHandler(evt:MouseEvent) {
-		if(view.config.displayclick != 'none') {
-			view.sendEvent(view.config['displayclick']);
-		}
+		view.sendEvent(view.config['displayclick']);
 	};
 
 

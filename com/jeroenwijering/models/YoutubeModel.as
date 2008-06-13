@@ -24,8 +24,7 @@ public class YoutubeModel implements ModelInterface {
 	/** Reference to the Model **/
 	private var model:Model;
 	/** Location of the YT proxy **/
-	//private var proxy:String = "http://www.jeroenwijering.com/embed/yt.swf";
-	private var proxy:String = "../misc/yt.swf";
+	private var proxy:String = "http://www.jeroenwijering.com/embed/yt.swf";
 	/** Loader for loading the YouTube proxy **/
 	private var loader:Loader;
 	/** Connection towards the YT proxy. **/

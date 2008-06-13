@@ -51,6 +51,7 @@ public class VideoModel implements ModelInterface {
 		stream.bufferTime = model.config['bufferlength'];
 		stream.client = this;
 		video = new Video(320,240);
+		video.attachNetStream(stream);
 		transform = new SoundTransform();
 		stream.soundTransform = transform;
 		quality(model.config['quality']);
@@ -66,7 +67,7 @@ public class VideoModel implements ModelInterface {
 
 	/** Load content. **/
 	public function load() {
-		video.attachNetStream(stream);
+		stream.close();
 		stream.play(model.playlist[model.config['item']]['file']);
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 		loadinterval = setInterval(loadHandler,100);
@@ -144,14 +145,6 @@ public class VideoModel implements ModelInterface {
 
 
 	/** Change the smoothing mode. **/
-	public function seek(pos:Number) {
-		clearInterval(timeinterval);
-		stream.seek(pos);
-		play();
-	};
-
-
-	/** Change the smoothing mode. **/
 	public function quality(qua:Boolean) {
 		if(qua == true) { 
 			video.smoothing = true;
@@ -160,6 +153,14 @@ public class VideoModel implements ModelInterface {
 			video.smoothing = false;
 			video.deblocking = 1;
 		}
+	};
+
+
+	/** Change the smoothing mode. **/
+	public function seek(pos:Number) {
+		clearInterval(timeinterval);
+		stream.seek(pos);
+		play();
 	};
 
 
@@ -176,15 +177,12 @@ public class VideoModel implements ModelInterface {
 	};
 
 
-	/** Destroy the videocamera. **/
+	/** Destroy the video. **/
 	public function stop() {
+		stream.close();
 		metadata = false;
 		clearInterval(loadinterval);
 		clearInterval(timeinterval);
-		stream.close();
-		video.attachNetStream(null);
-		video.clear();
-		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
 	};
 
 
