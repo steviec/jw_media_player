@@ -92,7 +92,6 @@ public class HTTPModel implements ModelInterface {
 				break;
 			}
 		}
-		trace(off);
 		return off;
 	};
 

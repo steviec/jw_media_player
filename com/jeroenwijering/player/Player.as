@@ -55,6 +55,7 @@ public class Player extends MovieClip {
 		client:undefined,
 		controlbarheight:20,
 		height:300,
+		plugins:undefined,
 		state:undefined,
 		version:'4.0 r10',
 		width:400

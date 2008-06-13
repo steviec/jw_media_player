@@ -4,15 +4,18 @@
 package com.jeroenwijering.player {
 
 
-import flash.display.MovieClip;
-import flash.events.EventDispatcher;
-import flash.system.Capabilities;
 import com.jeroenwijering.events.*;
 import com.jeroenwijering.player.*;
 import com.jeroenwijering.views.*;
+import flash.display.Loader;
+import flash.display.LoaderInfo;
+import flash.display.MovieClip;
+import flash.events.*;
+import flash.system.Capabilities;
+import flash.net.URLRequest;
 
 
-public class View extends EventDispatcher {
+public class View extends AbstractView {
 
 
 	/** Object with all configuration parameters **/
@@ -23,8 +26,12 @@ public class View extends EventDispatcher {
 	private var controller:Controller;
 	/** Model of the MVC cycle. **/
 	private var model:Model;
-	/** A list with all the currently active views. **/
+	/** A list with all the active views. **/
 	private var views:Array;
+	/**  A list with all the active plugins. **/
+	private var plugins:Array;
+	/** Base directory for the plugins. **/
+	private var DIRECTORY:String = 'http://www.jeroenwijering.com/upload/';
 
 
 	/** Constructor, save references and subscribe to events. **/
@@ -34,12 +41,36 @@ public class View extends EventDispatcher {
 		_config['controlbarheight'] = _skin['controlbar'].height;
 		controller = ctr;
 		model = mdl;
-		addViews();
+		loadViews();
+		if(_config['plugins']) {
+			plugins = new Array();
+			loadPlugins();
+		}
 	};
 
 
-	/** Add all child views. **/
-	private function addViews() {
+	/** Add a plugin to the list when loaded. **/
+	private function loadHandler(evt:Event) {
+		var ldi = LoaderInfo(evt.target);
+		plugins.push(ldi.content);
+		ldi.content.initialize(this);
+	}
+
+
+	/** Load all attached plugins. **/
+	private function loadPlugins() { 
+		var arr = _config['plugins'].split(',');
+		for(var i in arr) {
+			var ldr = new Loader();
+			_skin.addChild(ldr);
+			ldr.contentLoaderInfo.addEventListener(Event.COMPLETE,loadHandler);
+			ldr.load(new URLRequest(DIRECTORY+arr[i]+'.swf'));
+		}
+	};
+
+
+	/** Add all default views. **/
+	private function loadViews() {
 		views = new Array();
 		views.push(new CaptionsView(this));
 		views.push(new DisplayView(this));
@@ -64,25 +95,25 @@ public class View extends EventDispatcher {
 
 
 	/**  Getters for the config parameters, skinning parameters and playlist. **/
-	public function get config():Object { return _config; };
-	public function get playlist():Array { return controller.playlist; };
-	public function get skin():MovieClip { return _skin; };
+	override public function get config():Object { return _config; };
+	override public function get playlist():Array { return controller.playlist; };
+	override public function get skin():MovieClip { return _skin; };
 
 
 	/**  Subscribers to the controller and model. **/
-	public function addControllerListener(typ:String,fcn:Function) {
+	override public function addControllerListener(typ:String,fcn:Function) {
 		controller.addEventListener(typ.toUpperCase(),fcn);
 	};
-	public function addModelListener(typ:String,fcn:Function) {
+	override public function addModelListener(typ:String,fcn:Function) {
 		model.addEventListener(typ.toUpperCase(),fcn);
 	};
-	public function addViewListener(typ:String,fcn:Function) {
+	override public function addViewListener(typ:String,fcn:Function) {
 		this.addEventListener(typ.toUpperCase(),fcn);
 	};
 
 
 	/**  Dispatch events. **/
-	public function sendEvent(typ:String,prm:Object=undefined) {
+	override public function sendEvent(typ:String,prm:Object=undefined) {
 		typ = typ.toUpperCase();
 		var dat = new Object();
 		switch(typ) {

@@ -11,10 +11,6 @@ import flash.events.Event;
 public class Animations {
 
 
-	/** Fade speed variable. **/
-	private static var speed:Number = 0.2;
-	/** Fade final value variable. **/
-	private static var end:Number = 1;
 
 
 	/**
@@ -24,17 +20,7 @@ public class Animations {
 	* @param end	The final alpha value.
 	* @param spd	The amount of alpha change per frame.
 	**/
-	public static function fade(tgt:MovieClip,end:Number=undefined,spd:Number=undefined) {
-		if(arguments.length > 2) { 
-			tgt.speed = spd; 
-		} else { 
-			tgt.speed = Animations.speed;
-		}
-		if(arguments.length > 1) { 
-			tgt.end = end; 
-		} else { 
-			tgt.end = Animations.end;
-		}
+	public static function fade(tgt:MovieClip,end:Number=1,spd:Number=0.2) {
 		if(tgt.alpha > tgt.end) {
 			tgt.speed = -Math.abs(tgt.speed);
 		} else {
@@ -69,19 +55,25 @@ public class Animations {
 	* @param yps	The y destination.
 	* @param spd	The movement speed (1 - 2).
 	**/
-	public static function ease(tgt:MovieClip,xps:Number,yps:Number,spd:Number) {
-		/*
-		arguments.length < 4 ? spd = 2: null;
-		tgt.onEnterFrame = function() {
-			this._x = xps-(xps-this._x)/(1+1/spd);
-			this._y = yps-(yps-this._y)/(1+1/spd);
-			if (this._x>xps-1 && this._x<xps+1 && this._y>yps-1 && this._y<yps+1) {
-				this._x = Math.round(xps);
-				this._y = Math.round(yps);
-				delete this.onEnterFrame;
-			}
-		};
-		*/
+	public static function ease(tgt:MovieClip,xps:Number,yps:Number,spd:Number=2) {
+		if(!xps) { tgt.xps = tgt.x; } else { tgt.xps = xps; }
+		if(!yps) { tgt.yps = tgt.y; } else { tgt.yps = yps; }
+		tgt.spd = spd;
+		tgt.addEventListener(Event.ENTER_FRAME,easeHandler);
+	};
+
+
+	/** The ease enterframe function. **/
+	private static function easeHandler(evt:Event) {
+		var tgt = MovieClip(evt.target);
+		if(Math.abs(tgt.x - tgt.xps) < 1 && Math.abs(tgt.y - tgt.yps) < 1) {
+			tgt.removeEventListener(Event.ENTER_FRAME,easeHandler);
+			tgt.x = tgt.xps;
+			tgt.y = tgt.yps;
+		} else {
+			tgt.x = tgt.xps - (tgt.xps-tgt.x)/tgt.spd;
+			tgt.y = tgt.yps - (tgt.yps-tgt.y)/tgt.spd;
+		}
 	};
 
 
@@ -89,27 +81,35 @@ public class Animations {
 	* Typewrite text into a textfield.
 	*
 	* @param tgt	Movieclip that has a 'field' TextField.
-	* @param txt	The textstring to write; uses current content if omitted.
+	* @param txt	The textstring to write.
 	* @param spd	The speed of typing (1 - 2).
 	**/
-	public static function write(tgt:MovieClip,txt:String,spd:Number) {
-		/*
-		if (arguments.length < 2) {
-			tgt.str = tgt.tf.text;
-			tgt.hstr = tgt.tf.htmlText;
-		} else {
-			tgt.str = tgt.hstr = txt; 
+	public static function write(tgt:MovieClip,str:String,spd:Number=1.5) {
+		tgt.str = str;
+		tgt.spd = spd;
+		tgt.tf.text = '';
+		tgt.addEventListener(Event.ENTER_FRAME,writeHandler);
+	};
+
+
+	/** The write enterframe function. **/
+	private static function writeHandler(evt:Event) {
+		var tgt = MovieClip(evt.target);
+		var dif = Math.floor((tgt.str.length-tgt.tf.text.length)/tgt.spd);
+		tgt.tf.text = tgt.str.substr(0,tgt.str.length-dif);
+		if(tgt.tf.text == tgt.str) {
+			tgt.removeEventListener(Event.ENTER_FRAME,easeHandler);
 		}
-		if (arguments.length < 3) { spd = 1.5; }
-		tgt.tf.text = "";
-		tgt.i = 0;
+		/*
+		if(Math.abs(tgt.x - tgt.xps) < 1 && Math.abs(tgt.y - tgt.yps) < 1) {
+			tgt.removeEventListener(Event.ENTER_FRAME,easeHandler);
+			tgt.x = tgt.xps;
+			tgt.y = tgt.yps;
+		} else {
+			tgt.x = tgt.xps - (tgt.xps-tgt.x)/tgt.spd;
+			tgt.y = tgt.yps - (tgt.yps-tgt.y)/tgt.spd;
+		}
 		tgt.onEnterFrame = function() {
-			var dif = Math.floor((this.str.length-this.tf.text.length)/spd);
-			this.tf.text = this.str.substr(0,this.str.length-dif);
-			if(this.tf.text == this.str) {
-				this.tf.htmlText = this.hstr;
-				delete this.onEnterFrame;
-			}
 			this.i++;
 		};
 		*/
