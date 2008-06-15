@@ -86,18 +86,14 @@ public class VideoModel implements ModelInterface {
 	};
 
 
-	/** Get textdata from netstream. **/
-	public function onImageData(info:Object) {
-		var dat = new Object();
-		for(var i in info) { 
-			dat[i] = info[i];
-		}
+	/** Handler for captionate events. **/
+	public function onCaption(cps:String,spk:Number) {
+		var dat = { 
+			captions:cps,
+			speaker:spk
+		};
 		model.sendEvent(ModelEvent.META,dat);
 	};
-
-
-	/** Handler for onLastSecond call. **/
-	public function onLastSecond(info:Object) { };
 
 
 	/** Get metadata information from netstream class. **/
@@ -114,6 +110,9 @@ public class VideoModel implements ModelInterface {
 			var dat = new Object();
 			for(var i in info) { dat[i] = info[i]; }
 			model.sendEvent(ModelEvent.META,dat);
+			if(model.playlist[model.config['item']]['start'] > 0) {
+				seek(model.playlist[model.config['item']]['start']);
+			}
 		}
 	};
 
@@ -166,7 +165,7 @@ public class VideoModel implements ModelInterface {
 
 	/** Receive NetStream status updates. **/
 	private function statusHandler(evt:NetStatusEvent) {
-		if(evt.info.code == "NetStream.Play.Stop") {
+		if(evt.info.code == "NetStream.Play.Stop" && stream.bytesLoaded == stream.bytesTotal) {
 			clearInterval(timeinterval);
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
 		} else if (evt.info.code == "NetStream.Play.StreamNotFound") {
@@ -191,9 +190,9 @@ public class VideoModel implements ModelInterface {
 		var bfr = Math.round(stream.bufferLength/stream.bufferTime*100);
 		var pos = Math.round(stream.time*10)/10;
 		var dur = model.playlist[model.config['item']]['duration'];
-		if(bfr < 100 && pos < Math.abs(dur-stream.bufferTime-1)) {
+		if(bfr < 100 && pos < Math.abs(dur-stream.bufferTime*2)) {
 			model.sendEvent(ModelEvent.BUFFER,{percentage:bfr});
-			if(model.config['state'] != ModelStates.BUFFERING) {
+			if(model.config['state'] != ModelStates.BUFFERING && bfr < 50) {
 				model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 			}
 		} else if (model.config['state'] == ModelStates.BUFFERING) {

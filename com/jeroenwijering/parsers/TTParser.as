@@ -71,7 +71,7 @@ public class TTParser {
 		if(dat.children()[1].@style > 0) {
 			TTParser.style = dat.children()[1].@style;
 		} else if(div.@style > 0) {
-			TTParser.style = div.@style; 
+			TTParser.style = div.@style;
 		}
 		for each (var i in div.children()) {
 			if(i.localName() == 'p') {

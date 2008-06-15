@@ -277,9 +277,9 @@ public class HTTPModel implements ModelInterface {
 		var pos = Math.round(stream.time*10)/10;
 		if (h264) { pos += timeoffset; }
 		var dur = model.playlist[model.config['item']]['duration'];
-		if(bfr < 100 && pos < Math.abs(dur-stream.bufferTime-1)) {
+		if(bfr<100 && pos < Math.abs(dur-stream.bufferTime*2)) {
 			model.sendEvent(ModelEvent.BUFFER,{percentage:bfr});
-			if(model.config['state'] != ModelStates.BUFFERING) {
+			if(model.config['state'] != ModelStates.BUFFERING  && bfr<50) {
 				model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 			}
 		} else if (model.config['state'] == ModelStates.BUFFERING) {

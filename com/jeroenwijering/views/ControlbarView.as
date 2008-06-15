@@ -173,7 +173,7 @@ public class ControlbarView {
 	/** Process resizing requests **/
 	private function resizeHandler(evt:ControllerEvent) {
 		var wid = stacker.width;
-		if(view.config['controlbar'] == 'over' || evt.data.fullscreen == true) {
+		if(view.config['controlbar']=='over' || evt.data.fullscreen==true) {
 			bar.y = evt.data.height - view.config['controlbarheight']*2;
 			if(evt.data.width > 640) { 
 				bar.x = Math.round(evt.data.width/2-300);
@@ -191,7 +191,7 @@ public class ControlbarView {
 			}
 		}
 		if(bar.fullscreenButton) {
-			if(view.config['fullscreen'] == false || bar.stage.displayState == null) {
+			if(view.config['fullscreen']==false || bar.stage.displayState==null) {
 				bar.fullscreenButton.visible = false;
 				bar.normalscreenButton.visible = false;
 			} else if(evt.data.fullscreen == true) {
@@ -239,9 +239,10 @@ public class ControlbarView {
 	private function stateHandler(evt:ModelEvent) {
 		switch(evt.data.newstate) { 
 			case ModelStates.PLAYING:
-				if(view.config['controlbar'] == 'over' || bar.stage.displayState == 'fullScreen') {
+				if(view.config['controlbar'] == 'over' || 
+					bar.stage.displayState == 'fullScreen') {
 					hiding = setTimeout(moveTimeout,1000);
-					view.skin.addEventListener(MouseEvent.MOUSE_MOVE, moveHandler);
+					view.skin.addEventListener(MouseEvent.MOUSE_MOVE,moveHandler);
 				}
 			case ModelStates.BUFFERING:
 				if(bar.playButton && bar.pauseButton) {
@@ -250,10 +251,11 @@ public class ControlbarView {
 				}
 				break;
 			default: 
-				if(view.config['controlbar'] == 'over' || bar.stage.displayState == 'fullScreen') {
+				if(view.config['controlbar'] == 'over' || 
+					bar.stage.displayState == 'fullScreen') {
 					clearTimeout(hiding);
 					Animations.fade(bar,1);
-					view.skin.removeEventListener(MouseEvent.MOUSE_MOVE, moveHandler);
+					view.skin.removeEventListener(MouseEvent.MOUSE_MOVE,moveHandler);
 				}
 				if(bar.playButton && bar.pauseButton) {
 					bar.playButton.visible = true;
@@ -310,7 +312,8 @@ public class ControlbarView {
 
 	/** Handle a press on the timeslider **/
 	private function timedownHandler(evt:MouseEvent) {
-		var rct = new Rectangle(bar.timeSlider.rail.x,bar.timeSlider.icon.y,bar.timeSlider.rail.width,0);
+		var rct = new Rectangle(bar.timeSlider.rail.x,
+			bar.timeSlider.icon.y,bar.timeSlider.rail.width,0);
 		bar.timeSlider.icon.startDrag(true,rct);
     	bar.stage.addEventListener(MouseEvent.MOUSE_UP,timeupHandler);
 	};
@@ -348,7 +351,8 @@ public class ControlbarView {
 
 	/** Handle a move over the volumebar **/
 	private function volumedownHandler(evt:MouseEvent) {
-		var rct = new Rectangle(bar.volumeSlider.rail.x,bar.volumeSlider.icon.y,bar.volumeSlider.rail.width,0);
+		var rct = new Rectangle(bar.volumeSlider.rail.x,
+			bar.volumeSlider.icon.y,bar.volumeSlider.rail.width,0);
 		bar.volumeSlider.icon.startDrag(true,rct);
 		bar.stage.addEventListener(MouseEvent.MOUSE_UP,volumeupHandler);
 	};

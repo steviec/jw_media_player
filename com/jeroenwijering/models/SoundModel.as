@@ -56,6 +56,7 @@ public class SoundModel implements ModelInterface {
 	/** Catch errors. **/
 	private function errorHandler(evt:ErrorEvent) {
 		model.sendEvent(ModelEvent.ERROR,{message:evt.text});
+		stop();
 	};
 
 

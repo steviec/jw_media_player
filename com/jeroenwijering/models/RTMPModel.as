@@ -40,6 +40,7 @@ public class RTMPModel implements ModelInterface {
 		connection = new NetConnection();
 		connection.addEventListener(NetStatusEvent.NET_STATUS,statusHandler);
 		connection.addEventListener(SecurityErrorEvent.SECURITY_ERROR,errorHandler);
+		connection.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
 		connection.objectEncoding = ObjectEncoding.AMF0;
 		video = new Video(320,240);
 		quality(model.config['quality']);
@@ -100,18 +101,9 @@ public class RTMPModel implements ModelInterface {
 		model.sendEvent(ModelEvent.META,dat);
 	};
 
+
 	/** Get id3 information from netstream class. **/
 	public function onID3(info:Object) {
-		var dat = new Object();
-		for(var i in info) { 
-			dat[i] = info[i];
-		}
-		model.sendEvent(ModelEvent.META,dat);
-	};
-
-
-	/** Get textdata from netstream. **/
-	public function onImageData(info:Object) {
 		var dat = new Object();
 		for(var i in info) { 
 			dat[i] = info[i];
@@ -232,7 +224,7 @@ public class RTMPModel implements ModelInterface {
 			evt.info.code == "NetConnection.Connect.Rejected" || 
 			evt.info.code == "NetConnection.Connect.Failed") {
 			stop();
-			model.sendEvent(ModelEvent.ERROR,{message:"RTMP stream not found: " + 
+			model.sendEvent(ModelEvent.ERROR,{message:"RTMP stream not found: "+
 				model.playlist[model.config['item']]['file']});
 		}
 		model.sendEvent(ModelEvent.META,{info:evt.info.code});
@@ -244,9 +236,8 @@ public class RTMPModel implements ModelInterface {
 		metadata = false;
 		clearInterval(timeinterval);
 		connection.close();
-		stream.close();
+		if(stream) { stream.close(); }
 		video.attachNetStream(null);
-		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
 	};
 
 

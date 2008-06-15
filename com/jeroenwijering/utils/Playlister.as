@@ -96,7 +96,7 @@ public class Playlister extends EventDispatcher {
 			return;
 		}
 		if(_playlist.length == 0) { 
-			fmt = 'No suitable playlist elements found.';
+			fmt = 'No suitable mediafiles found in this feed.';
 			dispatchEvent(new ErrorEvent(ErrorEvent.ERROR,false,false,fmt));
 			
 		} else {  

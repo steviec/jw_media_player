@@ -118,7 +118,8 @@ public class YoutubeModel implements ModelInterface {
 
 	/** Catch youtube errors. **/
 	public function onError(erc:String) {
-		model.sendEvent(ModelEvent.ERROR,{message:'YouTube error: '+erc});
+		var fil = model.playlist[model.config['item']]['file'];
+		model.sendEvent(ModelEvent.ERROR,{message:"YouTube error (video not found?):\n"+fil});
 		stop();
 	};
 
