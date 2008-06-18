@@ -38,6 +38,8 @@ public class ControlbarView {
 		muteButton:'MUTE',
 		unmuteButton:'MUTE'
 	};
+	/** When scrubbing, icon shouldn't be set. **/
+	private var scrubbing;
 
 
 	/** Constructor. **/
@@ -182,13 +184,17 @@ public class ControlbarView {
 				bar.x = view.config['controlbarheight'];
 				wid = evt.data.width - view.config['controlbarheight']*2;
 			}
-		} else {
+		} else if(view.config['controlbar']=='bottom') {
 			bar.x = 0;
 			wid = evt.data.width;
 			bar.y = evt.data.height;
 			if(view.config['playlist'] == 'right') {
 				wid += view.config['playlistsize'];
 			}
+			view.skin.removeEventListener(MouseEvent.MOUSE_MOVE,moveHandler);
+			Animations.fade(bar,1);
+		} else { 
+			bar.visible = false;
 		}
 		if(bar.fullscreenButton) {
 			if(view.config['fullscreen']==false || bar.stage.displayState==null) {
@@ -297,7 +303,9 @@ public class ControlbarView {
 			if (dur > 0) {
 				bar.timeSlider.icon.visible = true;
 				bar.timeSlider.mark.visible = true;
-				bar.timeSlider.icon.x = xps;
+				if(scrubbing != true) {
+					bar.timeSlider.icon.x = xps;
+				}
 			} else {
 				bar.timeSlider.icon.visible = false;
 				bar.timeSlider.mark.visible = false;
@@ -315,6 +323,7 @@ public class ControlbarView {
 		var rct = new Rectangle(bar.timeSlider.rail.x,
 			bar.timeSlider.icon.y,bar.timeSlider.rail.width,0);
 		bar.timeSlider.icon.startDrag(true,rct);
+		scrubbing = true;
     	bar.stage.addEventListener(MouseEvent.MOUSE_UP,timeupHandler);
 	};
 
@@ -327,6 +336,7 @@ public class ControlbarView {
 	/** Handle a press release on the timeslider **/
 	private function timeupHandler(evt:MouseEvent) {
 		bar.timeSlider.icon.stopDrag();
+		scrubbing = false;
     	bar.stage.removeEventListener(MouseEvent.MOUSE_UP,timeupHandler);
 		var xps = bar.timeSlider.icon.x - bar.timeSlider.rail.x;
 		if(view.playlist.length) {
@@ -346,6 +356,7 @@ public class ControlbarView {
 	/** Reflect the new volume in the controlbar **/
 	private function volumeHandler(evt:ControllerEvent) {
 		bar.volumeSlider.mark.scaleX = evt.data.percentage/100;
+		bar.volumeSlider.icon.x = evt.data.percentage*bar.volumeSlider.rail.width/100;
 	};
 
 

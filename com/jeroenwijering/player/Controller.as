@@ -49,6 +49,7 @@ public class Controller extends EventDispatcher {
 		model= mdl;
 		model.addEventListener(ModelEvent.META,metaHandler);
 		model.addEventListener(ModelEvent.TIME,metaHandler);
+		model.addEventListener(ModelEvent.STATE,stateHandler);
 		view = vie;
 		view.addEventListener(ViewEvent.CAPTION,captionHandler);
 		view.addEventListener(ViewEvent.FULLSCREEN,fullscreenHandler);
@@ -92,7 +93,7 @@ public class Controller extends EventDispatcher {
 			skin.stage.displayState = 'normal';
 		} else {
 			skin.stage["fullScreenSourceRect"] = new Rectangle(0,0,
-				Capabilities.screenResolutionX,Capabilities.screenResolutionY);
+				Capabilities.screenResolutionX/2,Capabilities.screenResolutionY/2);
 			skin.stage.displayState = 'fullScreen';
 		}
 	};
@@ -166,7 +167,7 @@ public class Controller extends EventDispatcher {
 		if(playlist[config['item']]['author'] == 'commercial') { return; }
 		if(config['shuffle'] == true) { 
 			playItem(randomizer.pick());
-		} else if (config['item'] == playlist.length - 1) {
+		} else if (config['item'] == playlist.length-1) {
 			playItem(0);
 		} else { 
 			playItem(config['item']+1);
@@ -216,9 +217,7 @@ public class Controller extends EventDispatcher {
 	/** Jump to the previous item in the playlist. **/
 	private function prevHandler(evt:ViewEvent) {
 		if(playlist[config['item']]['author'] == 'commercial') { return; }
-		if(config['shuffle'] == true) { 
-			playItem(randomizer.back());
-		} else if (config['item'] == 0) {
+		if (config['item'] == 0) {
 			playItem(playlist.length-1);
 		} else { 
 			playItem(config['item']-1);

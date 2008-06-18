@@ -19,7 +19,7 @@ public class Player extends MovieClip {
 		author:undefined,
 		captions:undefined,
 		description:undefined,
-		duration:0,
+		duration:5,
 		file:undefined,
 		image:undefined,
 		link:undefined,
@@ -57,7 +57,7 @@ public class Player extends MovieClip {
 		height:300,
 		plugins:undefined,
 		state:undefined,
-		version:'4.0 r12',
+		version:'4.0 r13',
 		width:400
 	};
 	/** Object that loads all configuration variables. **/

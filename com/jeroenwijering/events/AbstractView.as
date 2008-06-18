@@ -12,7 +12,7 @@ public class AbstractView extends EventDispatcher {
 
 
 	/** Constructor. **/
-	public function AbstractView() { };
+	public function AbstractView() {};
 
 
 	/**  Getters for the config, playlist and skin. **/

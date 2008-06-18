@@ -159,7 +159,7 @@ public class PlaylistView {
 
 	/** New playlist loaded: rebuild the playclip. **/
 	private function playlistHandler(evt:ControllerEvent) {
-		if(view.config['playlist'] != 'none') { 
+		if(view.config['playlist'] != 'none') {
 			buildList(true);
 		}
 	};
@@ -183,11 +183,9 @@ public class PlaylistView {
 		} else if (view.config['playlist'] == 'over') {
 			clip.x = clip.y = 0;
 			clip.back.width = evt.data.width;
-			if(proportion > 1 || buttons == null) {
-				clip.back.height = evt.data.height;
-			} else {
-				clip.back.height = buttons.length*buttonheight;
-			}
+			clip.back.height = evt.data.height;
+		} else {
+			clip.visible = false;
 		}
 		buildList(false);
 	};
@@ -224,8 +222,11 @@ public class PlaylistView {
 			if(!buttons[idx].c[itm]) {
 				continue;
 			} else if(itm == 'image') {
+				var img = buttons[idx].c.image;
+				var msk = Draw.rect(buttons[idx].c,'0xFF0000',img.width,img.height,img.x,img.y);
 				var ldr = new Loader();
-				buttons[idx].c.image.addChild(ldr);
+				img.mask = msk;
+				img.addChild(ldr);
 				ldr.contentLoaderInfo.addEventListener(Event.COMPLETE,loaderHandler);
 				ldr.load(new URLRequest(view.playlist[idx]['image']));
 			} else if(itm == 'duration') {

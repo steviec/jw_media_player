@@ -147,7 +147,7 @@ public class VideoModel implements ModelInterface {
 	public function quality(qua:Boolean) {
 		if(qua == true) { 
 			video.smoothing = true;
-			video.deblocking = 4;
+			video.deblocking = 3;
 		} else { 
 			video.smoothing = false;
 			video.deblocking = 1;

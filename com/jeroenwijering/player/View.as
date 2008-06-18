@@ -11,7 +11,7 @@ import flash.display.Loader;
 import flash.display.LoaderInfo;
 import flash.display.MovieClip;
 import flash.events.*;
-import flash.system.Capabilities;
+import flash.system.*;
 import flash.net.URLRequest;
 
 
@@ -31,7 +31,7 @@ public class View extends AbstractView {
 	/**  A list with all the active plugins. **/
 	private var plugins:Array;
 	/** Base directory for the plugins. **/
-	private var DIRECTORY:String = 'http://www.jeroenwijering.com/upload/';
+	private var DIRECTORY:String = 'http://plugins.longtailvideo.com/';
 
 
 	/** Constructor, save references and subscribe to events. **/
@@ -63,8 +63,9 @@ public class View extends AbstractView {
 		for(var i in arr) {
 			var ldr = new Loader();
 			_skin.addChild(ldr);
-			ldr.contentLoaderInfo.addEventListener(Event.COMPLETE,loadHandler);
-			ldr.load(new URLRequest(DIRECTORY+arr[i]+'.swf'));
+			ldr.contentLoaderInfo.addEventListener(Event.INIT,loadHandler);
+            var ctx = new LoaderContext(true,ApplicationDomain.currentDomain,SecurityDomain.currentDomain);
+			ldr.load(new URLRequest(DIRECTORY+arr[i]+'.swf'),ctx);
 		}
 	};
 
@@ -72,24 +73,18 @@ public class View extends AbstractView {
 	/** Add all default views. **/
 	private function loadViews() {
 		views = new Array();
-		views.push(new CaptionsView(this));
-		views.push(new DisplayView(this));
 		views.push(new ExternalView(this));
 		views.push(new KeyboardView(this));
 		views.push(new RightclickView(this));
+		views.push(new DisplayView(this));
 		if(_skin.controlbar) {
-			if(config['controlbar'] == 'none') { 
-				_skin.controlbar.visible = false;
-			} else { 
-				views.push(new ControlbarView(this));
-			}
+			views.push(new ControlbarView(this));
 		}
 		if(_skin.playlist) {
-			if(config['playlist'] == 'none') {
-				_skin.playlist.visible = false;
-			} else { 
-				views.push(new PlaylistView(this));
-			}
+			views.push(new PlaylistView(this));
+		}
+		if(_skin.captions) {
+			views.push(new CaptionsView(this));
 		}
 	};
 

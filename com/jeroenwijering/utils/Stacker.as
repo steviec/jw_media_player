@@ -52,6 +52,7 @@ public class Stacker {
 		for (var i in stack) {
 			if(i!=idx && stack[i].c.visible==true && stack[i].w < _width &&
 				stack[i].x < max && stack[i].x+stack[i].w > min) {
+				//trace(stack[idx].n+'overlaps with'+stack[i].n);
 				//trace(stack[i].x+'-'+max+' / '+(stack[i].x+stack[i].w)+'-'+min);
 				return true;
 			}
@@ -90,7 +91,7 @@ public class Stacker {
 					}
 				}
 			}
-			if(stack[i].w > width/3) {
+			if(stack[i].w > width/4) {
 				stack[i].c.width = stack[i].w+rdf+ldf;
 			}
 		}
@@ -101,7 +102,7 @@ public class Stacker {
 				if(stack[j].x > width/2) {
 					stack[j].c.x += dif;
 				}
-				if(stack[j].w>width/3 && stack[j].n!='back') {
+				if(stack[j].w>width/4 && stack[j].n!='back') {
 					stack[j].c.width += dif;
 				}
 			}

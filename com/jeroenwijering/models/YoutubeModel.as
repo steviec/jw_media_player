@@ -7,7 +7,6 @@ package com.jeroenwijering.models {
 import com.jeroenwijering.events.*;
 import com.jeroenwijering.models.ModelInterface;
 import com.jeroenwijering.player.Model;
-import flash.system.Security;
 import flash.display.Sprite;
 import flash.display.Loader;
 import flash.net.URLRequest;
@@ -40,8 +39,6 @@ public class YoutubeModel implements ModelInterface {
 	/** Setup YouTube connections and load proxy. **/
 	public function YoutubeModel(mod:Model) {
 		model = mod;
-		Security.allowDomain('*');
-		Security.allowInsecureDomain('*');
 		outgoing = new LocalConnection();
 		outgoing.allowDomain('*');
 		outgoing.addEventListener(StatusEvent.STATUS,onLocalConnectionStatusChange);
