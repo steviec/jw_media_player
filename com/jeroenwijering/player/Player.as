@@ -19,7 +19,7 @@ public class Player extends MovieClip {
 		author:undefined,
 		captions:undefined,
 		description:undefined,
-		duration:5,
+		duration:0,
 		file:undefined,
 		image:undefined,
 		link:undefined,
@@ -47,7 +47,7 @@ public class Player extends MovieClip {
 		volume:80,
 
 		abouttext:"About JW Player 4.0...",
-		aboutlink:"http://www.jeroenwijering.com/?page=player",
+		aboutlink:"http://www.jeroenwijering.com/?page=about",
 		linktarget:'_self',
 		streamscript:undefined,
 		tracecall:undefined,

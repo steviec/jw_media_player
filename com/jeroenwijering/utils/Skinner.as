@@ -11,6 +11,7 @@ import flash.display.Loader;
 import flash.display.MovieClip;
 import flash.events.*;
 import flash.net.URLRequest;
+import flash.system.*;
 
 
 public class Skinner extends EventDispatcher {
@@ -45,10 +46,11 @@ public class Skinner extends EventDispatcher {
 		config = cfg;
 		if(config['skin']) {
 			loader = new Loader();
-			loader.contentLoaderInfo.addEventListener(Event.COMPLETE,loaderHandler);
+			loader.contentLoaderInfo.addEventListener(Event.INIT,loaderHandler);
 			loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
+            var ctx = new LoaderContext(true,ApplicationDomain.currentDomain,SecurityDomain.currentDomain);
 			try {
-				loader.load(new URLRequest(config['skin']));
+				loader.load(new URLRequest(config['skin']),ctx);
 			} catch (err:Error) { 
 				dispatchEvent(new Event(Event.COMPLETE));
 			}

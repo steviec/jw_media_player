@@ -116,13 +116,17 @@ public class View extends AbstractView {
 				dat['message'] = prm;
 				break;
 			case 'LINK':
-				dat['index'] = prm;
+				if (prm > -1) {
+					dat['index'] = prm;
+				}
 				break;
 			case 'LOAD':
 				dat['object'] = prm;
 				break;
 			case 'ITEM':
-				dat['index'] = prm;
+				if (prm > -1) {
+					dat['index'] = prm;
+				}
 				break;
 			case 'SEEK':
 				dat['position'] = prm;
@@ -131,7 +135,13 @@ public class View extends AbstractView {
 				dat['percentage'] = prm;
 				break;
 			default:
-				if(prm) { dat['state'] = prm; }
+				if(prm) {
+					if(prm == true || prm == 'true') {
+						dat['state'] = true;
+					} else { 
+						dat['state'] = false;
+					}
+				}
 				break;
 		}
 		dispatchEvent(new ViewEvent(typ,dat));

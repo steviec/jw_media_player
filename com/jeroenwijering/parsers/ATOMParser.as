@@ -44,7 +44,7 @@ public class ATOMParser extends ObjectParser {
 					break;
 				case 'link':
 					if(i.@rel == 'alternate') {
-						itm['link'] = i.@href;
+						itm['link'] = i.@href.toString();
 					}
 					break;
 				case 'group':

@@ -69,7 +69,7 @@ public class ControlbarView {
 			volumeHandler(new ControllerEvent(ControllerEvent.VOLUME,{percentage:view.config['volume']}));
 		}
 		loadedHandler(new ModelEvent(ModelEvent.LOADED,{loaded:0,total:0}));
-		timeHandler(new ModelEvent(ModelEvent.TIME,{elapsed:0,duration:0}));
+		timeHandler(new ModelEvent(ModelEvent.TIME,{position:0,duration:0}));
 		stateHandler(new ModelEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE}));
 	};
 
@@ -279,24 +279,10 @@ public class ControlbarView {
 		var pct = evt.data.position/evt.data.duration;
 		var chg = false;
 		if(bar.elapsedText) {
-			if(dur > 0) {
-				if(bar.elapsedText.visible == false) {
-					bar.elapsedText.visible = true;
-					chg = true;
-				}
-				bar.elapsedText.text = Strings.digits(pos);
-			} else if(bar.elapsedText.visible == true) {
-				bar.elapsedText.visible = false;
-				chg = true;
-			}
+			bar.elapsedText.text = Strings.digits(pos);
 		}
 		if(bar.totalText) {
-			if(dur > 0) { 
-				bar.totalText.visible = true;
-				bar.totalText.text = Strings.digits(dur);
-			} else if (bar.totalText.visible == true) {
-				bar.totalText.visible = false;
-			}
+			bar.totalText.text = Strings.digits(dur);
 		}
 		if(bar.timeSlider) {
 			var xps = Math.round(pct*bar.timeSlider.rail.width);
@@ -310,10 +296,6 @@ public class ControlbarView {
 				bar.timeSlider.icon.visible = false;
 				bar.timeSlider.mark.visible = false;
 			}
-		}
-		if(chg) {
-			stacker.rearrange();
-			fixTime();
 		}
 	};
 

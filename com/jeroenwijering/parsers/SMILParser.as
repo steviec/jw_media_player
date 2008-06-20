@@ -55,15 +55,15 @@ public class SMILParser extends ObjectParser {
 		for each (var i in obj.children()) {
 			switch (i.localName()) {
 				case 'anchor':
-					itm['link'] = i.@href;
+					itm['link'] = i.@href.toString();
 					break;
 				case 'textstream':
-					itm['captions'] = i.@src;
+					itm['captions'] = i.@src.toString();
 					break;
 				case 'img':
 				case 'video':
 				case 'audio':
-					itm[i.localName()] = i.@src;
+					itm[i.localName()] = i.@src.toString();
 					itm = SMILParser.parseAttributes(i,itm);
 					break;
 				default:
@@ -97,22 +97,22 @@ public class SMILParser extends ObjectParser {
 					itm['start'] = Strings.seconds(obj.@begin);
 					break;
 				case 'src':
-					itm['file'] = obj.@src;
+					itm['file'] = obj.@src.toString();
 					break;
 				case 'title':
-					itm['title'] = obj.@title;
+					itm['title'] = obj.@title.toString();
 					break;
 				case 'dur':
 					itm['duration'] = Strings.seconds(obj.@dur);
 					break;
 				case 'author':
-					itm['author'] = obj.@author;
+					itm['author'] = obj.@author.toString();
 					break;
 				case 'type':
-					itm['type'] = obj.@type;
+					itm['type'] = obj.@type.toString();
 					break;
 				case 'alt':
-					itm['description'] = obj.@alt;
+					itm['description'] = obj.@alt.toString();
 					break;
 			}
 		}

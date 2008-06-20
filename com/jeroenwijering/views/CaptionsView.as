@@ -41,6 +41,7 @@ public class CaptionsView {
 		view.addControllerListener(ControllerEvent.ERROR,errorHandler);
 		view.addControllerListener(ControllerEvent.CAPTION,captionHandler);
 		view.addControllerListener(ControllerEvent.ITEM,itemHandler);
+		view.addControllerListener(ControllerEvent.PLAYLIST,itemHandler);
 		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
 		view.addModelListener(ModelEvent.ERROR,errorHandler);
 		view.addModelListener(ModelEvent.META,metaHandler);
@@ -71,8 +72,9 @@ public class CaptionsView {
 	/** Check for captions with a new item. **/
 	private function itemHandler(evt:ControllerEvent) {
 		current = -1;
+		setCaption('');
 		captions = new Array();
-		var cap = view.playlist[evt.data.index]['captions'];
+		var cap = view.playlist[view.config['item']]['captions'];
 		if(cap && cap != location) {
 			view.addModelListener(ModelEvent.TIME,timeHandler);
 			try {

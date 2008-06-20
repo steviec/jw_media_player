@@ -181,6 +181,7 @@ public class Model extends EventDispatcher {
 		if(currentModel) {
 			models[currentModel].stop();
 		}
+		Draw.clear(skin.display.media);
 		sendEvent(ModelEvent.LOADED,{loaded:0,total:0});
 		sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
 	};

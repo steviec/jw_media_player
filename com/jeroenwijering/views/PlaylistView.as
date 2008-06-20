@@ -59,6 +59,7 @@ public class PlaylistView {
 		clip.slider.addEventListener(MouseEvent.MOUSE_OUT,soutHandler);
 		clip.slider.addEventListener(MouseEvent.MOUSE_WHEEL,wheelHandler);
 		clip.visible = false;
+		buttons = new Array();
 	};
 
 
@@ -77,7 +78,9 @@ public class PlaylistView {
 		clip.masker.width = wid;
 		if(clr) {
 			clip.list.y = 0;
-			Draw.clear(clip.list);
+			for(var j=0; j<buttons.length; j++) {
+				clip.list.removeChild(buttons[j].c);
+			}
 			buttons = new Array();
 			clip.visible= true;
 		} else { 
@@ -96,9 +99,6 @@ public class PlaylistView {
 				setContents(i);
 			}
 			buttons[i].s.rearrange(wid);
-		}
-		if(clr && proportion < 1) { 
-			clip.back.height = buttons.length*buttonheight;
 		}
 	};
 
@@ -159,6 +159,7 @@ public class PlaylistView {
 
 	/** New playlist loaded: rebuild the playclip. **/
 	private function playlistHandler(evt:ControllerEvent) {
+		active = undefined;
 		if(view.config['playlist'] != 'none') {
 			buildList(true);
 		}

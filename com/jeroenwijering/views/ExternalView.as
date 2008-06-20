@@ -68,16 +68,16 @@ public class ExternalView {
 
 
 	/** Manage subscriptions of events. **/
-	public function addControllerListener(typ:String,fcn:String):Boolean {
-		listeners.push({target:'CONTROLLER',type:typ.toUpperCase(),callee:fcn});
+	public function addControllerListener(typ:String,fcn:Object):Boolean {
+		listeners.push({target:'CONTROLLER',type:typ.toUpperCase(),callee:String(fcn)});
 		return true;
 	};
 	public function addModelListener(typ:String,fcn:String):Boolean {
-		listeners.push({target:'MODEL',type:typ.toUpperCase(),callee:fcn});
+		listeners.push({target:'MODEL',type:typ.toUpperCase(),callee:String(fcn)});
 		return true;
 	};
 	public function addViewListener(typ:String,fcn:String):Boolean {
-		listeners.push({target:'VIEW',type:typ.toUpperCase(),callee:fcn});
+		listeners.push({target:'VIEW',type:typ.toUpperCase(),callee:String(fcn)});
 		return true;
 	};
 

@@ -32,13 +32,13 @@ public class ASXParser extends ObjectParser {
 			if(!i.localName()) { break; }
 			switch(i.localName().toLowerCase()) {
 				case 'ref':
-					itm['file'] = i.@href;
+					itm['file'] = i.@href.toString();
 					break;
 				case 'title':
 					itm['title'] = i.text().toString();
 					break;
 				case 'moreinfo':
-					itm['link'] = i.@href;
+					itm['link'] = i.@href.toString();
 					break;
 				case 'abstract':
 					itm['description'] = i.text().toString();
@@ -53,7 +53,7 @@ public class ASXParser extends ObjectParser {
 					itm['start'] = Strings.seconds(i.@value);
 					break;
 				case 'param':
-					itm[i.@name] = i.@value;
+					itm[i.@name] = i.@value.toString();
 					break;
 			}
 		}

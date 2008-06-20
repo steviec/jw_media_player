@@ -71,8 +71,12 @@ public class Controller extends EventDispatcher {
 
 	/** Save new state of the dub/caption switches. **/
 	private function captionHandler(evt:ViewEvent) {
-		if(evt.data.state && evt.data.state != config['caption']) { 
-			config['caption'] = evt.data.state;
+		if(evt.data.state != undefined) {
+			if(evt.data.state == config['caption']) { 
+				return;
+			} else { 
+				config['caption'] = evt.data.state;
+			}
 		} else { 
 			config['caption'] = !config['caption'];
 		}
@@ -128,6 +132,7 @@ public class Controller extends EventDispatcher {
 
 	/** Load a new playlist. **/
 	private function loadHandler(evt:ViewEvent) {
+		stopHandler();
 		try {
 			playlister.load(evt.data.object);
 		} catch (err:Error) {
@@ -203,11 +208,13 @@ public class Controller extends EventDispatcher {
 
 	/** Manage loading of a new playlist. **/
 	private function playlistHandler(evt:Event) {
-		dispatchEvent(new ControllerEvent(ControllerEvent.PLAYLIST,{playlist:playlist}));
 		if(config['shuffle'] == true) {
 			randomizer = new Randomizer(playlist.length);
 			config['item'] = randomizer.pick();
+		} else if (config['item'] > playlist.length) {
+			config['item'] = playlist.length-1;
 		}
+		dispatchEvent(new ControllerEvent(ControllerEvent.PLAYLIST,{playlist:playlist}));
 		if(config['autostart'] == true) {
 			playItem();
 		}
@@ -227,8 +234,12 @@ public class Controller extends EventDispatcher {
 
 	/** Switch playback quality. **/
 	private function qualityHandler(evt:ViewEvent) {
-		if(evt.data.state && evt.data.state != config['quality']) {
-			config['quality'] = evt.data.state;
+		if(evt.data.state != undefined) {
+			if(evt.data.state == config['quality']) {
+				return;
+			} else { 
+				config['quality'] = evt.data.state;
+			}
 		} else {
 			config['quality'] = !config['quality'];
 		}
@@ -280,7 +291,7 @@ public class Controller extends EventDispatcher {
 
 
 	/** Stop all playback and buffering. **/
-	private function stopHandler(evt:ViewEvent) {
+	private function stopHandler(evt:ViewEvent=undefined) {
 		dispatchEvent(new ControllerEvent(ControllerEvent.STOP));
 	};
 

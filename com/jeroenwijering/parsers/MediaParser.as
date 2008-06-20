@@ -15,7 +15,7 @@ public class MediaParser extends ObjectParser {
 		for each (var i in obj.children()) {
 			switch(i.localName()) {
 				case 'content':
-					if(!itm['file'] && ObjectParser.MIMETYPES[i.@type]) {
+					if(!itm['file'] && ObjectParser.MIMETYPES[i.@type.toString()]) {
 						itm['file'] = i.@url.toString();
 						itm['type'] = i.@type.toString();
 						if(i.@duration) {
