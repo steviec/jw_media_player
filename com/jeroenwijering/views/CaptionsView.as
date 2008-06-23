@@ -41,7 +41,6 @@ public class CaptionsView {
 		view.addControllerListener(ControllerEvent.ERROR,errorHandler);
 		view.addControllerListener(ControllerEvent.CAPTION,captionHandler);
 		view.addControllerListener(ControllerEvent.ITEM,itemHandler);
-		view.addControllerListener(ControllerEvent.PLAYLIST,itemHandler);
 		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
 		view.addModelListener(ModelEvent.ERROR,errorHandler);
 		view.addModelListener(ModelEvent.META,metaHandler);

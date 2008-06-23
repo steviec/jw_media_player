@@ -41,9 +41,11 @@ public class YoutubeModel implements ModelInterface {
 		model = mod;
 		outgoing = new LocalConnection();
 		outgoing.allowDomain('*');
+		outgoing.allowInsecureDomain('*');
 		outgoing.addEventListener(StatusEvent.STATUS,onLocalConnectionStatusChange);
 		inbound = new LocalConnection();
 		inbound.allowDomain('*');
+		inbound.allowInsecureDomain('*');
 		inbound.addEventListener(StatusEvent.STATUS,onLocalConnectionStatusChange);
 		inbound.client = this;
 		inbound.connect("_AS2_to_AS3");

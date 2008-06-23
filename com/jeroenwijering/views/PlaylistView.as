@@ -123,11 +123,13 @@ public class PlaylistView {
 
 	/** Switch the currently active item */
 	private function itemHandler(evt:ControllerEvent) {
-		var idx = evt.data.index;
+		var idx = view.config['item'];
 		if(!isNaN(active)) {
 			buttons[active].c.gotoAndPlay('out');
 		}
-		buttons[idx].c.gotoAndPlay('active');
+		if(buttons[idx]) {
+			buttons[idx].c.gotoAndPlay('active');
+		}
 		active = idx;
 	};
 
