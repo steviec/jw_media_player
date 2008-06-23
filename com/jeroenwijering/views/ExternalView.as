@@ -53,7 +53,7 @@ public class ExternalView {
 		view.addViewListener(ViewEvent.SEEK,setView);
 		view.addViewListener(ViewEvent.STOP,setView);
 		view.addViewListener(ViewEvent.VOLUME,setView);
-		if(ExternalInterface.available) {
+		if(ExternalInterface.available && ExternalInterface.objectID != null) {
 			listeners = new Array();
 			Security.allowDomain('*');
 			ExternalInterface.addCallback("getConfig", getConfig);

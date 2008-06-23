@@ -63,13 +63,13 @@ public class Model extends EventDispatcher {
 			if(url == currentURL && typ != 'rtmp') {
 				models[typ].seek(playlist[evt.data.index]['start']);
 			} else {
-				stopHandler();
-				models[typ].load();
+				models[typ].stop();
 				currentURL = url;
+				models[typ].load();
 			}
 		} else {
 			if (currentModel) {
-				stopHandler();
+				models[currentModel].stop();
 			}
 			if(!models[typ]) { 
 				loadModel(typ); 

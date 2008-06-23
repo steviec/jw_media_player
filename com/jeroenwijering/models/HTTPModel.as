@@ -98,7 +98,9 @@ public class HTTPModel implements ModelInterface {
 
 	/** Load content. **/
 	public function load() {
-		stream.close();
+		if(stream.bytesLoaded != stream.bytesTotal) {
+			stream.close();
+		}
 		var url = model.playlist[model.config['item']]['file'];
 		if(model.config["streamscript"] == "lighttpd") {
 			if(h264) {
@@ -266,7 +268,9 @@ public class HTTPModel implements ModelInterface {
 	public function stop() {
 		clearInterval(loadinterval);
 		clearInterval(timeinterval);
-		stream.close();
+		if(stream.bytesLoaded != stream.bytesTotal) {
+			stream.close();
+		}
 		offset = timeoffset = 0;
 	};
 

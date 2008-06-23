@@ -67,7 +67,6 @@ public class VideoModel implements ModelInterface {
 
 	/** Load content. **/
 	public function load() {
-		stream.close();
 		stream.play(model.playlist[model.config['item']]['file']);
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 		loadinterval = setInterval(loadHandler,100);
@@ -94,6 +93,9 @@ public class VideoModel implements ModelInterface {
 		};
 		model.sendEvent(ModelEvent.META,dat);
 	};
+
+
+	public function onLastSecond(info:Object) {};
 
 
 	/** Get metadata information from netstream class. **/
@@ -178,7 +180,9 @@ public class VideoModel implements ModelInterface {
 
 	/** Destroy the video. **/
 	public function stop() {
-		stream.close();
+		if(stream.bytesLoaded != stream.bytesTotal) {
+			stream.close();
+		}
 		metadata = false;
 		clearInterval(loadinterval);
 		clearInterval(timeinterval);
