@@ -38,8 +38,7 @@ public class Controller extends EventDispatcher {
 		skin.stage.scaleMode = "noScale";
 		skin.stage.align = "TL";
 		skin.stage.addEventListener(Event.RESIZE,resizeHandler);
-		config['height'] = skin.stage.stageHeight,
-		config['width'] = skin.stage.stageWidth,
+		resizeHandler(new Event(Event.RESIZE));
 		playlister = new Playlister();
 		playlister.addEventListener(Event.COMPLETE,playlistHandler);
 		playlister.addEventListener(ErrorEvent.ERROR,errorHandler);
@@ -66,8 +65,8 @@ public class Controller extends EventDispatcher {
 		view.addEventListener(ViewEvent.SEEK,seekHandler);
 		view.addEventListener(ViewEvent.STOP,stopHandler);
 		view.addEventListener(ViewEvent.VOLUME,volumeHandler);
-		if(config['file']) { playlister.load(config); }
 		resizeHandler(new Event(Event.RESIZE));
+		if(config['file']) { playlister.load(config); }
 	};
 
 
