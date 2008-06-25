@@ -38,6 +38,8 @@ public class Controller extends EventDispatcher {
 		skin.stage.scaleMode = "noScale";
 		skin.stage.align = "TL";
 		skin.stage.addEventListener(Event.RESIZE,resizeHandler);
+		config['height'] = skin.stage.stageHeight,
+		config['width'] = skin.stage.stageWidth,
 		playlister = new Playlister();
 		playlister.addEventListener(Event.COMPLETE,playlistHandler);
 		playlister.addEventListener(ErrorEvent.ERROR,errorHandler);
@@ -64,8 +66,8 @@ public class Controller extends EventDispatcher {
 		view.addEventListener(ViewEvent.SEEK,seekHandler);
 		view.addEventListener(ViewEvent.STOP,stopHandler);
 		view.addEventListener(ViewEvent.VOLUME,volumeHandler);
-		resizeHandler(new Event(Event.RESIZE));
 		if(config['file']) { playlister.load(config); }
+		resizeHandler(new Event(Event.RESIZE));
 	};
 
 
@@ -93,12 +95,12 @@ public class Controller extends EventDispatcher {
 
 	/** Switch fullscreen state. **/
 	private function fullscreenHandler(evt:ViewEvent) {
-		if(skin.stage.displayState == 'fullScreen') {
-			skin.stage.displayState = 'normal';
+		if(skin.stage['displayState'] == 'fullScreen') {
+			skin.stage['displayState'] = 'normal';
 		} else {
 			skin.stage["fullScreenSourceRect"] = new Rectangle(0,0,
 				Capabilities.screenResolutionX/2,Capabilities.screenResolutionY/2);
-			skin.stage.displayState = 'fullScreen';
+			skin.stage['displayState'] = 'fullScreen';
 		}
 	};
 
@@ -182,6 +184,7 @@ public class Controller extends EventDispatcher {
 
 	/** Change the playback state. **/
 	private function playHandler(evt:ViewEvent) {
+		if(playlist.length == 0) { return; }
 		if(evt.data.state != false && config['state'] == ModelStates.PAUSED) {
 			dispatchEvent(new ControllerEvent(ControllerEvent.PLAY,{state:true}));
 		} else if (evt.data.state != false && config['state'] == ModelStates.COMPLETED) {
@@ -263,11 +266,12 @@ public class Controller extends EventDispatcher {
 		} else if(config['playlist'] == 'bottom') {
 			dat.height -= config['playlistsize'];
 		}
-		if(skin.stage.displayState == 'fullScreen') {
+		if(skin.stage['displayState'] == 'fullScreen') {
 			dat.fullscreen = true;
 			dat.height = skin.stage.stageHeight;
 			dat.width = skin.stage.stageWidth;
 		}
+		if(dat.height < 0) { dat.height = 0; }
 		config['height'] = dat.height;
 		config['width'] = dat.width;
 		dispatchEvent(new ControllerEvent(ControllerEvent.RESIZE,dat));

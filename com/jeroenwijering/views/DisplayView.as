@@ -59,7 +59,7 @@ public class DisplayView {
 			Draw.clear(display.logo);
 			if(view.config['logo']) { setLogo(); }
 		} catch (err:Error) {}
-		setIcon();
+		setIcon('playIcon');
 	};
 
 

@@ -146,7 +146,7 @@ public class Model extends EventDispatcher {
 	private function playlistHandler(evt:ControllerEvent) {
 		if(currentModel) {
 			stopHandler();
-		} else { 
+		} else {
 			sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
 		}
 		thumbLoader();

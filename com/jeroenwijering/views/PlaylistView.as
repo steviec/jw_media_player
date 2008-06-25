@@ -175,6 +175,7 @@ public class PlaylistView {
 			clip.y = 0;
 			clip.back.width = view.config['playlistsize'];
 			clip.back.height = evt.data.height;
+			buildList(false);
 		} else if (view.config['playlist'] == 'bottom') {
 			clip.x = 0;
 			clip.y = evt.data.height;
@@ -183,14 +184,15 @@ public class PlaylistView {
 			}
 			clip.back.height = view.config['playlistsize'];
 			clip.back.width = evt.data.width;
+			buildList(false);
 		} else if (view.config['playlist'] == 'over') {
 			clip.x = clip.y = 0;
 			clip.back.width = evt.data.width;
 			clip.back.height = evt.data.height;
+			buildList(false);
 		} else {
 			clip.visible = false;
 		}
-		buildList(false);
 	};
 
 

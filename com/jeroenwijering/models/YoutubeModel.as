@@ -22,8 +22,6 @@ public class YoutubeModel implements ModelInterface {
 
 	/** Reference to the Model **/
 	private var model:Model;
-	/** Location of the YT proxy **/
-	private var proxy:String = "http://www.jeroenwijering.com/embed/yt.swf";
 	/** Loader for loading the YouTube proxy **/
 	private var loader:Loader;
 	/** Connection towards the YT proxy. **/
@@ -51,7 +49,9 @@ public class YoutubeModel implements ModelInterface {
 		inbound.connect("_AS2_to_AS3");
 		loader = new Loader();
 		loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
-		loader.load(new URLRequest(proxy));
+		var url = model.skin.loaderInfo.url;
+		var ytb = url.substr(0,url.lastIndexOf('/')+1)+'yt.swf';
+		loader.load(new URLRequest(ytb));
 	};
 
 

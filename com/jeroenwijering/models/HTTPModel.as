@@ -118,6 +118,7 @@ public class HTTPModel implements ModelInterface {
 		url += '&width='+model.config['width'];
 		url += '&client='+encodeURI(model.config['client']);
 		url += '&version='+encodeURI(model.config['version']);
+		trace(url);
 		stream.play(url);
 		clearInterval(loadinterval);
 		clearInterval(timeinterval);
@@ -178,10 +179,12 @@ public class HTTPModel implements ModelInterface {
 		for(var i in info) {
 			dat[i] = info[i];
 		}
-		delete dat.seekpoints;
-		dat.keyframes = '';
-		for(var k=0; k<keyframes.times.length; k++) {
-			dat['keyframes'] += ','+keyframes.times[k]+':'+keyframes.filepositions[k];
+		if(keyframes) { 
+			delete dat.seekpoints;
+			dat.keyframes = '';
+			for(var k=0; k<keyframes.times.length; k++) {
+				dat['keyframes'] += ','+keyframes.times[k]+':'+keyframes.filepositions[k];
+			}
 		}
 		model.sendEvent(ModelEvent.META,dat);
 		if(model.playlist[model.config['item']]['start'] > 0) {
@@ -268,10 +271,12 @@ public class HTTPModel implements ModelInterface {
 	public function stop() {
 		clearInterval(loadinterval);
 		clearInterval(timeinterval);
+		offset = timeoffset = 0;
+		h264 = false;
+		keyframes = undefined;
 		if(stream.bytesLoaded != stream.bytesTotal) {
 			stream.close();
 		}
-		offset = timeoffset = 0;
 	};
 
 

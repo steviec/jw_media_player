@@ -197,7 +197,7 @@ public class ControlbarView {
 			bar.visible = false;
 		}
 		if(bar.fullscreenButton) {
-			if(view.config['fullscreen']==false || bar.stage.displayState==null) {
+			if(view.config['fullscreen']==false || bar.stage['displayState'] == null) {
 				bar.fullscreenButton.visible = false;
 				bar.normalscreenButton.visible = false;
 			} else if(evt.data.fullscreen == true) {
@@ -246,7 +246,7 @@ public class ControlbarView {
 		switch(evt.data.newstate) { 
 			case ModelStates.PLAYING:
 				if(view.config['controlbar'] == 'over' || 
-					bar.stage.displayState == 'fullScreen') {
+					bar.stage['displayState'] == 'fullScreen') {
 					hiding = setTimeout(moveTimeout,1000);
 					view.skin.addEventListener(MouseEvent.MOUSE_MOVE,moveHandler);
 				}
@@ -258,7 +258,7 @@ public class ControlbarView {
 				break;
 			default: 
 				if(view.config['controlbar'] == 'over' || 
-					bar.stage.displayState == 'fullScreen') {
+					bar.stage['displayState'] == 'fullScreen') {
 					clearTimeout(hiding);
 					Animations.fade(bar,1);
 					view.skin.removeEventListener(MouseEvent.MOUSE_MOVE,moveHandler);
