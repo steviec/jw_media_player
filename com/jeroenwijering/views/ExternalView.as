@@ -53,7 +53,7 @@ public class ExternalView {
 		view.addViewListener(ViewEvent.SEEK,setView);
 		view.addViewListener(ViewEvent.STOP,setView);
 		view.addViewListener(ViewEvent.VOLUME,setView);
-		if(ExternalInterface.available && view.skin.loaderInfo.url.indexOf('file://') == -1) {
+		if(ExternalInterface.available && view.skin.loaderInfo.url.indexOf('http://') == 0) {
 			listeners = new Array();
 			Security.allowDomain('*');
 			ExternalInterface.addCallback("getConfig", getConfig);
