@@ -31,11 +31,12 @@ public class View extends AbstractView {
 	/**  A list with all the active plugins. **/
 	private var plugins:Array;
 	/** Base directory for the plugins. **/
-	private var DIRECTORY:String = 'http://plugins.longtailvideo.com/';
+	private var directory:String = 'http://plugins.longtailvideo.com/';
 
 
 	/** Constructor, save references and subscribe to events. **/
 	public function View(cfg:Object,skn:MovieClip,ctr:Controller,mdl:Model) {
+		Security.allowDomain('*');
 		_config = cfg;
 		_skin = skn;
 		_config['controlbarheight'] = _skin['controlbar'].height;
@@ -64,8 +65,12 @@ public class View extends AbstractView {
 			var ldr = new Loader();
 			_skin.addChild(ldr);
 			ldr.contentLoaderInfo.addEventListener(Event.INIT,loadHandler);
-            var ctx = new LoaderContext(true,ApplicationDomain.currentDomain,SecurityDomain.currentDomain);
-			ldr.load(new URLRequest(DIRECTORY+arr[i]+'.swf'),ctx);
+			if(skin.loaderInfo.url.indexOf('http://') == 0) {
+            	var ctx = new LoaderContext(true,ApplicationDomain.currentDomain,SecurityDomain.currentDomain);
+				ldr.load(new URLRequest(directory+arr[i]+'.swf'),ctx);
+			} else {
+				ldr.load(new URLRequest(arr[i]+'.swf'));
+			}
 		}
 	};
 
