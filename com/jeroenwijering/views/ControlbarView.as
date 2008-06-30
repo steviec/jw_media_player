@@ -219,7 +219,7 @@ public class ControlbarView {
 			if(view.config['fullscreen']==false || bar.stage['displayState'] == null) {
 				bar.fullscreenButton.visible = false;
 				bar.normalscreenButton.visible = false;
-			} else if(evt.data.fullscreen == true) {
+			} else if(evt && evt.data.fullscreen == true) {
 				bar.fullscreenButton.visible = false;
 				bar.normalscreenButton.visible = true;
 			} else {
