@@ -7,6 +7,7 @@ package com.jeroenwijering.player {
 import com.jeroenwijering.player.*;
 import com.jeroenwijering.utils.Configger;
 import com.jeroenwijering.utils.Skinner;
+import com.jeroenwijering.views.*;
 import flash.display.MovieClip;
 import flash.events.Event;
 
@@ -53,16 +54,17 @@ public class Player extends MovieClip {
 		tracecall:undefined,
 
 		client:undefined,
-		controlbarheight:20,
-		height:300,
+		controlbarsize:20,
+		height:280,
+		margins:'0,0',
 		plugins:undefined,
 		state:'IDLE',
-		version:'4.0 r21',
+		version:'4.0 r23',
 		width:400
 	};
 	/** Object that loads all configuration variables. **/
 	private var configger:Configger;
-	/** Object that load the skin and inits the layout. **/
+	/** Object that load the skin and plugins. **/
 	private var skinner:Skinner;
 	/** Reference to the Controller of the MVC cycle. **/
 	private var controller:Controller;
@@ -70,11 +72,13 @@ public class Player extends MovieClip {
 	private var model:Model;
 	/** Reference to the View of the MVC cycle. **/
 	private var _view:View;
+	/** A list with all the active views. **/
+	private var views:Array;
 
 
 	/** Constructor; Loads config parameters. **/
 	public function Player() {
-		this.visible = false;
+		visible = false;
 		configger = new Configger(this);
 		configger.addEventListener(Event.COMPLETE,configHandler);
 		configger.load(defaults);
@@ -91,10 +95,19 @@ public class Player extends MovieClip {
 
 	/** Skin loading completed, now load MVC and plugins. **/
 	private function skinHandler(evt:Event) {
-		this.visible = true;
+		visible = true;
 		controller = new Controller(configger.config,skinner.skin);
 		model = new Model(configger.config,skinner.skin,controller);
 		_view = new View(configger.config,skinner.skin,controller,model);
+		views = new Array(
+			new ExternalView(_view),
+			new KeyboardView(_view),
+			new RightclickView(_view),
+			new DisplayView(_view),
+			new ControlbarView(_view),
+			new PlaylistView(_view),
+			new CaptionsView(_view)
+		);
 		controller.start(model,_view);
 	};
 

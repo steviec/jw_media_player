@@ -42,6 +42,7 @@ public class DisplayView {
 	/** Constructor; add all needed listeners. **/
 	public function DisplayView(vie:View) {
 		view = vie;
+		if(!view.skin['display']) { return; }
 		view.addControllerListener(ControllerEvent.ERROR,errorHandler);
 		view.addControllerListener(ControllerEvent.MUTE,muteHandler);
 		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
@@ -60,6 +61,7 @@ public class DisplayView {
 			if(view.config['logo']) { setLogo(); }
 		} catch (err:Error) {}
 		setIcon('playIcon');
+		resizeHandler();
 	};
 
 
@@ -115,9 +117,9 @@ public class DisplayView {
 
 
 	/** Receive resizing requests **/
-	private function resizeHandler(evt:ControllerEvent) {
-		var wid = evt.data.width;
-		var hei = evt.data.height;
+	private function resizeHandler(evt:ControllerEvent=undefined) {
+		var wid = view.config['width'];
+		var hei = view.config['height'];
 		if(hei > 0) { 
 			display.visible = true;
 		} else { 

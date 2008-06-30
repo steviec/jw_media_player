@@ -40,6 +40,7 @@ public class PlaylistView {
 
 	public function PlaylistView(vie:View) {
 		view = vie;
+		if(!view.skin['playlist']) { return; }
 		view.addControllerListener(ControllerEvent.ITEM,itemHandler);
 		view.addControllerListener(ControllerEvent.PLAYLIST,playlistHandler);
 		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
@@ -180,7 +181,7 @@ public class PlaylistView {
 			clip.x = 0;
 			clip.y = evt.data.height;
 			if (view.config['controlbar'] == 'bottom') {
-				clip.y += view.config['controlbarheight'];
+				clip.y += view.config['controlbarsize'];
 			}
 			clip.back.height = view.config['playlistsize'];
 			clip.back.width = evt.data.width;

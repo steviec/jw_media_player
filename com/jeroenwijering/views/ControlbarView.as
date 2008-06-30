@@ -21,6 +21,8 @@ public class ControlbarView {
 	private var view:View;
 	/** Reference to the controlbar **/
 	private var bar:MovieClip;
+	/** Fullscreen controlbar margin. **/
+	private var margin:Number;
 	/** A list with all controls. **/
 	private var stacker:Stacker;
 	/** Timeout for hiding the bar. **/
@@ -35,17 +37,21 @@ public class ControlbarView {
 		linkButton:'LINK',
 		fullscreenButton:'FULLSCREEN',
 		normalscreenButton:'FULLSCREEN',
+		captiononButton:'CAPTION',
+		captionoffButton:'CAPTION',
 		muteButton:'MUTE',
 		unmuteButton:'MUTE'
 	};
 	/** When scrubbing, icon shouldn't be set. **/
-	private var scrubbing;
+	private var scrubbing:Boolean;
 
 
 	/** Constructor. **/
 	public function ControlbarView(vie:View) {
 		view = vie;
+		if(!view.skin['controlbar']) { return; }
 		bar = view.skin['controlbar'];
+		margin = bar.x;
 		stacker = new Stacker(bar);
 		setButtons();
 		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
@@ -68,9 +74,26 @@ public class ControlbarView {
 			view.addControllerListener(ControllerEvent.VOLUME,volumeHandler);
 			volumeHandler(new ControllerEvent(ControllerEvent.VOLUME,{percentage:view.config['volume']}));
 		}
+		if(bar['captiononButton']) {
+			view.addControllerListener(ControllerEvent.CAPTION,captionHandler);
+			captionHandler(new ControllerEvent(ControllerEvent.CAPTION,{state:view.config['caption']}));
+		}
 		loadedHandler(new ModelEvent(ModelEvent.LOADED,{loaded:0,total:0}));
 		timeHandler(new ModelEvent(ModelEvent.TIME,{position:0,duration:0}));
-		stateHandler(new ModelEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE}));
+		stateHandler();
+		resizeHandler();
+	};
+
+
+	/** Toggle the caption buttons (if there). **/
+	private function captionHandler(evt:ControllerEvent) {
+		if(evt.data.state == true) {
+			bar.captionoffButton.visible = true;
+			bar.captiononButton.visible = false;
+		} else {
+			bar.captionoffButton.visible = false;
+			bar.captiononButton.visible = true;
+		}
 	};
 
 
@@ -173,25 +196,21 @@ public class ControlbarView {
 
 
 	/** Process resizing requests **/
-	private function resizeHandler(evt:ControllerEvent) {
+	private function resizeHandler(evt:ControllerEvent=undefined) {
 		var wid = stacker.width;
-		if(view.config['controlbar']=='over' || evt.data.fullscreen==true) {
-			bar.y = evt.data.height - view.config['controlbarheight']*2;
-			if(evt.data.width > 640) { 
-				bar.x = Math.round(evt.data.width/2-300);
-				wid = 600;
-			} else { 
-				bar.x = view.config['controlbarheight'];
-				wid = evt.data.width - view.config['controlbarheight']*2;
-			}
+		if(view.config['controlbar']=='over' || (evt && evt.data.fullscreen==true)) {
+			bar.y = view.config['height'] - view.config['controlbarsize']-margin;
+			bar.x = margin;
+			wid = view.config['width']-2*margin;
 		} else if(view.config['controlbar']=='bottom') {
 			bar.x = 0;
-			wid = evt.data.width;
-			bar.y = evt.data.height;
+			wid = view.config['width'];
+			bar.y = view.config['height'];
 			if(view.config['playlist'] == 'right') {
 				wid += view.config['playlistsize'];
 			}
 			view.skin.removeEventListener(MouseEvent.MOUSE_MOVE,moveHandler);
+			clearTimeout(hiding);
 			Animations.fade(bar,1);
 		} else { 
 			bar.visible = false;
@@ -242,8 +261,8 @@ public class ControlbarView {
 
 
 	/** Process state changes **/
-	private function stateHandler(evt:ModelEvent) {
-		switch(evt.data.newstate) { 
+	private function stateHandler(evt:ModelEvent=undefined) {
+		switch(view.config['state']) { 
 			case ModelStates.PLAYING:
 				if(view.config['controlbar'] == 'over' || 
 					bar.stage['displayState'] == 'fullScreen') {

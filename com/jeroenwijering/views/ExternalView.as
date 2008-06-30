@@ -8,7 +8,6 @@ import com.jeroenwijering.events.*;
 import com.jeroenwijering.player.View;
 import flash.external.ExternalInterface;
 import flash.system.Capabilities;
-import flash.system.Security;
 
 
 public class ExternalView {
@@ -50,12 +49,12 @@ public class ExternalView {
 		view.addViewListener(ViewEvent.PLAY,setView);
 		view.addViewListener(ViewEvent.PREV,setView);
 		view.addViewListener(ViewEvent.QUALITY,setView);
+		view.addViewListener(ViewEvent.RESIZE,setView);
 		view.addViewListener(ViewEvent.SEEK,setView);
 		view.addViewListener(ViewEvent.STOP,setView);
 		view.addViewListener(ViewEvent.VOLUME,setView);
 		if(ExternalInterface.available && view.skin.loaderInfo.url.indexOf('http://') == 0) {
 			listeners = new Array();
-			Security.allowDomain('*');
 			ExternalInterface.addCallback("getConfig", getConfig);
 			ExternalInterface.addCallback("getPlaylist", getPlaylist);
 			ExternalInterface.addCallback("addControllerListener", addControllerListener);
@@ -89,7 +88,7 @@ public class ExternalView {
 		if(prm.length > 0) {
 			prm = '('+prm.substr(0,prm.length-1)+')';
 		}
-		if(Capabilities.playerType == 'External') { 
+		if(Capabilities.playerType == 'External') {
 			trace(tgt+': '+typ+' '+prm);
 		} else if(view.config['tracecall']) { 
 			ExternalInterface.call(view.config['tracecall'],tgt+': '+typ+' '+prm);
@@ -122,7 +121,7 @@ public class ExternalView {
 			client:view.config['client'],
 			version:view.config['version']
 		};
-		try { 
+		try {
 			ExternalInterface.call("playerReady",dat);
 		} catch (err:Error) {}
 	};

@@ -190,15 +190,15 @@ public class Model extends EventDispatcher {
 	/**  Dispatch events. State switch is saved. **/
 	public function sendEvent(typ:String,dat:Object) {
 		if(typ == ModelEvent.STATE && dat.newstate != config['state']) {
+			dat.oldstate = config['state'];
+			config['state'] = dat.newstate;
+			dispatchEvent(new ModelEvent(typ,dat));
 			if(dat.newstate == ModelStates.IDLE || dat.newstate == ModelStates.COMPLETED) {
 				sendEvent(ModelEvent.TIME,{
 					position:playlist[config['item']]['start'],
 					duration:playlist[config['item']]['duration']
 				});
 			}
-			dat.oldstate = config['state'];
-			config['state'] = dat.newstate;
-			dispatchEvent(new ModelEvent(typ,dat));
 		} else if (typ != ModelEvent.STATE) {
 			dispatchEvent(new ModelEvent(typ,dat));
 		}

@@ -11,7 +11,6 @@ import flash.display.Sprite;
 import flash.net.SharedObject;
 import flash.net.URLRequest;
 import flash.net.URLLoader;
-import flash.system.Capabilities;
 
 
 public class Configger extends EventDispatcher {
@@ -40,7 +39,6 @@ public class Configger extends EventDispatcher {
 	**/
 	public function load(def:Object) {
 		config = def;
-		config['client'] = 'FLASH '+Capabilities.version;
 		var xml = reference.root.loaderInfo.parameters['config'];
 		if(xml) {
 			loadXML(Strings.decode(xml));

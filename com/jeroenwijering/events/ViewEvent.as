@@ -22,6 +22,7 @@ public class ViewEvent extends Event {
 	public static var PLAY:String = "PLAY";
 	public static var PREV:String = "PREV";
 	public static var QUALITY:String = "QUALITY";
+	public static var RESIZE:String = "RESIZE";
 	public static var SEEK:String = "SEEK";
 	public static var STOP:String = "STOP";
 	public static var VOLUME:String = "VOLUME";

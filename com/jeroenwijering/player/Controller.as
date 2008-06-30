@@ -35,13 +35,13 @@ public class Controller extends EventDispatcher {
 	public function Controller(cfg:Object,skn:MovieClip) {
 		config = cfg;
 		skin = skn;
-		skin.stage.scaleMode = "noScale";
-		skin.stage.align = "TL";
-		skin.stage.addEventListener(Event.RESIZE,resizeHandler);
-		resizeHandler(new Event(Event.RESIZE));
 		playlister = new Playlister();
 		playlister.addEventListener(Event.COMPLETE,playlistHandler);
 		playlister.addEventListener(ErrorEvent.ERROR,errorHandler);
+		resizeHandler(new ViewEvent(ViewEvent.RESIZE, {
+			width:skin.stage.stageWidth,
+			height:skin.stage.stageHeight
+		}));
 	};
 
 
@@ -62,10 +62,10 @@ public class Controller extends EventDispatcher {
 		view.addEventListener(ViewEvent.PLAY,playHandler);
 		view.addEventListener(ViewEvent.PREV,prevHandler);
 		view.addEventListener(ViewEvent.QUALITY,qualityHandler);
+		view.addEventListener(ViewEvent.RESIZE,resizeHandler);
 		view.addEventListener(ViewEvent.SEEK,seekHandler);
 		view.addEventListener(ViewEvent.STOP,stopHandler);
 		view.addEventListener(ViewEvent.VOLUME,volumeHandler);
-		resizeHandler(new Event(Event.RESIZE));
 		if(config['file']) { playlister.load(config); }
 	};
 
@@ -204,7 +204,9 @@ public class Controller extends EventDispatcher {
 			}
 			config['item'] = nbr;
 		}
+		trace('before item event');
 		dispatchEvent(new ControllerEvent(ControllerEvent.ITEM,{index:config['item']}));
+		trace('after item event');
 	};
 
 
@@ -251,26 +253,25 @@ public class Controller extends EventDispatcher {
 
 
 	/** Forward a resizing of the stage. **/
-	private function resizeHandler(evt:Event) {
+	private function resizeHandler(evt:ViewEvent) {
+		var mgn = config['margins'].split(',');
 		var dat = {
-			height:skin.stage.stageHeight,
-			width:skin.stage.stageWidth,
+			height:evt.data.height - mgn[0],
+			width:evt.data.width - mgn[1],
 			fullscreen:false
 		};
-		if(config['controlbar'] == 'bottom') {
-			dat.height -= config['controlbarheight'];
-		}
-		if(config['playlist'] == 'right') {
-			dat.width -= config['playlistsize'];
-		} else if(config['playlist'] == 'bottom') {
-			dat.height -= config['playlistsize'];
-		}
 		if(skin.stage['displayState'] == 'fullScreen') {
 			dat.fullscreen = true;
-			dat.height = skin.stage.stageHeight;
-			dat.width = skin.stage.stageWidth;
+		} else {
+			if(config['controlbar'] == 'bottom') {
+				dat.height -= config['controlbarsize'];
+			}
+			if(config['playlist'] == 'right') {
+				dat.width -= config['playlistsize'];
+			} else if(config['playlist'] == 'bottom') {
+				dat.height -= config['playlistsize'];
+			}
 		}
-		if(dat.height < 0) { dat.height = 0; }
 		config['height'] = dat.height;
 		config['width'] = dat.width;
 		dispatchEvent(new ControllerEvent(ControllerEvent.RESIZE,dat));

@@ -38,6 +38,7 @@ public class CaptionsView {
 
 	public function CaptionsView(vie:View) {
 		view = vie;
+		if(!view.skin['captions']) { return; }
 		view.addControllerListener(ControllerEvent.ERROR,errorHandler);
 		view.addControllerListener(ControllerEvent.CAPTION,captionHandler);
 		view.addControllerListener(ControllerEvent.ITEM,itemHandler);

@@ -26,8 +26,6 @@ public class View extends AbstractView {
 	private var controller:Controller;
 	/** Model of the MVC cycle. **/
 	private var model:Model;
-	/** A list with all the active views. **/
-	private var views:Array;
 	/**  A list with all the active plugins. **/
 	private var plugins:Array;
 	/** Base directory for the plugins. **/
@@ -38,11 +36,14 @@ public class View extends AbstractView {
 	public function View(cfg:Object,skn:MovieClip,ctr:Controller,mdl:Model) {
 		Security.allowDomain('*');
 		_config = cfg;
+		_config['client'] = 'FLASH '+Capabilities.version;
 		_skin = skn;
-		_config['controlbarheight'] = _skin['controlbar'].height;
+		_skin.stage.scaleMode = "noScale";
+		_skin.stage.align = "TL";
+		_skin.stage.addEventListener(Event.RESIZE,resizeHandler);
+		_config['controlbarsize'] = _skin['controlbar'].height;
 		controller = ctr;
 		model = mdl;
-		loadViews();
 		if(_config['plugins']) {
 			plugins = new Array();
 			loadPlugins();
@@ -75,22 +76,13 @@ public class View extends AbstractView {
 	};
 
 
-	/** Add all default views. **/
-	private function loadViews() {
-		views = new Array();
-		views.push(new ExternalView(this));
-		views.push(new KeyboardView(this));
-		views.push(new RightclickView(this));
-		views.push(new DisplayView(this));
-		if(_skin.controlbar) {
-			views.push(new ControlbarView(this));
-		}
-		if(_skin.playlist) {
-			views.push(new PlaylistView(this));
-		}
-		if(_skin.captions) {
-			views.push(new CaptionsView(this));
-		}
+	/** Forward a resizing of the stage. **/
+	private function resizeHandler(evt:Event=undefined) {
+		var dat = {
+			height:_skin.stage.stageHeight,
+			width:_skin.stage.stageWidth
+		};
+		dispatchEvent(new ViewEvent(ViewEvent.RESIZE,dat));
 	};
 
 

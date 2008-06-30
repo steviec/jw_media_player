@@ -48,22 +48,22 @@ public class Skinner extends EventDispatcher {
 			loader = new Loader();
 			loader.contentLoaderInfo.addEventListener(Event.INIT,loaderHandler);
 			loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
-            var ctx = new LoaderContext(true,ApplicationDomain.currentDomain,SecurityDomain.currentDomain);
-			try {
+			if(player.loaderInfo.url.indexOf('http://') == 0) {
+				var ctx = new LoaderContext(true,ApplicationDomain.currentDomain,SecurityDomain.currentDomain);
 				loader.load(new URLRequest(config['skin']),ctx);
-			} catch (err:Error) { 
-				dispatchEvent(new Event(Event.COMPLETE));
+			} else { 
+				loader.load(new URLRequest(config['skin']));
 			}
 		} else {
-			skin = player.root['player'];
+			skin = player['player'];
 			dispatchEvent(new Event(Event.COMPLETE));
 		}
 	};
 
 
 	/** SWF loading failed; use default skin. **/
-	private function errorHandler(evt:IOErrorEvent) {
-		skin = player.root['player'];
+	private function errorHandler(evt:IOErrorEvent=undefined) {
+			skin = player['player'];
 		dispatchEvent(new Event(Event.COMPLETE));
 	};
 
@@ -77,9 +77,6 @@ public class Skinner extends EventDispatcher {
 		}
 		Draw.clear(player);
 		player.addChild(skin);
-		if(skin['controlbar']) { 
-			config['controlbarheight'] = skin['controlbar'].height;
-		}
 		dispatchEvent(new Event(Event.COMPLETE));
 	};
 
