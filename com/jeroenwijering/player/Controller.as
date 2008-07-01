@@ -196,7 +196,8 @@ public class Controller extends EventDispatcher {
 			dispatchEvent(new ControllerEvent(ControllerEvent.SEEK,{position:playlist[config['item']]['start']}));
 		} else if(evt.data.state != false && config['state'] == ModelStates.IDLE) {
 			playItem();
-		} else if (evt.data.state != true && (config['state'] == ModelStates.PLAYING || config['state'] == ModelStates.BUFFERING)) {
+		} else if (evt.data.state != true && 
+			(config['state'] == ModelStates.PLAYING || config['state'] == ModelStates.BUFFERING)) {
 			dispatchEvent(new ControllerEvent(ControllerEvent.PLAY,{state:false}));
 		} 
 	};

@@ -67,7 +67,8 @@ public class View extends AbstractView {
 			_skin.addChild(ldr);
 			ldr.contentLoaderInfo.addEventListener(Event.INIT,loadHandler);
 			if(skin.loaderInfo.url.indexOf('http://') == 0) {
-            	var ctx = new LoaderContext(true,ApplicationDomain.currentDomain,SecurityDomain.currentDomain);
+            	var ctx = new LoaderContext(true,ApplicationDomain.currentDomain,
+					SecurityDomain.currentDomain);
 				ldr.load(new URLRequest(directory+arr[i]+'.swf'),ctx);
 			} else {
 				ldr.load(new URLRequest(arr[i]+'.swf'));

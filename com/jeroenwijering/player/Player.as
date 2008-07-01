@@ -59,7 +59,7 @@ public class Player extends MovieClip {
 		margins:'0,0',
 		plugins:undefined,
 		state:'IDLE',
-		version:'4.0 r23',
+		version:'4.0 $Rev$',
 		width:400
 	};
 	/** Object that loads all configuration variables. **/
