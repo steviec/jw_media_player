@@ -66,7 +66,13 @@ public class Controller extends EventDispatcher {
 		view.addEventListener(ViewEvent.SEEK,seekHandler);
 		view.addEventListener(ViewEvent.STOP,stopHandler);
 		view.addEventListener(ViewEvent.VOLUME,volumeHandler);
-		if(config['file']) { playlister.load(config); }
+		resizeHandler(new ViewEvent(ViewEvent.RESIZE, {
+			width:skin.stage.stageWidth,
+			height:skin.stage.stageHeight
+		}));
+		if(config['file']) { 
+			playlister.load(config); 
+		}
 	};
 
 
