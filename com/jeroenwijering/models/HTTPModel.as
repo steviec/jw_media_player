@@ -160,6 +160,10 @@ public class HTTPModel implements ModelInterface {
 			video.width = info.width;
 			video.height = info.height;
 			model.mediaHandler(video);
+		} else if(info.videodatarate) {
+			video.width = 320;
+			video.height = 240;
+			model.mediaHandler(video);
 		} else { 
 			model.mediaHandler();
 		}
