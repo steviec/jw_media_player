@@ -94,7 +94,8 @@ public class VideoModel implements ModelInterface {
 		model.sendEvent(ModelEvent.META,dat);
 	};
 
-
+	/** Handlers for cuepoints. **/
+	public function onCuePoint(info:Object) {};
 	public function onLastSecond(info:Object) {};
 
 

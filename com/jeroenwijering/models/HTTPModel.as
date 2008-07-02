@@ -149,8 +149,9 @@ public class HTTPModel implements ModelInterface {
 	};
 
 
-	/** Handler for onLastSecond call. **/
-	public function onLastSecond(info:Object) { };
+	/** Handlers for cuepoints. **/
+	public function onCuePoint(info:Object) {};
+	public function onLastSecond(info:Object) {};
 
 
 	/** Get metadata information from netstream class. **/

@@ -15,12 +15,21 @@
 <body>
 
 	<h3>Example</h3>
-	<p>Thanks for downloading! Below you see a simple embedded example of the <a href="http://www.jeroenwijering.com/?item=JW_FLV_Media_Player">JW Player</a>. Copy-paste the source code and put the SWF and FLV file on your site to get started.</p>
+	<p>Thanks for downloading! Below you see a simple embedded example of the <a href="http://www.jeroenwijering.com/?item=JW_FLV_Media_Player">JW Player</a>. Copy-paste the source code and put the SWF, JS and FLV file on your site to get started.</p>
 
 
 
 
-	<embed id="ply" name="ply" src="player.swf" width="328" height="200" allowfullscreen="true" allowscriptaccess="true" flashvars="file=video.flv" />
+
+	<div id="container"><a href="http://www.macromedia.com/go/getflashplayer">Get the Flash Player</a> to see this player.</div>
+	<script type="text/javascript" src="swfobject.js"></script>
+	<script type="text/javascript">
+		var s1 = new SWFObject("player.swf","ply","328","200","9","#FFFFFF");
+		s1.addParam("allowfullscreen","true");
+		s1.addParam("allowscriptaccess","always");
+		s1.addParam("flashvars","file=video.flv");
+		s1.write("container");
+	</script>
 
 
 

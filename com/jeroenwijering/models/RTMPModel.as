@@ -92,24 +92,10 @@ public class RTMPModel implements ModelInterface {
 	};
 
 
-	/** Forward cuepoint data **/
-	public function onCuePoint(info:Object) {
-		var dat = new Object();
-		for(var i in info) { 
-			dat[i] = info[i];
-		}
-		model.sendEvent(ModelEvent.META,dat);
-	};
-
-
-	/** Get id3 information from netstream class. **/
-	public function onID3(info:Object) {
-		var dat = new Object();
-		for(var i in info) { 
-			dat[i] = info[i];
-		}
-		model.sendEvent(ModelEvent.META,dat);
-	};
+	/** Handlers for cuepoints. **/
+	public function onCuePoint(info:Object) {};
+	public function onLastSecond(info:Object) {};
+	public function onID3(info:Object) {};
 
 
 	/** Get metadata information from netstream class. **/
