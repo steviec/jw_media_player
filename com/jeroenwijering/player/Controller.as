@@ -103,8 +103,10 @@ public class Controller extends EventDispatcher {
 		if(skin.stage['displayState'] == 'fullScreen') {
 			skin.stage['displayState'] = 'normal';
 		} else {
-			skin.stage["fullScreenSourceRect"] = new Rectangle(0,0,
-				Capabilities.screenResolutionX/2,Capabilities.screenResolutionY/2);
+			try { 
+				skin.stage["fullScreenSourceRect"] = new Rectangle(0,0,
+					Capabilities.screenResolutionX/2,Capabilities.screenResolutionY/2);
+				} catch (err:Error);
 			skin.stage['displayState'] = 'fullScreen';
 		}
 	};
@@ -211,9 +213,7 @@ public class Controller extends EventDispatcher {
 			}
 			config['item'] = nbr;
 		}
-		trace('before item event');
 		dispatchEvent(new ControllerEvent(ControllerEvent.ITEM,{index:config['item']}));
-		trace('after item event');
 	};
 
 

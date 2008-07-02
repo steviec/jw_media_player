@@ -42,6 +42,7 @@ public class RTMPModel implements ModelInterface {
 		connection.addEventListener(SecurityErrorEvent.SECURITY_ERROR,errorHandler);
 		connection.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
 		connection.objectEncoding = ObjectEncoding.AMF0;
+		connection.client = this;
 		video = new Video(320,240);
 		quality(model.config['quality']);
 		transform = new SoundTransform();
@@ -62,8 +63,9 @@ public class RTMPModel implements ModelInterface {
 		do {
 			idx = url.indexOf('/',idx+1);
 			i++;
-		} while (i < 4);
-		return url.substr(0,idx);
+		} while (i<4);
+		var str = url.substr(0,idx);
+		return str;
 	};
 
 
@@ -74,7 +76,7 @@ public class RTMPModel implements ModelInterface {
 		do {
 			idx = url.indexOf('/',idx)+1;
 			i++;
-		} while (i < 4);
+		} while (i<4);
 		var str = url.substr(idx);
 		if(str.substr(-4) == '.mp3') { 
 			str = 'mp3:'+str.substr(0,str.length-4);
@@ -92,10 +94,11 @@ public class RTMPModel implements ModelInterface {
 	};
 
 
-	/** Handlers for cuepoints. **/
+	/** Handlers for various cues - might connect them one day. **/
 	public function onCuePoint(info:Object) {};
 	public function onLastSecond(info:Object) {};
 	public function onID3(info:Object) {};
+	public function onBWDone() {};
 
 
 	/** Get metadata information from netstream class. **/

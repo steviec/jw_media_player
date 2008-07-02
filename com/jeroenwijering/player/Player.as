@@ -76,7 +76,7 @@ public class Player extends MovieClip {
 	private var views:Array;
 
 
-	/** Constructor; Loads config parameters. **/
+	/** Constructor; Loads config parameters.**/
 	public function Player() {
 		visible = false;
 		configger = new Configger(this);
