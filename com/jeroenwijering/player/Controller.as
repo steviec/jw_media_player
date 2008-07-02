@@ -38,7 +38,7 @@ public class Controller extends EventDispatcher {
 		playlister = new Playlister();
 		playlister.addEventListener(Event.COMPLETE,playlistHandler);
 		playlister.addEventListener(ErrorEvent.ERROR,errorHandler);
-		resizeHandler(new ViewEvent(ViewEvent.RESIZE, {
+		resizeHandler(new ViewEvent(ViewEvent.RESIZE,{
 			width:skin.stage.stageWidth,
 			height:skin.stage.stageHeight
 		}));
@@ -263,11 +263,14 @@ public class Controller extends EventDispatcher {
 	private function resizeHandler(evt:ViewEvent) {
 		var mgn = config['margins'].split(',');
 		var dat = {
-			height:evt.data.height - mgn[0],
-			width:evt.data.width - mgn[1],
+			height:evt.data.height-mgn[0],
+			width:evt.data.width-mgn[1],
 			fullscreen:false
 		};
-		if(skin.stage['displayState'] == 'fullScreen') {
+		try { 
+			var dps = skin.stage['displayState'];
+		} catch (err:Error) {}
+		if(dps == 'fullScreen') {
 			dat.fullscreen = true;
 		} else {
 			if(config['controlbar'] == 'bottom') {
