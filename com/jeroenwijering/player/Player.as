@@ -101,7 +101,6 @@ public class Player extends MovieClip {
 		_view = new View(configger.config,skinner.skin,controller,model);
 		views = new Array(
 			new ExternalView(_view),
-			new KeyboardView(_view),
 			new RightclickView(_view),
 			new DisplayView(_view),
 			new ControlbarView(_view),

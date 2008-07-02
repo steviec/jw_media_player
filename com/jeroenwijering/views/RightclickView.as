@@ -29,7 +29,10 @@ public class RightclickView {
 		view.skin.contextMenu = context;
 		addItem('Toggle Playback Quality',qualityHandler);
 		addItem('Toggle Captions Display',captionHandler);
-		if(view.config['fullscreen'] == true && view.skin.stage['displayState']!=null) {
+		try { 
+			var dps = view.skin.stage['displayState'];
+		} catch (err:Error) {}
+		if(view.config['fullscreen'] == true && dps != undefined) {
 			addItem('Toggle Fullscreen Mode',fullscreenHandler);
 		}
 		if(view.config['abouttext']) {

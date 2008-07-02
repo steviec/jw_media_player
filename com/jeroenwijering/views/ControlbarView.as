@@ -220,7 +220,7 @@ public class ControlbarView {
 			try { 
 				var dps = bar.stage['displayState'];
 			} catch (err:Error) {}
-			if(view.config['fullscreen']==false || dps==null) {
+			if(view.config['fullscreen']==false || dps==undefined) {
 				bar.fullscreenButton.visible = false;
 				bar.normalscreenButton.visible = false;
 			} else if(evt && evt.data.fullscreen == true) {
