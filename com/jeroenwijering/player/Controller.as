@@ -106,7 +106,7 @@ public class Controller extends EventDispatcher {
 			try { 
 				skin.stage["fullScreenSourceRect"] = new Rectangle(0,0,
 					Capabilities.screenResolutionX/2,Capabilities.screenResolutionY/2);
-				} catch (err:Error);
+			} catch (err:Error) {}
 			skin.stage['displayState'] = 'fullScreen';
 		}
 	};

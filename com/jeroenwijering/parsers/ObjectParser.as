@@ -93,10 +93,15 @@ public class ObjectParser {
 
 	/** Detect the mediatype of a playlistitem and save to its type var. **/
 	public static function detect(itm:Object):Object {
-		if(itm['file'] == undefined) { 
+		if(itm['type']) {
+			itm['type'] = itm['type'].toLowerCase();
+		}
+		if(itm['file'] == undefined) {
 			return itm;
 		} else if(ObjectParser.TYPES[itm['type']] != undefined) {
 			// assume the developer knows what he does...
+		} else if(ObjectParser.EXTENSIONS[itm['type']] != undefined) {
+			itm['type'] = ObjectParser.EXTENSIONS[itm['type']];
 		} else if(itm['file'].substr(0,4) == 'rtmp') {
 			itm['type'] = 'rtmp';
 		} else if(itm['file'].indexOf('youtube.com/watch') > -1 ||
@@ -107,7 +112,7 @@ public class ObjectParser {
 		} else {
 			itm['type'] = undefined;
 			for (var i in ObjectParser.EXTENSIONS) {
-				if (itm['file'] && itm['file'].substr(-4) == i) {
+				if (itm['file'] && itm['file'].substr(-4).toLowerCase() == i) {
 					itm['type'] = ObjectParser.EXTENSIONS[i];
 					break;
 				}
