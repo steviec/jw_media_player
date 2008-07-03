@@ -54,13 +54,15 @@ public class ExternalView {
 		view.addViewListener(ViewEvent.STOP,setView);
 		view.addViewListener(ViewEvent.VOLUME,setView);
 		if(ExternalInterface.available && view.skin.loaderInfo.url.indexOf('http://') == 0) {
-			listeners = new Array();
+		listeners = new Array();
+		try {
 			ExternalInterface.addCallback("getConfig", getConfig);
 			ExternalInterface.addCallback("getPlaylist", getPlaylist);
 			ExternalInterface.addCallback("addControllerListener", addControllerListener);
 			ExternalInterface.addCallback("addModelListener", addModelListener);
 			ExternalInterface.addCallback("addViewListener", addViewListener);
 			ExternalInterface.addCallback("sendEvent", view.sendEvent);
+		} catch (err:Error) {}
 			playerReady();
 		}
 	};
