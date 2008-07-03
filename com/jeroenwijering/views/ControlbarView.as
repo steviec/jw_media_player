@@ -66,14 +66,10 @@ public class ControlbarView {
 			bar.linkButton.visible = false;
 			view.addControllerListener(ControllerEvent.ITEM,itemHandler);
 		}
-		if(bar['muteButton']) {
-			view.addControllerListener(ControllerEvent.MUTE,muteHandler);
-			muteHandler(new ControllerEvent(ControllerEvent.MUTE,{state:view.config['mute']}));
-		}
-		if(bar['volumeSlider']) {
-			view.addControllerListener(ControllerEvent.VOLUME,volumeHandler);
-			volumeHandler(new ControllerEvent(ControllerEvent.VOLUME,{percentage:view.config['volume']}));
-		}
+		view.addControllerListener(ControllerEvent.MUTE,muteHandler);
+		muteHandler();
+		view.addControllerListener(ControllerEvent.VOLUME,volumeHandler);
+		volumeHandler();
 		if(bar['captiononButton']) {
 			view.addControllerListener(ControllerEvent.CAPTION,captionHandler);
 			captionHandler(new ControllerEvent(ControllerEvent.CAPTION,{state:view.config['caption']}));
@@ -107,10 +103,12 @@ public class ControlbarView {
 	private function fixTime() {
 		var scp = bar.timeSlider.scaleX;
 		bar.timeSlider.scaleX = 1;
-		bar.timeSlider.icon.x = Math.round(scp*bar.timeSlider.icon.x);
-		bar.timeSlider.mark.x = Math.round(scp*bar.timeSlider.mark.x);
-		bar.timeSlider.mark.width = Math.round(scp*bar.timeSlider.mark.width);
-		bar.timeSlider.rail.width = Math.round(scp*bar.timeSlider.rail.width);
+		try {
+			bar.timeSlider.icon.x = scp*bar.timeSlider.icon.x;
+			bar.timeSlider.mark.x = scp*bar.timeSlider.mark.x;
+			bar.timeSlider.mark.width = scp*bar.timeSlider.mark.width;
+			bar.timeSlider.rail.width = scp*bar.timeSlider.rail.width;
+		} catch (err:Error) {}
 	};
 
 
@@ -147,8 +145,8 @@ public class ControlbarView {
 		}
 		try {
 			var wid = bar.timeSlider.rail.width;
-			bar.timeSlider.mark.x = Math.round(pc2*wid);
-			bar.timeSlider.mark.width = Math.round(pc1*wid);  
+			bar.timeSlider.mark.x = pc2*wid;
+			bar.timeSlider.mark.width = pc1*wid;
 		} catch (err:Error) {}
 	};
 
@@ -170,16 +168,20 @@ public class ControlbarView {
 
 
 	/** Show a mute icon if playing. **/
-	private function muteHandler(evt:ControllerEvent) {
-		if(evt.data.state == true) { 
-			bar.muteButton.visible = false;
-			bar.unmuteButton.visible = true;
-			bar.volumeSlider.mark.visible = false;
-		} else {
-			bar.muteButton.visible = true;
-			bar.unmuteButton.visible = false;
-			bar.volumeSlider.mark.visible = true;
-		}
+	private function muteHandler(evt:ControllerEvent=null) {
+		try {
+			if(view.config['mute'] == true) {
+				bar.volumeSlider.mark.visible = false;
+				bar.volumeSlider.icon.x = bar.volumeSlider.rail.x;
+				bar.muteButton.visible = false;
+				bar.unmuteButton.visible = true;
+			} else {
+				bar.volumeSlider.mark.visible = true;
+				volumeHandler();
+				bar.muteButton.visible = true;
+				bar.unmuteButton.visible = false;
+			}
+		} catch (err:Error) {}
 	};
 
 
@@ -202,7 +204,6 @@ public class ControlbarView {
 			bar.y = view.config['height'] - view.config['controlbarsize']-margin;
 			bar.x = margin;
 			wid = view.config['width']-2*margin;
-			hiding = setTimeout(moveTimeout,1000);
 		} else if(view.config['controlbar']=='bottom') {
 			bar.x = 0;
 			wid = view.config['width'];
@@ -210,9 +211,6 @@ public class ControlbarView {
 			if(view.config['playlist'] == 'right') {
 				wid += view.config['playlistsize'];
 			}
-			view.skin.removeEventListener(MouseEvent.MOUSE_MOVE,moveHandler);
-			clearTimeout(hiding);
-			Animations.fade(bar,1);
 		} else { 
 			bar.visible = false;
 		}
@@ -232,6 +230,7 @@ public class ControlbarView {
 			}
 		}
 		stacker.rearrange(wid);
+		stateHandler();
 		fixTime();
 	};
 
@@ -272,6 +271,7 @@ public class ControlbarView {
 		switch(view.config['state']) { 
 			case ModelStates.PLAYING:
 				if(view.config['controlbar'] == 'over' || dps == 'fullScreen') {
+					clearTimeout(hiding);
 					hiding = setTimeout(moveTimeout,1000);
 					view.skin.addEventListener(MouseEvent.MOUSE_MOVE,moveHandler);
 				}
@@ -293,7 +293,7 @@ public class ControlbarView {
 				}
 				break;
 		}
-	}
+	};
 
 
 	/** Process time updates given by the model. **/
@@ -309,7 +309,8 @@ public class ControlbarView {
 			bar.totalText.text = Strings.digits(dur);
 		}
 		if(bar.timeSlider) {
-			var xps = Math.round(pct*bar.timeSlider.rail.width);
+			var tsl = bar.timeSlider;
+			var xps = Math.round(pct*(tsl.rail.width-tsl.icon.width));
 			if (dur > 0) {
 				bar.timeSlider.icon.visible = true;
 				bar.timeSlider.mark.visible = true;
@@ -326,9 +327,10 @@ public class ControlbarView {
 
 	/** Handle a press on the timeslider **/
 	private function timedownHandler(evt:MouseEvent) {
-		var rct = new Rectangle(bar.timeSlider.rail.x,
-			bar.timeSlider.icon.y,bar.timeSlider.rail.width,0);
-		bar.timeSlider.icon.startDrag(true,rct);
+		var tsl = bar.timeSlider;
+		var rct = new Rectangle(0,
+			tsl.icon.y,tsl.rail.width-tsl.icon.width,0);
+		tsl.icon.startDrag(true,rct);
 		scrubbing = true;
     	bar.stage.addEventListener(MouseEvent.MOUSE_UP,timeupHandler);
 	};
@@ -344,10 +346,10 @@ public class ControlbarView {
 		bar.timeSlider.icon.stopDrag();
 		scrubbing = false;
     	bar.stage.removeEventListener(MouseEvent.MOUSE_UP,timeupHandler);
-		var xps = bar.timeSlider.icon.x - bar.timeSlider.rail.x;
+		var xps = bar.timeSlider.icon.x-bar.timeSlider.rail.x;
 		if(view.playlist.length) {
 			var dur = view.playlist[view.config['item']]['duration'];
-			var pct = Math.round(xps*dur*10/bar.timeSlider.rail.width)/10;
+			var pct = Math.round(xps*dur*10/bar.timeSlider.rail.width/10);
 			view.sendEvent(ViewEvent.SEEK,pct);
 		}
 	};
@@ -360,17 +362,20 @@ public class ControlbarView {
 
 
 	/** Reflect the new volume in the controlbar **/
-	private function volumeHandler(evt:ControllerEvent) {
-		bar.volumeSlider.mark.scaleX = evt.data.percentage/100;
-		bar.volumeSlider.icon.x = evt.data.percentage*bar.volumeSlider.rail.width/100;
+	private function volumeHandler(evt:ControllerEvent=null) {
+		try { 
+			var vsl = bar.volumeSlider;
+			vsl.mark.width = view.config['volume']*(vsl.rail.width-vsl.icon.width/2)/100;
+			vsl.icon.x = view.config['volume']*(vsl.rail.width-vsl.icon.width)/100;
+		} catch (err:Error) {}
 	};
 
 
 	/** Handle a move over the volumebar **/
 	private function volumedownHandler(evt:MouseEvent) {
-		var rct = new Rectangle(bar.volumeSlider.rail.x,
-			bar.volumeSlider.icon.y,bar.volumeSlider.rail.width,0);
-		bar.volumeSlider.icon.startDrag(true,rct);
+		var vsl = bar.volumeSlider;
+		var rct = new Rectangle(vsl.rail.x,vsl.icon.y,vsl.width-vsl.icon.width,0);
+		vsl.icon.startDrag(true,rct);
 		bar.stage.addEventListener(MouseEvent.MOUSE_UP,volumeupHandler);
 	};
 
@@ -389,10 +394,11 @@ public class ControlbarView {
 
 	/** Handle a press release on the volumebar. **/
 	private function volumeupHandler(evt:MouseEvent) {
-		bar.volumeSlider.icon.stopDrag();
+		var vsl = bar.volumeSlider;
+		vsl.icon.stopDrag();
     	bar.stage.removeEventListener(MouseEvent.MOUSE_UP,volumeupHandler);
-		var xps = bar.volumeSlider.icon.x - bar.volumeSlider.rail.x;
-		var pct = Math.round(xps*100/bar.volumeSlider.rail.width);
+		var xps = vsl.icon.x - bar.volumeSlider.rail.x;
+		var pct = Math.round(xps*100/(vsl.rail.width-vsl.icon.width));
 		view.sendEvent(ViewEvent.VOLUME,pct);
 	};
 
