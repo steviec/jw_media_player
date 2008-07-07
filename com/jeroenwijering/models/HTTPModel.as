@@ -43,6 +43,8 @@ public class HTTPModel implements ModelInterface {
 	private var h264:Boolean;
 	/** Byteposition to which the file has been loaded. **/
 	private var loaded:Number;
+	/** Secure key, sent along with the video. **/
+	private var key:String = "56ee29e-9112-fd44380";
 
 
 	/** Constructor; sets up the connection and display. **/
@@ -118,6 +120,7 @@ public class HTTPModel implements ModelInterface {
 		url += '&width='+model.config['width'];
 		url += '&client='+encodeURI(model.config['client']);
 		url += '&version='+encodeURI(model.config['version']);
+		if(key) { url += '&key='+encodeURI(key); }
 		trace(url);
 		stream.play(url);
 		clearInterval(loadinterval);
