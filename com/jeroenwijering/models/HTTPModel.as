@@ -43,8 +43,6 @@ public class HTTPModel implements ModelInterface {
 	private var h264:Boolean;
 	/** Byteposition to which the file has been loaded. **/
 	private var loaded:Number;
-	/** Secure key, sent along with the video. **/
-	private var key:String = "56ee29e-9112-fd44380";
 
 
 	/** Constructor; sets up the connection and display. **/
@@ -58,7 +56,7 @@ public class HTTPModel implements ModelInterface {
 		stream = new NetStream(connection);
 		stream.addEventListener(NetStatusEvent.NET_STATUS,statusHandler);
 		stream.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
-		stream.addEventListener(AsyncErrorEvent.ASYNC_ERROR,errorHandler);
+		stream.addEventListener(AsyncErrorEvent.ASYNC_ERROR,metaHandler);
 		stream.bufferTime = model.config['bufferlength'];
 		stream.client = this;
 		video = new Video(320,240);
@@ -120,7 +118,6 @@ public class HTTPModel implements ModelInterface {
 		url += '&width='+model.config['width'];
 		url += '&client='+encodeURI(model.config['client']);
 		url += '&version='+encodeURI(model.config['version']);
-		if(key) { url += '&key='+encodeURI(key); }
 		trace(url);
 		stream.play(url);
 		clearInterval(loadinterval);
@@ -142,6 +139,12 @@ public class HTTPModel implements ModelInterface {
 	};
 
 
+	/** Catch noncritical errors. **/
+	private function metaHandler(evt:ErrorEvent) {
+		model.sendEvent(ModelEvent.META,{error:evt.text});
+	};
+
+
 	/** Get textdata from netstream. **/
 	public function onImageData(info:Object) {
 		var dat = new Object();
@@ -150,11 +153,6 @@ public class HTTPModel implements ModelInterface {
 		}
 		model.sendEvent(ModelEvent.META,dat);
 	};
-
-
-	/** Handlers for cuepoints. **/
-	public function onCuePoint(info:Object) {};
-	public function onLastSecond(info:Object) {};
 
 
 	/** Get metadata information from netstream class. **/
@@ -285,6 +283,7 @@ public class HTTPModel implements ModelInterface {
 		if(stream.bytesLoaded != stream.bytesTotal) {
 			stream.close();
 		}
+		stream.pause();
 	};
 
 
