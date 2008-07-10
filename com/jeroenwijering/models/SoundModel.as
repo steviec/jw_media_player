@@ -60,23 +60,6 @@ public class SoundModel implements ModelInterface {
 	};
 
 
-	/** Get metadata information from netstream class. **/
-	public function id3Handler(evt:Event) {
-		var dat = {
-			comment:sound.id3.comment,
-			album:sound.id3.album,
-			genre:sound.id3.genre,
-			songName:sound.id3.songName,
-			artist:sound.id3.artist,
-			track:sound.id3.track,
-			year:sound.id3.year
-		};
-		for each (var itm in sound.id3) {
-			dat[itm] = sound.id3[itm];
-		}
-		model.sendEvent(ModelEvent.META,dat);
-	};
-
 	/** Load the sound. **/
 	public function load() {
 		position = model.playlist[model.config['item']]['start'];
@@ -84,7 +67,6 @@ public class SoundModel implements ModelInterface {
 		sound = new Sound();
 		sound.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
 		sound.addEventListener(ProgressEvent.PROGRESS,progressHandler);
-		sound.addEventListener(Event.ID3,id3Handler);
 		sound.load(new URLRequest(model.playlist[model.config['item']]['file']),context);
 		model.mediaHandler();
 		play();
@@ -142,12 +124,12 @@ public class SoundModel implements ModelInterface {
 	private function timeHandler() {
 		position = Math.round(channel.position/100)/10;
 		var dur = Math.round(sound.length*sound.bytesTotal/sound.bytesLoaded/100)/10;
-		if(sound.isBuffering == true) {
+		if(sound.isBuffering == true && sound.bytesTotal > sound.bytesLoaded) {
 			if(model.config['state'] != ModelStates.BUFFERING) {
 				model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 			} else {
 				var pct = Math.floor(sound.length/(channel.position+model.config['bufferlength']*1000)*100);
-				model.sendEvent(ModelEvent.BUFFER,{percentage:pct});
+					model.sendEvent(ModelEvent.BUFFER,{percentage:pct});
 			}
 		} else if (model.config['state'] == ModelStates.BUFFERING && sound.isBuffering == false) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});

@@ -39,14 +39,11 @@ public class CaptionsView {
 	public function CaptionsView(vie:View) {
 		view = vie;
 		if(!view.skin['captions']) { return; }
-		view.addControllerListener(ControllerEvent.ERROR,errorHandler);
 		view.addControllerListener(ControllerEvent.CAPTION,captionHandler);
 		view.addControllerListener(ControllerEvent.ITEM,itemHandler);
 		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
-		view.addModelListener(ModelEvent.ERROR,errorHandler);
 		view.addModelListener(ModelEvent.META,metaHandler);
 		view.addModelListener(ModelEvent.STATE,stateHandler);
-		view.addViewListener(ViewEvent.ERROR,errorHandler);
 		loader = new URLLoader();
 		loader.addEventListener(Event.COMPLETE,loaderHandler);
 		clip = view.skin.captions;
@@ -60,12 +57,6 @@ public class CaptionsView {
 	/** Register changes to the on/off of captions. **/
 	private function captionHandler(evt:ControllerEvent) {
 		clip.visible = evt.data.state;
-	};
-
-
-	/** Catch security and io errors. **/
-	private function errorHandler(evt:Object) {
-		setCaption(evt.data.message);
 	};
 
 

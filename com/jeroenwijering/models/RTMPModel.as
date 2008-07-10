@@ -33,6 +33,8 @@ public class RTMPModel implements ModelInterface {
 	private var timeout:Number;
 	/** Metadata received switch. **/
 	private var metadata:Boolean;
+	/** Index of the file where the video starts. **/
+	private var fileindex:Number;
 
 	/** Constructor; sets up the connection and display. **/
 	public function RTMPModel(mod:Model) {
@@ -59,30 +61,28 @@ public class RTMPModel implements ModelInterface {
 	/** xtract the current ID from an RTMP URL **/
 	private function getStream(url:String):String {
 		var i = 0;
-		var idx = 0;
-		do {
-			idx = url.indexOf('/',idx+1);
-			i++;
-		} while (i<4);
-		var str = url.substr(0,idx);
+		if(fileindex) {
+			fileindex = url.lastIndexOf('/',fileindex-2)+1;
+		} else { 
+			fileindex = url.lastIndexOf('/')+1;
+		}
+		var str = url.substr(0,fileindex);
+		trace(str);
 		return str;
 	};
 
 
 	/** xtract the current Stream from an RTMP URL **/
 	private function getID(url:String):String {
-		var i = 0;
-		var idx = 0;
-		do {
-			idx = url.indexOf('/',idx)+1;
-			i++;
-		} while (i<4);
-		var str = url.substr(idx);
-		if(str.substr(-4) == '.mp3') { 
+		var str = url.substr(fileindex);
+		if(str.substr(-4) == '.mp3') {
 			str = 'mp3:'+str.substr(0,str.length-4);
-		} else if (str.substr(-4) == '.flv'){ 
+		} else if(str.substr(-4) == '.mp4' || str.substr(-4)=='.mov') {
+			str = 'mp4:'+str.substr(0,str.length-4);
+		} else if (str.substr(-4) == '.flv'){
 			str = str.substr(0,str.length-4);
 		}
+		trace(str);
 		return str;
 	};
 
@@ -94,11 +94,10 @@ public class RTMPModel implements ModelInterface {
 	};
 
 
-	/** Handlers for various cues - might connect them one day. **/
-	public function onCuePoint(info:Object) {};
-	public function onLastSecond(info:Object) {};
-	public function onID3(info:Object) {};
-	public function onBWDone() {};
+	/** Catch noncritical errors. **/
+	private function metaHandler(evt:ErrorEvent) {
+		model.sendEvent(ModelEvent.META,{error:evt.text});
+	};
 
 
 	/** Get metadata information from netstream class. **/
@@ -125,16 +124,12 @@ public class RTMPModel implements ModelInterface {
 
 
 	/** Receive NetStream status updates. **/
-	public function onPlayStatus(info:Object) {
+	public function onPlayStatus(info:Object=null) {
 		if(info.code == "NetStream.Play.Complete") {
+			fileindex = undefined;
 			clearInterval(timeinterval);
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
 		}
-		var dat = new Object();
-		for(var i in info) { 
-			dat[i] = info[i];
-		}
-		model.sendEvent(ModelEvent.META,dat);
 	};
 
 
@@ -153,13 +148,21 @@ public class RTMPModel implements ModelInterface {
 		clearInterval(timeinterval);
 		stream.pause();
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PAUSED});
-		timeout = setTimeout(stop,10000);
+		timeout = setTimeout(disconnect,30000);
+	};
+
+
+	/** Pause takes too long: disconnect. **/
+	private function disconnect() {
+		stop();
+		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
 	};
 
 
 	/** Resume playing. **/
 	public function play() {
 		clearTimeout(timeout);
+		clearInterval(timeinterval);
 		stream.resume();
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 		timeinterval = setInterval(timeHandler,100);
@@ -180,9 +183,12 @@ public class RTMPModel implements ModelInterface {
 
 	/** Change the smoothing mode. **/
 	public function seek(pos:Number) {
+		clearTimeout(timeout);
 		clearInterval(timeinterval);
 		if(model.config['state'] == ModelStates.PAUSED) {
 			stream.resume();
+		} else {
+			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 		}
 		stream.seek(pos);
 	};
@@ -193,11 +199,13 @@ public class RTMPModel implements ModelInterface {
 		stream = new NetStream(connection);
 		stream.addEventListener(NetStatusEvent.NET_STATUS,statusHandler);
 		stream.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
+		stream.addEventListener(AsyncErrorEvent.ASYNC_ERROR,metaHandler);
 		stream.bufferTime = model.config['bufferlength'];
 		stream.client = this;
 		video.attachNetStream(stream);
 		stream.soundTransform = transform;
 		stream.play(getID(model.playlist[model.config['item']]['file']));
+		clearInterval(timeinterval);
 		timeinterval = setInterval(timeHandler,100);
 	};
 
@@ -209,20 +217,26 @@ public class RTMPModel implements ModelInterface {
 		} else if(evt.info.code == "NetStream.Seek.Notify") {
 			clearInterval(timeinterval);
 			timeinterval = setInterval(timeHandler,100);
-		} else if(evt.info.code == "NetStream.Play.StreamNotFound" || 
-			evt.info.code == "NetConnection.Connect.Rejected" || 
-			evt.info.code == "NetConnection.Connect.Failed") {
-			stop();
-			model.sendEvent(ModelEvent.ERROR,{message:"RTMP stream not found: "+
-				model.playlist[model.config['item']]['file']});
+		} else if(evt.info.code == "NetStream.Play.StreamNotFound") {
+			if(fileindex > 10) {
+				load();
+			} else {
+				stop();
+				model.sendEvent(ModelEvent.ERROR,{message:"Stream not found: "+model.playlist[model.config['item']]['file']});
+			}
+		} else if (evt.info.code == "NetConnection.Connect.Rejected" || evt.info.code == "NetConnection.Connect.Failed") {
+				stop();
+				model.sendEvent(ModelEvent.ERROR,{message:"Stream not found: "+model.playlist[model.config['item']]['file']});
+		} else { 
+			model.sendEvent(ModelEvent.META,{info:evt.info.code});
 		}
-		model.sendEvent(ModelEvent.META,{info:evt.info.code});
 	};
 
 
 	/** Destroy the stream. **/
 	public function stop() {
 		metadata = false;
+		fileindex = undefined;
 		clearInterval(timeinterval);
 		connection.close();
 		if(stream) { stream.close(); }

@@ -12,6 +12,7 @@ import flash.events.MouseEvent;
 import flash.geom.Rectangle;
 import flash.utils.setTimeout;
 import flash.utils.clearTimeout;
+import flash.ui.Mouse;
 
 
 public class ControlbarView {
@@ -37,8 +38,6 @@ public class ControlbarView {
 		linkButton:'LINK',
 		fullscreenButton:'FULLSCREEN',
 		normalscreenButton:'FULLSCREEN',
-		captiononButton:'CAPTION',
-		captionoffButton:'CAPTION',
 		muteButton:'MUTE',
 		unmuteButton:'MUTE'
 	};
@@ -58,38 +57,17 @@ public class ControlbarView {
 		view.addModelListener(ModelEvent.LOADED,loadedHandler);
 		view.addModelListener(ModelEvent.STATE,stateHandler);
 		view.addModelListener(ModelEvent.TIME,timeHandler);
-		if(bar['prevButton'] && bar['nextButton']) {
-			bar.prevButton.visible = bar.nextButton.visible = false;
-			view.addControllerListener(ControllerEvent.PLAYLIST,itemHandler);
-		}
-		if(bar['linkButton']) {
-			bar.linkButton.visible = false;
-			view.addControllerListener(ControllerEvent.ITEM,itemHandler);
-		}
+		view.addControllerListener(ControllerEvent.PLAYLIST,itemHandler);
+		view.addControllerListener(ControllerEvent.ITEM,itemHandler);
 		view.addControllerListener(ControllerEvent.MUTE,muteHandler);
-		muteHandler();
 		view.addControllerListener(ControllerEvent.VOLUME,volumeHandler);
+		itemHandler();
+		muteHandler();
 		volumeHandler();
-		if(bar['captiononButton']) {
-			view.addControllerListener(ControllerEvent.CAPTION,captionHandler);
-			captionHandler(new ControllerEvent(ControllerEvent.CAPTION,{state:view.config['caption']}));
-		}
-		loadedHandler(new ModelEvent(ModelEvent.LOADED,{loaded:0,total:0}));
-		timeHandler(new ModelEvent(ModelEvent.TIME,{position:0,duration:0}));
+		loadedHandler();
+		timeHandler();
 		stateHandler();
 		resizeHandler();
-	};
-
-
-	/** Toggle the caption buttons (if there). **/
-	private function captionHandler(evt:ControllerEvent) {
-		if(evt.data.state == true) {
-			bar.captionoffButton.visible = true;
-			bar.captiononButton.visible = false;
-		} else {
-			bar.captionoffButton.visible = false;
-			bar.captiononButton.visible = true;
-		}
 	};
 
 
@@ -101,9 +79,9 @@ public class ControlbarView {
 
 	/** Fix the timeline display. **/
 	private function fixTime() {
-		var scp = bar.timeSlider.scaleX;
-		bar.timeSlider.scaleX = 1;
 		try {
+			var scp = bar.timeSlider.scaleX;
+			bar.timeSlider.scaleX = 1;
 			bar.timeSlider.icon.x = scp*bar.timeSlider.icon.x;
 			bar.timeSlider.mark.x = scp*bar.timeSlider.mark.x;
 			bar.timeSlider.mark.width = scp*bar.timeSlider.mark.width;
@@ -113,34 +91,34 @@ public class ControlbarView {
 
 
 	/** Handle a change in the current item **/
-	private function itemHandler(evt:ControllerEvent=undefined) {
-		if(bar['prevButton'] && bar['nextButton']) {
-			if(view.playlist.length > 1) { 
+	private function itemHandler(evt:ControllerEvent=null) {
+		try {
+			if(view.playlist.length > 1 && view.playlist[0]['author'] != 'commercial') {
 				bar.prevButton.visible = bar.nextButton.visible = true;
 			} else {
 				bar.prevButton.visible = bar.nextButton.visible = false;
 			}
-		}
-		if(bar['linkButton']) { 
-			if(view.playlist[view.config['item']]['link']) { 
+		} catch (err:Error) {}
+		try {
+			if(view.playlist[view.config['item']]['link']) {
 				bar.linkButton.visible = true;
 			} else { 
 				bar.linkButton.visible = false;
 			}
-		}
+		} catch (err:Error) {}
 		stacker.rearrange();
 		fixTime();
 	};
 
 
 	/** Process bytesloaded updates given by the model. **/
-	private function loadedHandler(evt:ModelEvent) {
+	private function loadedHandler(evt:ModelEvent=null) {
 		var pc1 = 0;
-		if(evt.data.total > 0) {
+		if(evt && evt.data.total > 0) {
 			pc1 = evt.data.loaded/evt.data.total;
 		}
 		var pc2 = 0;
-		if(evt.data.offset) {
+		if(evt && evt.data.offset) {
 			pc2 = evt.data.offset/evt.data.total;
 		}
 		try {
@@ -152,17 +130,19 @@ public class ControlbarView {
 
 
 	/** Show above controlbar on mousemove. **/
-	private function moveHandler(evt:MouseEvent) {
-		Animations.fade(bar,1);
+	private function moveHandler(evt:MouseEvent=null) {
+		if(bar.alpha == 0) { Animations.fade(bar,1); }
 		clearTimeout(hiding);
 		hiding = setTimeout(moveTimeout,1000);
+		Mouse.show();
 	};
 
 
 	/** Hide above controlbar again when move has timed out. **/
 	private function moveTimeout() {
-		if(bar.mouseY < -10) {
+		if((bar.mouseY<0 || bar.mouseY>bar.height)  && bar.alpha == 1) {
 			Animations.fade(bar,0);
+			Mouse.hide();
 		}
 	};
 
@@ -198,27 +178,25 @@ public class ControlbarView {
 
 
 	/** Process resizing requests **/
-	private function resizeHandler(evt:ControllerEvent=undefined) {
+	private function resizeHandler(evt:ControllerEvent=null) {
 		var wid = stacker.width;
-		if(view.config['controlbar']=='over' || (evt && evt.data.fullscreen==true)) {
-			bar.y = view.config['height'] - view.config['controlbarsize']-margin;
+		if(view.config['controlbar'] == 'over' || (evt && evt.data.fullscreen == true)) {
+			bar.y = view.config['height'] - view.config['controlbarsize'] - margin;
 			bar.x = margin;
-			wid = view.config['width']-2*margin;
-		} else if(view.config['controlbar']=='bottom') {
+			wid = view.config['width'] - 2*margin;
+		} else if(view.config['controlbar'] == 'bottom') {
 			bar.x = 0;
 			wid = view.config['width'];
 			bar.y = view.config['height'];
 			if(view.config['playlist'] == 'right') {
 				wid += view.config['playlistsize'];
 			}
-		} else { 
+		} else {
 			bar.visible = false;
 		}
-		if(bar.fullscreenButton) {
-			try { 
-				var dps = bar.stage['displayState'];
-			} catch (err:Error) {}
-			if(view.config['fullscreen']==false || dps==undefined) {
+		try { 
+			var dps = bar.stage['displayState'];
+			if(view.config['fullscreen'] == false) {
 				bar.fullscreenButton.visible = false;
 				bar.normalscreenButton.visible = false;
 			} else if(evt && evt.data.fullscreen == true) {
@@ -228,7 +206,14 @@ public class ControlbarView {
 				bar.fullscreenButton.visible = true;
 				bar.normalscreenButton.visible = false;
 			}
-		}
+		} catch (err:Error) {}
+		try {
+			if (wid < 200) {
+				bar.elapsedText.visible = bar.totalText.visible = false;
+			} else { 
+				bar.elapsedText.visible = bar.totalText.visible = true;
+			}
+		} catch (err:Error) {}
 		stacker.rearrange(wid);
 		stateHandler();
 		fixTime();
@@ -237,7 +222,7 @@ public class ControlbarView {
 
 	/** Clickhandler for all buttons. **/
 	private function setButtons() {
-		for(var itm in BUTTONS) { 
+		for(var itm in BUTTONS) {
 			if(bar[itm]) {
 				bar[itm].mouseChildren = false;
 				bar[itm].buttonMode = true;
@@ -265,50 +250,52 @@ public class ControlbarView {
 
 	/** Process state changes **/
 	private function stateHandler(evt:ModelEvent=undefined) {
-		try { 
+		clearTimeout(hiding);
+		view.skin.removeEventListener(MouseEvent.MOUSE_MOVE,moveHandler);
+		Mouse.show();
+		try {
 			var dps = bar.stage['displayState'];
 		} catch (err:Error) {}
 		switch(view.config['state']) { 
 			case ModelStates.PLAYING:
-				if(view.config['controlbar'] == 'over' || dps == 'fullScreen') {
-					clearTimeout(hiding);
-					hiding = setTimeout(moveTimeout,1000);
-					view.skin.addEventListener(MouseEvent.MOUSE_MOVE,moveHandler);
-				}
 			case ModelStates.BUFFERING:
-				if(bar.playButton && bar.pauseButton) {
+				try { 
 					bar.playButton.visible = false;
 					bar.pauseButton.visible = true;
+				} catch (err:Error) {}
+				if(view.config['controlbar'] == 'over' || dps == 'fullScreen') {
+					hiding = setTimeout(moveTimeout,1000);
+					view.skin.addEventListener(MouseEvent.MOUSE_MOVE,moveHandler);
+				} else {
+					Animations.fade(bar,1);
 				}
 				break;
-			default: 
-				if(view.config['controlbar'] == 'over' || dps == 'fullScreen') {
-					clearTimeout(hiding);
-					Animations.fade(bar,1);
-					view.skin.removeEventListener(MouseEvent.MOUSE_MOVE,moveHandler);
-				}
-				if(bar.playButton && bar.pauseButton) {
+			default:
+				try {
 					bar.playButton.visible = true;
 					bar.pauseButton.visible = false;
+				} catch (err:Error) {}
+				if(view.config['controlbar'] == 'over' || dps == 'fullScreen') {
+					Animations.fade(bar,1);
 				}
-				break;
 		}
 	};
 
 
 	/** Process time updates given by the model. **/
-	private function timeHandler(evt:ModelEvent) {
-		var dur = evt.data.duration;
-		var pos = evt.data.position;
-		var pct = evt.data.position/evt.data.duration;
-		var chg = false;
-		if(bar.elapsedText) {
+	private function timeHandler(evt:ModelEvent=null) {
+		var dur = 0;
+		var pos = 0;
+		if(evt) {
+			dur = evt.data.duration;
+			pos = evt.data.position;
+		}
+		var pct = pos/dur;
+		try {
 			bar.elapsedText.text = Strings.digits(pos);
-		}
-		if(bar.totalText) {
 			bar.totalText.text = Strings.digits(dur);
-		}
-		if(bar.timeSlider) {
+		} catch (err:Error) {}
+		try {
 			var tsl = bar.timeSlider;
 			var xps = Math.round(pct*(tsl.rail.width-tsl.icon.width));
 			if (dur > 0) {
@@ -321,7 +308,7 @@ public class ControlbarView {
 				bar.timeSlider.icon.visible = false;
 				bar.timeSlider.mark.visible = false;
 			}
-		}
+		} catch (err:Error) {}
 	};
 
 

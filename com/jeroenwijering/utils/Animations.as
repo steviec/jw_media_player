@@ -34,13 +34,11 @@ public class Animations {
 	/** The fade enterframe function. **/
 	private static function fadeHandler(evt:Event) {
 		var tgt = MovieClip(evt.target);
-		if((tgt.alpha >= tgt.end && tgt.spd > 0) ||
-			(tgt.alpha <= tgt.end && tgt.spd < 0)) {
+		if((tgt.alpha >= tgt.end-tgt.spd && tgt.spd > 0) ||
+			(tgt.alpha <= tgt.end+tgt.spd && tgt.spd < 0)) {
 			tgt.removeEventListener(Event.ENTER_FRAME,fadeHandler);
 			tgt.alpha = tgt.end;
-			if(tgt.end == 0) { 
-				tgt.visible = false; 
-			}
+			if(tgt.end == 0) {tgt.visible = false;}
 		} else {
 			tgt.visible = true;
 			tgt.alpha += tgt.spd;

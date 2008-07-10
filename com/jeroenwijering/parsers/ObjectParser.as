@@ -35,24 +35,24 @@ public class ObjectParser {
 	};
 	/** File extensions of all supported mediatypes. **/
 	protected static var EXTENSIONS:Object = {
-		'.3g2':'video',
-		'.3gp':'video',
-		'.aac':'video',
-		'.f4b':'video',
-		'.f4p':'video',
-		'.f4v':'video',
-		'.flv':'video',
-		'.gif':'image',
-		'.jpg':'image',
-		'.m4a':'video',
-		'.m4v':'video',
-		'.mov':'video',
-		'.mp3':'sound',
-		'.mp4':'video',
-		'.png':'image',
-		'.rbs':'sound',
-		'.swf':'image',
-		'.vp6':'video'
+		'3g2':'video',
+		'3gp':'video',
+		'aac':'video',
+		'f4b':'video',
+		'f4p':'video',
+		'f4v':'video',
+		'flv':'video',
+		'gif':'image',
+		'jpg':'image',
+		'm4a':'video',
+		'm4v':'video',
+		'mov':'video',
+		'mp3':'sound',
+		'mp4':'video',
+		'png':'image',
+		'rbs':'sound',
+		'swf':'image',
+		'vp6':'video'
 	};
 	/** Mimetypes of all supported mediafiles. **/
 	protected static var MIMETYPES:Object = {
@@ -93,10 +93,9 @@ public class ObjectParser {
 
 	/** Detect the mediatype of a playlistitem and save to its type var. **/
 	public static function detect(itm:Object):Object {
-		if(itm['type']) {
-			itm['type'] = itm['type'].toLowerCase();
-		}
+		if(itm['type']) { itm['type'] = itm['type'].toLowerCase(); }
 		if(itm['file'] == undefined) {
+			delete itm['type'];
 			return itm;
 		} else if(ObjectParser.TYPES[itm['type']] != undefined) {
 			// assume the developer knows what he does...
@@ -112,7 +111,7 @@ public class ObjectParser {
 		} else {
 			itm['type'] = undefined;
 			for (var i in ObjectParser.EXTENSIONS) {
-				if (itm['file'] && itm['file'].substr(-4).toLowerCase() == i) {
+				if (itm['file'] && itm['file'].substr(-3).toLowerCase() == i) {
 					itm['type'] = ObjectParser.EXTENSIONS[i];
 					break;
 				}

@@ -48,6 +48,7 @@ public class VideoModel implements ModelInterface {
 		stream = new NetStream(connection);
 		stream.addEventListener(NetStatusEvent.NET_STATUS,statusHandler);
 		stream.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
+		stream.addEventListener(AsyncErrorEvent.ASYNC_ERROR,metaHandler);
 		stream.bufferTime = model.config['bufferlength'];
 		stream.client = this;
 		video = new Video(320,240);
@@ -85,18 +86,20 @@ public class VideoModel implements ModelInterface {
 	};
 
 
+	/** Catch noncritical errors. **/
+	private function metaHandler(evt:ErrorEvent) {
+		model.sendEvent(ModelEvent.META,{error:evt.text});
+	};
+
+
 	/** Handler for captionate events. **/
 	public function onCaption(cps:String,spk:Number) {
-		var dat = { 
+		var dat = {
 			captions:cps,
 			speaker:spk
 		};
 		model.sendEvent(ModelEvent.META,dat);
 	};
-
-	/** Handlers for cuepoints. **/
-	public function onCuePoint(info:Object) {};
-	public function onLastSecond(info:Object) {};
 
 
 	/** Get metadata information from netstream class. **/
@@ -185,9 +188,11 @@ public class VideoModel implements ModelInterface {
 
 	/** Destroy the video. **/
 	public function stop() {
+		trace('WE MIGHT WANT TO STOP PLAYBACK HERE');
 		if(stream.bytesLoaded != stream.bytesTotal) {
 			stream.close();
 		}
+		stream.pause();
 		metadata = false;
 		clearInterval(loadinterval);
 		clearInterval(timeinterval);
@@ -206,6 +211,11 @@ public class VideoModel implements ModelInterface {
 			}
 		} else if (model.config['state'] == ModelStates.BUFFERING) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
+			if(!metadata) { 
+				video.width = 320;
+				video.height = 240;
+				model.mediaHandler(video);
+			}
 		}
 		if(dur > 0) {
 			model.sendEvent(ModelEvent.TIME,{position:pos,duration:dur});

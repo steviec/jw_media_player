@@ -56,24 +56,24 @@ public class DisplayView {
 			display.buttonMode = true;
 		}
 		display.mouseChildren = false;
-		try { 
+		try {
 			Draw.clear(display.logo);
 			if(view.config['logo']) { setLogo(); }
 		} catch (err:Error) {}
-		setIcon('playIcon');
+		stateHandler();
 		resizeHandler();
 	};
 
 
 	/** Receive buffer updates. **/
 	private function bufferHandler(evt:ModelEvent) {
-		if(display.bufferIcon.txt) { 
-			if(evt.data.percentage > 0) { 
-				display.bufferIcon.txt.text = Strings.zero(evt.data.percentage);
-			} else {
-				display.bufferIcon.txt.text = '';
-			}
+		var pct = '';
+		if(evt.data.percentage > 0) { 
+			pct = Strings.zero(evt.data.percentage);
 		}
+		try {
+			display.bufferIcon.txt.text = pct;
+		} catch (err:Error) {}
 	};
 
 
@@ -84,8 +84,11 @@ public class DisplayView {
 
 
 	/** Receive and print errors. **/
-	private function errorHandler(evt) {
+	private function errorHandler(evt:Object) {
 		setIcon('errorIcon');
+		try { 
+			display.errorIcon.txt.text = evt.data.message;
+		} catch (err:Error) {}
 	};
 
 
@@ -117,7 +120,7 @@ public class DisplayView {
 
 
 	/** Receive resizing requests **/
-	private function resizeHandler(evt:ControllerEvent=undefined) {
+	private function resizeHandler(evt:ControllerEvent=null) {
 		var wid = view.config['width'];
 		var hei = view.config['height'];
 		if(hei > 0) { 
@@ -173,8 +176,8 @@ public class DisplayView {
 
 
 	/** Handle a change in playback state. **/
-	private function stateHandler(evt:ModelEvent) {
-		state = evt.data.newstate;
+	private function stateHandler(evt:ModelEvent=null) {
+		state = view.config['state'];
 		if(state == ModelStates.PLAYING) {
 			if(view.config['mute'] == true) {
 				setIcon('muteIcon');

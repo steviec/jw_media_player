@@ -9,6 +9,7 @@ import flash.net.navigateToURL;
 import flash.net.URLRequest;
 import flash.ui.ContextMenu;
 import flash.ui.ContextMenuItem;
+import com.jeroenwijering.events.*;
 import com.jeroenwijering.player.View;
 
 
@@ -19,33 +20,53 @@ public class RightclickView {
 	private var view:View;
 	/** Reference to the contextmenu. **/
 	private var context:ContextMenu;
+	/** Quality menuitem **/
+	private var quality:ContextMenuItem;
+	/** Fullscreen menuitem **/
+	private var fullscreen:ContextMenuItem;
+	/** About **/
+	private var about:ContextMenuItem;
 
 
 	/** Contructor; sets up rightclick menu. **/
 	public function RightclickView(vie:View) {
 		view = vie;
+		view.addControllerListener(ControllerEvent.QUALITY,qualityHandler);
 		context = new ContextMenu();
 		context.hideBuiltInItems();
 		view.skin.contextMenu = context;
-		addItem('Toggle Playback Quality',qualityHandler);
-		addItem('Toggle Captions Display',captionHandler);
+		if(view.config['quality'] == false) {
+			quality = new ContextMenuItem('Switch to high quality');
+		} else { 
+			quality = new ContextMenuItem('Switch to low quality');
+		}
+		addItem(quality,qualitySetter);
 		try { 
 			var dps = view.skin.stage['displayState'];
 		} catch (err:Error) {}
 		if(view.config['fullscreen'] == true && dps != undefined) {
-			addItem('Toggle Fullscreen Mode',fullscreenHandler);
+			view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
+			fullscreen = new ContextMenuItem('Switch to fullscreen');
+			addItem(fullscreen,fullscreenHandler);
 		}
 		if(view.config['abouttext']) {
-			addItem(view.config['abouttext'],aboutHandler);
+			about = new ContextMenuItem(view.config['abouttext']);
 		} else {
-			addItem('About '+view.config['player']+'...',aboutHandler);
+			var vrs = view.config['version'].substr(0,3)+' r'+view.config['version'].substr(10,2);
+			about = new ContextMenuItem('About JW Player '+vrs+'...');
 		}
+		addItem(about,aboutHandler);
+	};
+
+
+	/** jump to the about page. **/
+	private function aboutHandler(evt:ContextMenuEvent) {
+		navigateToURL(new URLRequest(view.config['aboutlink']),'_blank');
 	};
 
 
 	/** Add a custom menu item. **/
-	private function addItem(txt:String,hdl:Function) {
-		var itm = new ContextMenuItem(txt);
+	private function addItem(itm:ContextMenuItem,hdl:Function) {
 		itm.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT,hdl);
 		itm.separatorBefore = true;
 		context.customItems.push(itm);
@@ -59,20 +80,28 @@ public class RightclickView {
 
 
 	/** Toggle the smoothing mode. **/
-	private function qualityHandler(evt:ContextMenuEvent) {
+	private function qualityHandler(evt:ControllerEvent) {
+		if(evt.data.state == true) { 
+			quality.caption = "Switch to low quality";
+		} else {
+			quality.caption = "Switch to high quality";
+		}
+	};
+
+
+	/** Toggle the smoothing mode. **/
+	private function qualitySetter(evt:ContextMenuEvent) {
 		view.sendEvent('quality');
 	};
 
 
-	/** Toggle the fullscreen mode. **/
-	private function captionHandler(evt:ContextMenuEvent) {
-		view.sendEvent('caption');
-	};
-
-
-	/** jump to the about page. **/
-	private function aboutHandler(evt:ContextMenuEvent) {
-		navigateToURL(new URLRequest(view.config['aboutlink']),'_blank');
+	/** Set the fullscreen menubutton. **/
+	private function resizeHandler(evt:ControllerEvent) {
+		if(evt.data.fullscreen == false) { 
+			fullscreen.caption = "Switch to fullscreen";
+		} else {
+			fullscreen.caption = "Return to normal screen";
+		}
 	};
 
 

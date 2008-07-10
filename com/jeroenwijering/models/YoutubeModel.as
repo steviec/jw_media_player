@@ -32,6 +32,8 @@ public class YoutubeModel implements ModelInterface {
 	private var metasent:Boolean;
 	/** Save that a load call has been sent. **/
 	private var loading:Boolean;
+	/** Save the connection state. **/
+	private var connected:Boolean;
 
 
 	/** Setup YouTube connections and load proxy. **/
@@ -46,7 +48,13 @@ public class YoutubeModel implements ModelInterface {
 		inbound.allowInsecureDomain('*');
 		inbound.addEventListener(StatusEvent.STATUS,onLocalConnectionStatusChange);
 		inbound.client = this;
-		inbound.connect("_AS2_to_AS3");
+		try { 
+			inbound.connect("_AS2_to_AS3");
+			connected = true;
+		} catch (err:Error) {
+			stop();
+			model.sendEvent(ModelEvent.ERROR,{message:"Cannot connect to Youtube. Only one YouTube connection per computer can be made!"});
+		}
 		loader = new Loader();
 		loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
 		var url = model.skin.loaderInfo.url;
@@ -77,13 +85,15 @@ public class YoutubeModel implements ModelInterface {
 
 	/** Load the YouTube movie. **/
 	public function load() {
-		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
-		loading = true;
-		if(outgoing) {
-			var gid = getID(model.playlist[model.config['item']]['file']);
-			var stt = model.playlist[model.config['item']]['start'];
-			outgoing.send("_AS3_to_AS2","loadVideoById",gid,stt);
-			model.mediaHandler(loader);
+		if(connected) {
+			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
+			loading = true;
+			if(outgoing) {
+				var gid = getID(model.playlist[model.config['item']]['file']);
+				var stt = model.playlist[model.config['item']]['start'];
+				outgoing.send("_AS3_to_AS2","loadVideoById",gid,stt);
+				model.mediaHandler(loader);
+			}
 		}
 	};
 
