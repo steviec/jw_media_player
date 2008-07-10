@@ -47,7 +47,7 @@ public class Player extends MovieClip {
 		stretching:'uniform',
 		volume:80,
 
-		abouttext:"About JW Player 4.0...",
+		abouttext:undefined,
 		aboutlink:"http://www.jeroenwijering.com/?page=about",
 		linktarget:'_self',
 		streamscript:undefined,

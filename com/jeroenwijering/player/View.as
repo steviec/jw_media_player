@@ -114,7 +114,7 @@ public class View extends AbstractView {
 				dat['message'] = prm;
 				break;
 			case 'LINK':
-				if (prm > -1) {
+				if (prm != null) {
 					dat['index'] = prm;
 				}
 				break;

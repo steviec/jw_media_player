@@ -68,7 +68,7 @@ public class Model extends EventDispatcher {
 				models[typ].load();
 			}
 		} else {
-			if (currentModel) {
+			if(currentModel) {
 				models[currentModel].stop();
 			}
 			if(!models[typ]) { 

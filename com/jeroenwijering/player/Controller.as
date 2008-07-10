@@ -103,12 +103,20 @@ public class Controller extends EventDispatcher {
 		if(skin.stage['displayState'] == 'fullScreen') {
 			skin.stage['displayState'] = 'normal';
 		} else {
-			try { 
-				skin.stage["fullScreenSourceRect"] = new Rectangle(0,0,
-					Capabilities.screenResolutionX/2,Capabilities.screenResolutionY/2);
-			} catch (err:Error) {}
+			fullscreenrect();
 			skin.stage['displayState'] = 'fullScreen';
 		}
+	};
+
+
+	/** Set the fullscreen rectangle **/
+	private function fullscreenrect() {
+		var dif = 1;
+		if(config['quality'] == false) { dif = 2; }
+		try { 
+			skin.stage["fullScreenSourceRect"] = new Rectangle(0,0,
+				Capabilities.screenResolutionX/dif,Capabilities.screenResolutionY/dif);
+		} catch (err:Error) {}
 	};
 
 
@@ -244,7 +252,7 @@ public class Controller extends EventDispatcher {
 
 
 	/** Switch playback quality. **/
-	private function qualityHandler(evt:ViewEvent) {
+	private function qualityHandler(evt:ViewEvent=null) {
 		if(evt.data.state != undefined) {
 			if(evt.data.state == config['quality']) {
 				return;
@@ -255,6 +263,7 @@ public class Controller extends EventDispatcher {
 			config['quality'] = !config['quality'];
 		}
 		Configger.saveCookie('quality',config['quality']);
+		fullscreenrect();
 		dispatchEvent(new ControllerEvent(ControllerEvent.QUALITY,{state:config['quality']}));
 	};
 
