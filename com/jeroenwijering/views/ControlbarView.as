@@ -100,7 +100,7 @@ public class ControlbarView {
 			}
 		} catch (err:Error) {}
 		try {
-			if(view.playlist[view.config['item']]['link']) {
+			if(view.playlist.length && view.playlist[view.config['item']]['link']) {
 				bar.linkButton.visible = true;
 			} else { 
 				bar.linkButton.visible = false;
@@ -151,15 +151,15 @@ public class ControlbarView {
 	private function muteHandler(evt:ControllerEvent=null) {
 		try {
 			if(view.config['mute'] == true) {
-				bar.volumeSlider.mark.visible = false;
-				bar.volumeSlider.icon.x = bar.volumeSlider.rail.x;
 				bar.muteButton.visible = false;
 				bar.unmuteButton.visible = true;
+				bar.volumeSlider.mark.visible = false;
+				bar.volumeSlider.icon.x = bar.volumeSlider.rail.x;
 			} else {
-				bar.volumeSlider.mark.visible = true;
-				volumeHandler();
 				bar.muteButton.visible = true;
 				bar.unmuteButton.visible = false;
+				bar.volumeSlider.mark.visible = true;
+				volumeHandler();
 			}
 		} catch (err:Error) {}
 	};

@@ -116,7 +116,7 @@ public class SoundModel implements ModelInterface {
 	public function stop() {
 		clearInterval(interval);
 		if(channel) { channel.stop(); }
-		if(sound.bytesLoaded != sound.bytesTotal) { sound.close(); }
+		if(sound.bytesLoaded < sound.bytesTotal) { sound.close(); }
 	};
 
 

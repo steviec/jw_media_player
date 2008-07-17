@@ -340,7 +340,8 @@ public class Controller extends EventDispatcher {
 		var vol = evt.data.percentage;
 		if (vol < 1) {
 			muteHandler(new ViewEvent(ViewEvent.MUTE,{state:true}));
-		} else if (!isNaN(vol) && vol < 101) {
+		} else if (!isNaN(vol)) {
+			if(vol > 100) { vol = 100; }
 			if(config['mute'] == true) { 
 				muteHandler(new ViewEvent(ViewEvent.MUTE,{state:false}));
 			}

@@ -75,23 +75,15 @@ public class Stacker {
 			if(stack[i].x > width/2) {
 				stack[i].c.x = stack[i].x + rdf;
 				if(stack[i].c.visible == false && overlaps(i) == false) {
-					if(stack[i+1].x > stack[i].w+stack[i].x) {
-						rdf -= stack[i].w;
-					} else { 
-						rdf -= stack[i+1].x - stack[i].x;
-					}
+					rdf -= stack[i+1].x - stack[i].x;
 				}
 			} else {
 				stack[i].c.x = stack[i].x-ldf;
 				if(stack[i].c.visible == false && overlaps(i) == false) {
-					if(stack[i+1].x > stack[i].w+stack[i].x) {
-						ldf += stack[i].w;
-					} else { 
-						ldf += stack[i+1].x - stack[i].x;
-					}
+					ldf += stack[i+1].x - stack[i].x;
 				}
 			}
-			if(stack[i].w > width/4) {
+			if(stack[i].w > width/3) {
 				stack[i].c.width = stack[i].w+rdf+ldf;
 			}
 		}

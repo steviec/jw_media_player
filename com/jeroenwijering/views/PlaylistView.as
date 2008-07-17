@@ -47,8 +47,10 @@ public class PlaylistView {
 		view.addModelListener(ModelEvent.STATE,stateHandler);
 		clip = view.skin['playlist'];
 		buttonheight = clip.list.button.height;
-		image = new Array(clip.list.button.image.width,clip.list.button.image.height);
 		clip.list.button.visible = false;
+		clip.masker = new MovieClip();
+		Draw.rect(clip.masker,'0x000000',clip.back.width,clip.back.height,0,0,0);
+		clip.addChild(clip.masker);
 		clip.list.mask = clip.masker;
 		clip.list.addEventListener(MouseEvent.CLICK,clickHandler);
 		clip.list.addEventListener(MouseEvent.MOUSE_OVER,overHandler);
@@ -61,6 +63,9 @@ public class PlaylistView {
 		clip.slider.addEventListener(MouseEvent.MOUSE_WHEEL,wheelHandler);
 		clip.visible = false;
 		buttons = new Array();
+		try { 
+			image = new Array(clip.list.button.image.width,clip.list.button.image.height);
+		} catch (err:Error) {}
 	};
 
 
@@ -70,7 +75,7 @@ public class PlaylistView {
 		var hei = clip.back.height;
 		proportion = view.playlist.length*buttonheight/hei;
 		if (proportion > 1) {
-			wid -=20;
+			wid -=clip.slider.width;
 			buildSlider();
 		} else {
 			clip.slider.visible = false;
@@ -91,7 +96,7 @@ public class PlaylistView {
 			if(clr) {
 				var btn = Draw.clone(clip.list.button);
 				clip.list.addChild(btn);
-				var stc = new Stacker(btn);Loader
+				var stc = new Stacker(btn);
 				btn.y = i*buttonheight;
 				btn.buttonMode = true;
 				btn.mouseChildren =false;
@@ -200,10 +205,11 @@ public class PlaylistView {
 	/** Make sure the playlist is not out of range. **/
 	private function scrollCheck() {
 		var scr = clip.slider;
-		if(clip.list.y > 0) {
+		if(clip.list.y > 0 || scr.icon.y < scr.rail.y) {
 			clip.list.y = 0;
 			scr.icon.y = scr.rail.y;
-		} else if (clip.list.y < clip.masker.height-clip.list.height) {
+		} else if (clip.list.y < clip.masker.height-clip.list.height ||
+			scr.icon.y > scr.rail.y+scr.rail.height-scr.icon.height) {
 			scr.icon.y = scr.rail.y+scr.rail.height-scr.icon.height;
 			clip.list.y = clip.masker.height-clip.list.height;
 		}
@@ -216,7 +222,7 @@ public class PlaylistView {
 		var yps = scr.mouseY;
 		var ips = yps - scr.icon.height/2;
 		var cps = clip.masker.y+clip.masker.height/2-proportion*yps;
-		scr.icon.y = Math.round(ips - (ips-scr.icon.y)/1.5);
+		scr.icon.y = Math.round(ips-(ips-scr.icon.y)/1.5);
 		clip.list.y = Math.round((cps - (cps-clip.list.y)/1.5));
 		scrollCheck();
 	};

@@ -36,7 +36,7 @@ public class Draw {
 	**/
 	public static function clone(tgt:MovieClip):MovieClip {
 		var cls:Class = Object(tgt).constructor;
-		var dup:MovieClip = new cls();
+		var dup = new cls();
 		dup.transform = tgt.transform;
 		if(tgt.scale9Grid) {
 			var rct:Rectangle = tgt.scale9Grid;
