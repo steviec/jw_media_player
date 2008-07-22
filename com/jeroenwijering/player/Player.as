@@ -43,7 +43,7 @@ public class Player extends MovieClip {
 		mute:false,
 		quality:true,
 		repeat:'none',
-		shuffle:true,
+		shuffle:false,
 		stretching:'uniform',
 		volume:80,
 
@@ -58,7 +58,7 @@ public class Player extends MovieClip {
 		height:280,
 		margins:'0,0',
 		state:'IDLE',
-		version:'4.0.45',
+		version:'4.0.46',
 		width:400
 	};
 	/** Object that loads all configuration variables. **/
