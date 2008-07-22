@@ -7,6 +7,7 @@ package com.jeroenwijering.models {
 import com.jeroenwijering.events.*;
 import com.jeroenwijering.models.ModelInterface;
 import com.jeroenwijering.player.Model;
+import com.jeroenwijering.utils.NetClient;
 import flash.events.*;
 import flash.display.DisplayObject;
 import flash.media.SoundTransform;
@@ -50,7 +51,7 @@ public class VideoModel implements ModelInterface {
 		stream.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
 		stream.addEventListener(AsyncErrorEvent.ASYNC_ERROR,metaHandler);
 		stream.bufferTime = model.config['bufferlength'];
-		stream.client = this;
+		stream.client = new NetClient(this);
 		video = new Video(320,240);
 		video.attachNetStream(stream);
 		transform = new SoundTransform();
@@ -92,46 +93,20 @@ public class VideoModel implements ModelInterface {
 	};
 
 
-	/** Handler for captionate events. **/
-	public function onCaption(cps:String,spk:Number) {
-		var dat = {
-			captions:cps,
-			speaker:spk
-		};
-		model.sendEvent(ModelEvent.META,dat);
-	};
-
-
 	/** Get metadata information from netstream class. **/
-	public function onMetaData(info:Object) {
-		if(!metadata) {
+	public function onData(dat:Object) {
+		if(dat.type == 'metadata' && !metadata) {
 			metadata = true;
-			if(info.width) {
-				video.width = info.width;
-				video.height = info.height;
+			if(dat.width) {
+				video.width = dat.width;
+				video.height = dat.height;
 				model.mediaHandler(video);
-			} else if(info.videodatarate) {
-				video.width = 320;
-				video.height = 240;
-				model.mediaHandler(video);
-			} else { 
+			} else {
 				model.mediaHandler();
 			}
-			var dat = new Object();
-			for(var i in info) { dat[i] = info[i]; }
-			model.sendEvent(ModelEvent.META,dat);
 			if(model.playlist[model.config['item']]['start'] > 0) {
 				seek(model.playlist[model.config['item']]['start']);
 			}
-		}
-	};
-
-
-	/** Get textdata from netstream. **/
-	public function onTextData(info:Object) {
-		var dat = new Object();
-		for(var i in info) { 
-			dat[i] = info[i];
 		}
 		model.sendEvent(ModelEvent.META,dat);
 	};
@@ -188,7 +163,6 @@ public class VideoModel implements ModelInterface {
 
 	/** Destroy the video. **/
 	public function stop() {
-		trace('WE MIGHT WANT TO STOP PLAYBACK HERE');
 		if(stream.bytesLoaded != stream.bytesTotal) {
 			stream.close();
 		}

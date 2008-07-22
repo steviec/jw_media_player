@@ -7,6 +7,7 @@ package com.jeroenwijering.models {
 import com.jeroenwijering.events.*;
 import com.jeroenwijering.models.ModelInterface;
 import com.jeroenwijering.player.Model;
+import com.jeroenwijering.utils.NetClient;
 import flash.display.DisplayObject;
 import flash.events.*;
 import flash.media.*;
@@ -36,6 +37,7 @@ public class RTMPModel implements ModelInterface {
 	/** Index of the file where the video starts. **/
 	private var fileindex:Number;
 
+
 	/** Constructor; sets up the connection and display. **/
 	public function RTMPModel(mod:Model) {
 		model = mod;
@@ -43,8 +45,8 @@ public class RTMPModel implements ModelInterface {
 		connection.addEventListener(NetStatusEvent.NET_STATUS,statusHandler);
 		connection.addEventListener(SecurityErrorEvent.SECURITY_ERROR,errorHandler);
 		connection.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
+		connection.addEventListener(AsyncErrorEvent.ASYNC_ERROR,metaHandler);
 		connection.objectEncoding = ObjectEncoding.AMF0;
-		connection.client = this;
 		video = new Video(320,240);
 		quality(model.config['quality']);
 		transform = new SoundTransform();
@@ -67,7 +69,6 @@ public class RTMPModel implements ModelInterface {
 			fileindex = url.lastIndexOf('/')+1;
 		}
 		var str = url.substr(0,fileindex);
-		trace(str);
 		return str;
 	};
 
@@ -79,10 +80,11 @@ public class RTMPModel implements ModelInterface {
 			str = 'mp3:'+str.substr(0,str.length-4);
 		} else if(str.substr(-4) == '.mp4' || str.substr(-4)=='.mov') {
 			str = 'mp4:'+str.substr(0,str.length-4);
+		} else if(str.substr(-4) == '.aac' || str.substr(-4)=='.m4a') {
+			str = 'mp4:'+str;
 		} else if (str.substr(-4) == '.flv'){
 			str = str.substr(0,str.length-4);
 		}
-		trace(str);
 		return str;
 	};
 
@@ -101,43 +103,23 @@ public class RTMPModel implements ModelInterface {
 
 
 	/** Get metadata information from netstream class. **/
-	public function onMetaData(info:Object) {
-		if(!metadata) {
+	public function onData(dat:Object) {
+		if(dat.type == 'metadata' && !metadata) {
 			metadata = true;
-			if(info.width) {
-				video.width = info.width;
-				video.height = info.height;
+			if(dat.width) {
+				video.width = dat.width;
+				video.height = dat.height;
 				model.mediaHandler(video);
-			} else { 
+			} else {
 				model.mediaHandler();
 			}
-			var dat = new Object();
-			for(var i in info) { 
-				dat[i] = info[i];
-			}
-			model.sendEvent(ModelEvent.META,dat);
 			if(model.playlist[model.config['item']]['start'] > 0) {
 				seek(model.playlist[model.config['item']]['start']);
 			}
-		}
-	};
-
-
-	/** Receive NetStream status updates. **/
-	public function onPlayStatus(info:Object=null) {
-		if(info.code == "NetStream.Play.Complete") {
+		} else if(dat.type == 'complete') {
 			fileindex = undefined;
 			clearInterval(timeinterval);
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
-		}
-	};
-
-
-	/** Get textdata from netstream. **/
-	public function onTextData(info:Object) {
-		var dat = new Object();
-		for(var i in info) { 
-			dat[i] = info[i];
 		}
 		model.sendEvent(ModelEvent.META,dat);
 	};
@@ -148,7 +130,7 @@ public class RTMPModel implements ModelInterface {
 		clearInterval(timeinterval);
 		stream.pause();
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PAUSED});
-		timeout = setTimeout(disconnect,30000);
+		timeout = setTimeout(disconnect,60000);
 	};
 
 
@@ -196,15 +178,16 @@ public class RTMPModel implements ModelInterface {
 
 	/** Set streaming object **/
 	public function setStream() {
+		var url = getID(model.playlist[model.config['item']]['file']);
 		stream = new NetStream(connection);
 		stream.addEventListener(NetStatusEvent.NET_STATUS,statusHandler);
 		stream.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
 		stream.addEventListener(AsyncErrorEvent.ASYNC_ERROR,metaHandler);
 		stream.bufferTime = model.config['bufferlength'];
-		stream.client = this;
+		stream.client = new NetClient(this);
 		video.attachNetStream(stream);
 		stream.soundTransform = transform;
-		stream.play(getID(model.playlist[model.config['item']]['file']));
+		stream.play(url);
 		clearInterval(timeinterval);
 		timeinterval = setInterval(timeHandler,100);
 	};

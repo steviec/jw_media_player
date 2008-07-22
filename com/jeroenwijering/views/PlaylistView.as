@@ -71,6 +71,7 @@ public class PlaylistView {
 
 	/** Setup all buttons in the playlist **/
 	private function buildList(clr:Boolean) {
+		if(!view.playlist) { return; }
 		var wid = clip.back.width;
 		var hei = clip.back.height;
 		proportion = view.playlist.length*buttonheight/hei;

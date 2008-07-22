@@ -93,19 +93,20 @@ public class ControlbarView {
 	/** Handle a change in the current item **/
 	private function itemHandler(evt:ControllerEvent=null) {
 		try {
-			if(view.playlist.length > 1 && view.playlist[0]['author'] != 'commercial') {
+			if(view.playlist && view.playlist.length > 1) {
 				bar.prevButton.visible = bar.nextButton.visible = true;
 			} else {
 				bar.prevButton.visible = bar.nextButton.visible = false;
 			}
 		} catch (err:Error) {}
 		try {
-			if(view.playlist.length && view.playlist[view.config['item']]['link']) {
+			if(view.playlist && view.playlist[view.config['item']]['link']) {
 				bar.linkButton.visible = true;
 			} else { 
 				bar.linkButton.visible = false;
 			}
 		} catch (err:Error) {}
+		timeHandler();
 		stacker.rearrange();
 		fixTime();
 	};
@@ -196,7 +197,7 @@ public class ControlbarView {
 		}
 		try { 
 			var dps = bar.stage['displayState'];
-			if(view.config['fullscreen'] == false) {
+			if(view.config['fullscreen']==false || dps==null) {
 				bar.fullscreenButton.visible = false;
 				bar.normalscreenButton.visible = false;
 			} else if(evt && evt.data.fullscreen == true) {
@@ -289,6 +290,9 @@ public class ControlbarView {
 		if(evt) {
 			dur = evt.data.duration;
 			pos = evt.data.position;
+		} else if(view.playlist) {
+			dur = view.playlist[view.config['item']]['duration'];
+			pos = view.playlist[view.config['item']]['start'];
 		}
 		var pct = pos/dur;
 		try {

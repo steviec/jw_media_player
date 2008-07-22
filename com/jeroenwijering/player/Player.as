@@ -29,6 +29,7 @@ public class Player extends MovieClip {
 		type:undefined,
 
 		controlbar:'bottom',
+		controlbarsize:20,
 		logo:undefined,
 		playlist:'none',
 		playlistsize:180,
@@ -36,30 +37,28 @@ public class Player extends MovieClip {
 
 		autostart:false,
 		bufferlength:1,
-		caption:true,
 		displayclick:'play',
 		fullscreen:false,
 		item:0,
 		mute:false,
 		quality:true,
-		repeat:false,
-		shuffle:false,
+		repeat:'none',
+		shuffle:true,
 		stretching:'uniform',
 		volume:80,
 
 		abouttext:undefined,
-		aboutlink:"http://www.jeroenwijering.com/?page=about",
-		linktarget:'_self',
+		aboutlink:"http://www.jeroenwijering.com/?item=JW_FLV_Player",
+		linktarget:'_blank',
+		plugins:undefined,
 		streamscript:undefined,
 		tracecall:undefined,
 
 		client:undefined,
-		controlbarsize:20,
 		height:280,
 		margins:'0,0',
-		plugins:undefined,
 		state:'IDLE',
-		version:'4.0 $Rev$',
+		version:'4.0.45',
 		width:400
 	};
 	/** Object that loads all configuration variables. **/

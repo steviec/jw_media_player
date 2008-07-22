@@ -28,7 +28,6 @@ public class Playlister extends EventDispatcher {
 		loader.addEventListener(SecurityErrorEvent.SECURITY_ERROR,errorHandler);
 		loader.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
 		loader.addEventListener(HTTPStatusEvent.HTTP_STATUS, statusHandler);
-		_playlist = new Array();
 	};
 
 

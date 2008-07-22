@@ -199,17 +199,18 @@ public class Controller extends EventDispatcher {
 
 	/** Change the playback state. **/
 	private function playHandler(evt:ViewEvent) {
-		if(playlist.length == 0) { return; }
-		if(evt.data.state != false && config['state'] == ModelStates.PAUSED) {
-			dispatchEvent(new ControllerEvent(ControllerEvent.PLAY,{state:true}));
-		} else if (evt.data.state != false && config['state'] == ModelStates.COMPLETED) {
-			dispatchEvent(new ControllerEvent(ControllerEvent.SEEK,{position:playlist[config['item']]['start']}));
-		} else if(evt.data.state != false && config['state'] == ModelStates.IDLE) {
-			playItem();
-		} else if (evt.data.state != true && 
-			(config['state'] == ModelStates.PLAYING || config['state'] == ModelStates.BUFFERING)) {
-			dispatchEvent(new ControllerEvent(ControllerEvent.PLAY,{state:false}));
-		} 
+		if(playlist) {
+			if(evt.data.state != false && config['state'] == ModelStates.PAUSED) {
+				dispatchEvent(new ControllerEvent(ControllerEvent.PLAY,{state:true}));
+			} else if (evt.data.state != false && config['state'] == ModelStates.COMPLETED) {
+				dispatchEvent(new ControllerEvent(ControllerEvent.SEEK,{position:playlist[config['item']]['start']}));
+			} else if(evt.data.state != false && config['state'] == ModelStates.IDLE) {
+				playItem();
+			} else if (evt.data.state != true && 
+				(config['state'] == ModelStates.PLAYING || config['state'] == ModelStates.BUFFERING)) {
+				dispatchEvent(new ControllerEvent(ControllerEvent.PLAY,{state:false}));
+			}
+		}
 	};
 
 
@@ -321,9 +322,9 @@ public class Controller extends EventDispatcher {
 
 	/** Manage playback state changes. **/
 	private function stateHandler(evt:ModelEvent) {
-		if(evt.data.newstate == ModelStates.COMPLETED && (config['repeat'] == true ||
-			(config['shuffle'] == true && randomizer.length > 0) || 
-			(config['shuffle'] == false && config['item'] < playlist.length-1))) {
+		if(evt.data.newstate == ModelStates.COMPLETED && (config['repeat'] == 'always' ||
+			(config['repeat'] == 'list' && config['shuffle'] == true && randomizer.length > 0) || 
+			(config['repeat'] == 'list' && config['shuffle'] == false && config['item'] < playlist.length-1))) {
 			if(config['shuffle'] == true) {
 				playItem(randomizer.pick());
 			} else if(config['item'] == playlist.length-1) {
@@ -340,8 +341,7 @@ public class Controller extends EventDispatcher {
 		var vol = evt.data.percentage;
 		if (vol < 1) {
 			muteHandler(new ViewEvent(ViewEvent.MUTE,{state:true}));
-		} else if (!isNaN(vol)) {
-			if(vol > 100) { vol = 100; }
+		} else if (!isNaN(vol) && vol < 101) {
 			if(config['mute'] == true) { 
 				muteHandler(new ViewEvent(ViewEvent.MUTE,{state:false}));
 			}

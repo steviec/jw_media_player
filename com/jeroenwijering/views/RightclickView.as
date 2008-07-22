@@ -44,16 +44,15 @@ public class RightclickView {
 		try { 
 			var dps = view.skin.stage['displayState'];
 		} catch (err:Error) {}
-		if(view.config['fullscreen'] == true && dps != undefined) {
+		if(view.config['fullscreen'] == true && dps != null) {
 			view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
 			fullscreen = new ContextMenuItem('Switch to fullscreen');
 			addItem(fullscreen,fullscreenHandler);
 		}
 		if(view.config['abouttext']) {
-			about = new ContextMenuItem(view.config['abouttext']);
+			about = new ContextMenuItem(view.config['abouttext']+'...');
 		} else {
-			var vrs = view.config['version'].substr(0,3)+' r'+view.config['version'].substr(10,2);
-			about = new ContextMenuItem('About JW Player '+vrs+'...');
+			about = new ContextMenuItem('About JW Player '+view.config['version']+'...');
 		}
 		addItem(about,aboutHandler);
 	};
