@@ -1,5 +1,5 @@
 /**
-* Object that catches calls invoked by NetStream.
+* Object that catches calls invoked by NetStream / NetConnection.
 **/
 package com.jeroenwijering.utils {
 
@@ -20,6 +20,13 @@ public class NetClient {
 	/** Forward calls to callback **/
 	private function forward(dat:Object) {
 		callback.onData(dat);
+	};
+
+
+	/** Handler for captionate events. **/
+	public function onBWDone() {
+		var dat = {type:'bwdone'};
+		forward(dat);
 	};
 
 

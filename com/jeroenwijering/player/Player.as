@@ -58,7 +58,7 @@ public class Player extends MovieClip {
 		height:280,
 		margins:'0,0',
 		state:'IDLE',
-		version:'4.0.46',
+		version:'4.0.47',
 		width:400
 	};
 	/** Object that loads all configuration variables. **/

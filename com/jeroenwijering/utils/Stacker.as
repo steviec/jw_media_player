@@ -80,9 +80,11 @@ public class Stacker {
 			} else {
 				stack[i].c.x = stack[i].x-ldf;
 				if(stack[i].c.visible == false && overlaps(i) == false) {
-					ldf += stack[i].w + stack[i].x;
-					if(stack[i-1].n != 'back') {
-						ldf -=  stack[i-1].x + stack[i-1].w;
+					if(stack[i-1].w > width/3) {
+						ldf += stack[i].w + stack[i].x;
+						trace(stack[i].w + stack[i].x);
+					} else { 
+						ldf += stack[i].w+stack[i].x-stack[i-1].x-stack[i-1].w;
 					}
 				}
 			}

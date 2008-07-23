@@ -47,6 +47,7 @@ public class RTMPModel implements ModelInterface {
 		connection.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
 		connection.addEventListener(AsyncErrorEvent.ASYNC_ERROR,metaHandler);
 		connection.objectEncoding = ObjectEncoding.AMF0;
+		connection.client = new NetClient(this);
 		video = new Video(320,240);
 		quality(model.config['quality']);
 		transform = new SoundTransform();
@@ -69,6 +70,7 @@ public class RTMPModel implements ModelInterface {
 			fileindex = url.lastIndexOf('/')+1;
 		}
 		var str = url.substr(0,fileindex);
+		trace(str);
 		return str;
 	};
 
