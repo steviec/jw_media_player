@@ -48,9 +48,6 @@ public class PlaylistView {
 		clip = view.skin['playlist'];
 		buttonheight = clip.list.button.height;
 		clip.list.button.visible = false;
-		clip.masker = new MovieClip();
-		Draw.rect(clip.masker,'0x000000',clip.back.width,clip.back.height,0,0,0);
-		clip.addChild(clip.masker);
 		clip.list.mask = clip.masker;
 		clip.list.addEventListener(MouseEvent.CLICK,clickHandler);
 		clip.list.addEventListener(MouseEvent.MOUSE_OVER,overHandler);
@@ -75,7 +72,7 @@ public class PlaylistView {
 		var wid = clip.back.width;
 		var hei = clip.back.height;
 		proportion = view.playlist.length*buttonheight/hei;
-		if (proportion > 1) {
+		if (proportion > 1.01) {
 			wid -=clip.slider.width;
 			buildSlider();
 		} else {
@@ -95,8 +92,7 @@ public class PlaylistView {
 		}
 		for(var i=0; i<view.playlist.length; i++) {
 			if(clr) {
-				var btn = Draw.clone(clip.list.button);
-				clip.list.addChild(btn);
+				var btn = Draw.clone(clip.list.button,true);
 				var stc = new Stacker(btn);
 				btn.y = i*buttonheight;
 				btn.buttonMode = true;

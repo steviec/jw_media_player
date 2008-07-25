@@ -96,28 +96,35 @@ public class HTTPModel implements ModelInterface {
 	};
 
 
+	/** Returns a key to add to the stream. **/
+	private function getToken():String {
+		return model.config['token'];
+	};
+
+
 	/** Load content. **/
 	public function load() {
 		if(stream.bytesLoaded != stream.bytesTotal) {
 			stream.close();
 		}
 		var url = model.playlist[model.config['item']]['file'];
-		if(model.config["streamscript"] == "lighttpd") {
+		if(model.config["streamer"] == "lighttpd") {
 			if(h264) {
 				url +='?start='+timeoffset;
 			} else {
 				url += '?start='+offset;
 			}
 		} else {
-			if(model.config["streamscript"].indexOf('?') > -1) { 
-				url = model.config["streamscript"]+"&file="+url+'&start='+offset;
+			if(model.config["streamer"].indexOf('?') > -1) { 
+				url = model.config["streamer"]+"&file="+url+'&start='+offset;
 			} else {
-				url = model.config["streamscript"]+"?file="+url+'&start='+offset;
+				url = model.config["streamer"]+"?file="+url+'&start='+offset;
 			}
 		}
-		url += '&width='+model.config['width'];
+		url += '&id='+model.config['id'];
 		url += '&client='+encodeURI(model.config['client']);
 		url += '&version='+encodeURI(model.config['version']);
+		if(getToken()) { url += '&token='+getToken(); }
 		trace(url);
 		stream.play(url);
 		clearInterval(loadinterval);
@@ -177,8 +184,10 @@ public class HTTPModel implements ModelInterface {
 			if(model.playlist[model.config['item']]['start'] > 0) {
 				seek(model.playlist[model.config['item']]['start']);
 			}
+			model.sendEvent(ModelEvent.META,dat);
+		} else if(dat.type != 'metadata') {
+			model.sendEvent(ModelEvent.META,dat);
 		}
-		model.sendEvent(ModelEvent.META,dat);
 	};
 
 

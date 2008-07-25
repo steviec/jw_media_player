@@ -77,11 +77,16 @@ public class ObjectParser {
 		'video/x-m4v':'video',
 		'video/x-mp4':'video'
 	};
+	/** Streamer variable. **/
+	public static var streamer:String;
 
 
 	/** Translate a generic object to feeditem. **/
 	public static function parse(obj:Object):Object {
 		var itm = new Object();
+		if(obj['streamer']) { 
+			ObjectParser.streamer = obj['streamer'];
+		}
 		for(var i in ObjectParser.ELEMENTS) {
 			if(obj[i] != undefined) {
 				itm[i] = Strings.serialize(obj[i],ObjectParser.ELEMENTS[i]);
@@ -101,7 +106,7 @@ public class ObjectParser {
 			// assume the developer knows what he does...
 		} else if(ObjectParser.EXTENSIONS[itm['type']] != undefined) {
 			itm['type'] = ObjectParser.EXTENSIONS[itm['type']];
-		} else if(itm['file'].substr(0,4) == 'rtmp') {
+		} else if(ObjectParser.streamer && ObjectParser.streamer.substr(0,4) == 'rtmp') {
 			itm['type'] = 'rtmp';
 		} else if(itm['file'].indexOf('youtube.com/watch') > -1 ||
 			itm['file'].indexOf('youtube.com/v/') > -1) {

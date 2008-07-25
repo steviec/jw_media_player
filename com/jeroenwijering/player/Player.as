@@ -36,7 +36,7 @@ public class Player extends MovieClip {
 		skin:undefined,
 
 		autostart:false,
-		bufferlength:1,
+		bufferlength:0.1,
 		displayclick:'play',
 		fullscreen:false,
 		item:0,
@@ -51,14 +51,15 @@ public class Player extends MovieClip {
 		aboutlink:"http://www.jeroenwijering.com/?item=JW_FLV_Player",
 		linktarget:'_blank',
 		plugins:undefined,
-		streamscript:undefined,
+		streamer:undefined,
+		token:undefined,
 		tracecall:undefined,
 
 		client:undefined,
-		height:280,
+		height:300,
 		margins:'0,0',
 		state:'IDLE',
-		version:'4.0.47',
+		version:'4.0.48',
 		width:400
 	};
 	/** Object that loads all configuration variables. **/
@@ -103,8 +104,7 @@ public class Player extends MovieClip {
 			new RightclickView(_view),
 			new DisplayView(_view),
 			new ControlbarView(_view),
-			new PlaylistView(_view),
-			new CaptionsView(_view)
+			new PlaylistView(_view)
 		);
 		controller.start(model,_view);
 	};

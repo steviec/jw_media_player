@@ -34,8 +34,6 @@ public class RTMPModel implements ModelInterface {
 	private var timeout:Number;
 	/** Metadata received switch. **/
 	private var metadata:Boolean;
-	/** Index of the file where the video starts. **/
-	private var fileindex:Number;
 
 
 	/** Constructor; sets up the connection and display. **/
@@ -61,23 +59,8 @@ public class RTMPModel implements ModelInterface {
 	};
 
 
-	/** xtract the current ID from an RTMP URL **/
-	private function getStream(url:String):String {
-		var i = 0;
-		if(fileindex) {
-			fileindex = url.lastIndexOf('/',fileindex-2)+1;
-		} else { 
-			fileindex = url.lastIndexOf('/')+1;
-		}
-		var str = url.substr(0,fileindex);
-		trace(str);
-		return str;
-	};
-
-
 	/** xtract the current Stream from an RTMP URL **/
-	private function getID(url:String):String {
-		var str = url.substr(fileindex);
+	private function getID(str:String):String {
 		if(str.substr(-4) == '.mp3') {
 			str = 'mp3:'+str.substr(0,str.length-4);
 		} else if(str.substr(-4) == '.mp4' || str.substr(-4)=='.mov') {
@@ -93,7 +76,8 @@ public class RTMPModel implements ModelInterface {
 
 	/** Load content. **/
 	public function load() {
-		connection.connect(getStream(model.playlist[model.config['item']]['file']));
+		trace(model.config['streamer']);
+		connection.connect(model.config['streamer']);
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 	};
 
@@ -119,7 +103,6 @@ public class RTMPModel implements ModelInterface {
 				seek(model.playlist[model.config['item']]['start']);
 			}
 		} else if(dat.type == 'complete') {
-			fileindex = undefined;
 			clearInterval(timeinterval);
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
 		}
@@ -202,26 +185,20 @@ public class RTMPModel implements ModelInterface {
 		} else if(evt.info.code == "NetStream.Seek.Notify") {
 			clearInterval(timeinterval);
 			timeinterval = setInterval(timeHandler,100);
-		} else if(evt.info.code == "NetStream.Play.StreamNotFound") {
-			if(fileindex > 10) {
-				load();
-			} else {
-				stop();
-				model.sendEvent(ModelEvent.ERROR,{message:"Stream not found: "+model.playlist[model.config['item']]['file']});
-			}
-		} else if (evt.info.code == "NetConnection.Connect.Rejected" || evt.info.code == "NetConnection.Connect.Failed") {
-				stop();
-				model.sendEvent(ModelEvent.ERROR,{message:"Stream not found: "+model.playlist[model.config['item']]['file']});
-		} else { 
-			model.sendEvent(ModelEvent.META,{info:evt.info.code});
+		} else if (evt.info.code == "NetConnection.Connect.Rejected" || 
+			evt.info.code == "NetConnection.Connect.Failed" || 
+			evt.info.code == "NetStream.Play.StreamNotFound") {
+			stop();
+			model.sendEvent(ModelEvent.ERROR,{message:"Stream not found: "+
+				model.playlist[model.config['item']]['file']});
 		}
+		model.sendEvent(ModelEvent.META,{info:evt.info.code});
 	};
 
 
 	/** Destroy the stream. **/
 	public function stop() {
 		metadata = false;
-		fileindex = undefined;
 		clearInterval(timeinterval);
 		connection.close();
 		if(stream) { stream.close(); }

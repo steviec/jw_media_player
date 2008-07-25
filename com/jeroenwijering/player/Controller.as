@@ -122,7 +122,6 @@ public class Controller extends EventDispatcher {
 
 	/** Jump to a userdefined item in the playlist. **/
 	private function itemHandler(evt:ViewEvent) {
-		if(playlist[config['item']]['author'] == 'commercial') { return; }
 		var itm = evt.data.index;
 		if (itm < 0) {
 			playItem(0);
@@ -186,12 +185,11 @@ public class Controller extends EventDispatcher {
 
 	/** Jump to the next item in the playlist. **/
 	private function nextHandler(evt:ViewEvent) {
-		if(playlist[config['item']]['author'] == 'commercial') { return; }
-		if(config['shuffle'] == true) { 
+		if(playlist && config['shuffle'] == true) { 
 			playItem(randomizer.pick());
-		} else if (config['item'] == playlist.length-1) {
+		} else if (playlist && config['item'] == playlist.length-1) {
 			playItem(0);
-		} else { 
+		} else if (playlist) { 
 			playItem(config['item']+1);
 		}
 	};
@@ -243,7 +241,6 @@ public class Controller extends EventDispatcher {
 
 	/** Jump to the previous item in the playlist. **/
 	private function prevHandler(evt:ViewEvent) {
-		if(playlist[config['item']]['author'] == 'commercial') { return; }
 		if (config['item'] == 0) {
 			playItem(playlist.length-1);
 		} else { 
@@ -300,9 +297,7 @@ public class Controller extends EventDispatcher {
 
 	/** Seek to a specific part in a mediafile. **/
 	private function seekHandler(evt:ViewEvent) {
-		if(playlist[config['item']]['author'] != 'commercial' &&
-			config['state'] != ModelStates.IDLE && 
-			playlist[config['item']]['duration'] > 0) {
+		if(config['state'] != ModelStates.IDLE && playlist[config['item']]['duration'] > 0) {
 			var pos = evt.data.position;
 			if(pos < 2) { 
 				pos = 0;

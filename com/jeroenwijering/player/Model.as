@@ -97,7 +97,7 @@ public class Model extends EventDispatcher {
 				models[typ] = new SoundModel(this);
 				break;
 			case 'video':
-				if(config['streamscript']) {
+				if(config['streamer']) {
 					models[typ] = new HTTPModel(this);
 				} else {
 					models[typ] = new VideoModel(this);
@@ -108,6 +108,7 @@ public class Model extends EventDispatcher {
 				break;
 		}
 	};
+
 
 	/** Place a loaded mediafile on stage **/
 	public function mediaHandler(chd:DisplayObject=undefined) {

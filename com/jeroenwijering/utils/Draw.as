@@ -31,17 +31,19 @@ public class Draw {
 	* Clone a displayobject.
 	*
 	* @param tgt	Displayobject to clone.
+	* @param adc	Add as child to the parent displayobject.
 	*
 	* @return		The clone; not yet added to the displaystack.
 	**/
-	public static function clone(tgt:MovieClip):MovieClip {
+	public static function clone(tgt:MovieClip,adc:Boolean=false):MovieClip {
 		var cls:Class = Object(tgt).constructor;
 		var dup = new cls();
 		dup.transform = tgt.transform;
-		if(tgt.scale9Grid) {
-			var rct:Rectangle = tgt.scale9Grid;
-			rct.x /= 20, rct.y /= 20, rct.width /= 20, rct.height /= 20;
-			dup.scale9Grid = rct;
+		dup.filters = tgt.filters;
+		dup.cacheAsBitmap = tgt.cacheAsBitmap;
+		dup.opaqueBackground = tgt.opaqueBackground;
+		if(adc == true) {
+			tgt.parent.addChild(dup);
 		}
 	    return dup;
 	};

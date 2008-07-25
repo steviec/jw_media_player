@@ -41,7 +41,7 @@ public class View extends AbstractView {
 		_skin.stage.scaleMode = "noScale";
 		_skin.stage.align = "TL";
 		_skin.stage.addEventListener(Event.RESIZE,resizeHandler);
-		_config['controlbarsize'] = _skin['controlbar'].height;
+		_config['controlbarsize'] = _skin['controlbar'].back.height;
 		controller = ctr;
 		model = mdl;
 		if(_config['plugins']) {
@@ -67,9 +67,10 @@ public class View extends AbstractView {
 			_skin.addChild(ldr);
 			ldr.contentLoaderInfo.addEventListener(Event.INIT,loadHandler);
 			if(skin.loaderInfo.url.indexOf('http://') == 0) {
-            	var ctx = new LoaderContext(true,ApplicationDomain.currentDomain,
+				var ctx = new LoaderContext(true,
+					ApplicationDomain.currentDomain,
 					SecurityDomain.currentDomain);
-				ldr.load(new URLRequest(directory+arr[i]+'.swf'),ctx);
+					ldr.load(new URLRequest(directory+arr[i]+'.swf'),ctx);
 			} else {
 				ldr.load(new URLRequest(arr[i]+'.swf'));
 			}

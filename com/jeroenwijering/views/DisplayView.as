@@ -35,7 +35,9 @@ public class DisplayView {
 		'errorIcon',
 		'bufferIcon',
 		'linkIcon',
-		'muteIcon'
+		'muteIcon',
+		'fullscreenIcon',
+		'nextIcon'
 	);
 
 
@@ -44,13 +46,13 @@ public class DisplayView {
 		view = vie;
 		if(!view.skin['display']) { return; }
 		view.addControllerListener(ControllerEvent.ERROR,errorHandler);
-		view.addControllerListener(ControllerEvent.MUTE,muteHandler);
 		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
 		view.addModelListener(ModelEvent.BUFFER,bufferHandler);
 		view.addModelListener(ModelEvent.ERROR,errorHandler);
 		view.addModelListener(ModelEvent.STATE,stateHandler);
 		view.addViewListener(ModelEvent.ERROR,errorHandler);
 		display = view.skin['display'];
+		display.media.mask = display.masker;
 		if(view.config['displayclick'] != 'none') {
 			display.addEventListener(MouseEvent.CLICK,clickHandler);
 			display.buttonMode = true;
@@ -103,18 +105,6 @@ public class DisplayView {
 			display.logo.y = display.back.height- margins[3]-display.logo.height;
 		} else {
 			display.logo.y = margins[1];
-		}
-	};
-
-
-	/** Show a mute icon if playing. **/
-	private function muteHandler(evt:ControllerEvent) {
-		if(state == ModelStates.PLAYING) {
-			if(evt.data.state == true) {
-				setIcon('muteIcon');
-			} else {
-				setIcon();
-			}
 		}
 	};
 
@@ -179,26 +169,15 @@ public class DisplayView {
 	private function stateHandler(evt:ModelEvent=null) {
 		state = view.config['state'];
 		if(state == ModelStates.PLAYING) {
-			if(view.config['mute'] == true) {
-				setIcon('muteIcon');
-			} else {
-				setIcon();
-			}
+			setIcon();
 		} else if (state == ModelStates.BUFFERING) {
 			setIcon('bufferIcon');
 		} else {
 			switch(view.config.displayclick) {
-				case 'play':
-					setIcon('playIcon');
-					break;
-				case 'link':
-					setIcon('linkIcon');
-					break;
-				case 'mute':
-					setIcon('muteIcon');
+				case 'none':
 					break;
 				default:
-					setIcon();
+					setIcon(view.config.displayclick+'Icon');
 					break;
 			}
 		}
