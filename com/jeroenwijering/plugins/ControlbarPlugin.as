@@ -1,25 +1,25 @@
 ﻿/**
 * Display a controlbar and direct the search externally.
 **/
-package com.jeroenwijering.views {
+package com.jeroenwijering.plugins {
 
 
 import com.jeroenwijering.events.*;
-import com.jeroenwijering.player.View;
 import com.jeroenwijering.utils.*;
 import flash.display.MovieClip;
 import flash.events.MouseEvent;
+import flash.geom.ColorTransform;
 import flash.geom.Rectangle;
 import flash.utils.setTimeout;
 import flash.utils.clearTimeout;
 import flash.ui.Mouse;
 
 
-public class ControlbarView {
+public class ControlbarPlugin implements PluginInterface {
 
 
 	/** Reference to the view. **/
-	private var view:View;
+	private var view:AbstractView;
 	/** Reference to the controlbar **/
 	private var bar:MovieClip;
 	/** Fullscreen controlbar margin. **/
@@ -28,6 +28,12 @@ public class ControlbarView {
 	private var stacker:Stacker;
 	/** Timeout for hiding the bar. **/
 	private var hiding:Number;
+	/** When scrubbing, icon shouldn't be set. **/
+	private var scrubbing:Boolean;
+	/** Color object for frontcolor. **/
+	private var front:ColorTransform;
+	/** Color object for lightcolor. **/
+	private var light:ColorTransform;
 	/** The actions for all controlbar buttons. **/
 	private var BUTTONS = {
 		playButton:'PLAY',
@@ -41,18 +47,20 @@ public class ControlbarView {
 		muteButton:'MUTE',
 		unmuteButton:'MUTE'
 	};
-	/** When scrubbing, icon shouldn't be set. **/
-	private var scrubbing:Boolean;
+	/** The actions for all sliders **/ 
+	private var SLIDERS = {
+		timeSlider:'SEEK',
+		volumeSlider:'VOLUME'
+	}
 
 
 	/** Constructor. **/
-	public function ControlbarView(vie:View) {
+	public function ControlbarPlugin() {};
+
+
+	/** Initialize from view. **/
+	public function initialize(vie:AbstractView) {
 		view = vie;
-		if(!view.skin['controlbar']) { return; }
-		bar = view.skin['controlbar'];
-		margin = bar.x;
-		stacker = new Stacker(bar);
-		setButtons();
 		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
 		view.addModelListener(ModelEvent.LOADED,loadedHandler);
 		view.addModelListener(ModelEvent.STATE,stateHandler);
@@ -61,6 +69,11 @@ public class ControlbarView {
 		view.addControllerListener(ControllerEvent.ITEM,itemHandler);
 		view.addControllerListener(ControllerEvent.MUTE,muteHandler);
 		view.addControllerListener(ControllerEvent.VOLUME,volumeHandler);
+		bar = view.skin['controlbar'];
+		margin = bar.x;
+		stacker = new Stacker(bar);
+		setButtons();
+		setColors();
 		itemHandler();
 		muteHandler();
 		volumeHandler();
@@ -74,6 +87,16 @@ public class ControlbarView {
 	/** Handle clicks from all buttons. **/
 	private function clickHandler(evt:MouseEvent) {
 		view.sendEvent(BUTTONS[evt.target.name]);
+	};
+
+
+	/** Handle mouse presses on sliders. **/
+	private function downHandler(evt:MouseEvent) {
+		var tgt = evt.target;
+		var rct = new Rectangle(tgt.rail.x,tgt.icon.y,tgt.rail.width-tgt.icon.width,0);
+		tgt.icon.startDrag(true,rct);
+		scrubbing = true;
+    	bar.stage.addEventListener(MouseEvent.MOUSE_UP,upHandler);
 	};
 
 
@@ -168,13 +191,17 @@ public class ControlbarView {
 
 	/** Handle mouseouts from all buttons **/
 	private function outHandler(evt:MouseEvent) {
-		bar[evt.target.name].gotoAndPlay('out');
+		if(front) { 
+			bar[evt.target.name]['icon'].transform.colorTransform = front;
+		}
 	};
 
 
 	/** Handle clicks from all buttons **/
 	private function overHandler(evt:MouseEvent) {
-		bar[evt.target.name].gotoAndPlay('over');
+		if(light) { 
+			bar[evt.target.name]['icon'].transform.colorTransform = light;
+		}
 	};
 
 
@@ -209,7 +236,7 @@ public class ControlbarView {
 			}
 		} catch (err:Error) {}
 		try {
-			if (wid < 200) {
+			if (wid < 250) {
 				bar.elapsedText.visible = bar.totalText.visible = false;
 			} else { 
 				bar.elapsedText.visible = bar.totalText.visible = true;
@@ -223,28 +250,57 @@ public class ControlbarView {
 
 	/** Clickhandler for all buttons. **/
 	private function setButtons() {
-		for(var itm in BUTTONS) {
-			if(bar[itm]) {
-				bar[itm].mouseChildren = false;
-				bar[itm].buttonMode = true;
-				bar[itm].addEventListener(MouseEvent.CLICK, clickHandler);
-				bar[itm].addEventListener(MouseEvent.MOUSE_OVER, overHandler);
-				bar[itm].addEventListener(MouseEvent.MOUSE_OUT, outHandler);
+		for(var btn in BUTTONS) {
+			if(bar[btn]) {
+				bar[btn].mouseChildren = false;
+				bar[btn].buttonMode = true;
+				bar[btn].addEventListener(MouseEvent.CLICK, clickHandler);
+				bar[btn].addEventListener(MouseEvent.MOUSE_OVER, overHandler);
+				bar[btn].addEventListener(MouseEvent.MOUSE_OUT, outHandler);
 			}
 		}
-		if(bar.timeSlider) {
-			bar.timeSlider.mouseChildren = false;
-			bar.timeSlider.buttonMode = true;
-			bar.timeSlider.addEventListener(MouseEvent.MOUSE_DOWN,timedownHandler);
-			bar.timeSlider.addEventListener(MouseEvent.MOUSE_OUT,timeoutHandler);
-			bar.timeSlider.addEventListener(MouseEvent.MOUSE_OVER,timeoverHandler);
-		} 
-		if(bar.volumeSlider) {
-			bar.volumeSlider.mouseChildren = false;
-			bar.volumeSlider.buttonMode = true;
-			bar.volumeSlider.addEventListener(MouseEvent.MOUSE_DOWN,volumedownHandler);
-			bar.volumeSlider.addEventListener(MouseEvent.MOUSE_OUT,volumeoutHandler);
-			bar.volumeSlider.addEventListener(MouseEvent.MOUSE_OVER,volumeoverHandler);
+		for(var sld in SLIDERS) {
+			if(bar[sld]) {
+				bar[sld].mouseChildren = false;
+				bar[sld].buttonMode = true;
+				bar[sld].addEventListener(MouseEvent.MOUSE_DOWN, downHandler);
+				bar[sld].addEventListener(MouseEvent.MOUSE_OVER, overHandler);
+				bar[sld].addEventListener(MouseEvent.MOUSE_OUT, outHandler);
+			}
+		}
+	};
+
+
+	/** Init the colors. **/
+	private function setColors() {
+		if(view.config['backcolor']) { 
+			var clr = new ColorTransform();
+			clr.color = '0x'+view.config['backcolor'].substr(-6);
+			bar.back.transform.colorTransform = clr;
+		}
+		if(view.config['frontcolor']) {
+			try {
+				front = new ColorTransform();
+				front.color = uint('0x'+view.config['frontcolor'].substr(-6));
+				for(var btn in BUTTONS) {
+					if(bar[btn]) {
+						bar[btn]['icon'].transform.colorTransform = front;
+					}
+				}
+				for(var sld in SLIDERS) {
+					if(bar[sld]) {
+						bar[sld]['icon'].transform.colorTransform = front;
+						bar[sld]['mark'].transform.colorTransform = front;
+						bar[sld]['rail'].transform.colorTransform = front;
+					}
+				}
+				bar.elapsedText.textColor = front.color;
+				bar.totalText.textColor = front.color;
+			} catch (err:Error) {}
+		}
+		if(view.config['lightcolor']) {
+			light = new ColorTransform();
+			light.color = uint('0x'+view.config['lightcolor'].substr(-6));
 		}
 	};
 
@@ -316,39 +372,20 @@ public class ControlbarView {
 	};
 
 
-	/** Handle a press on the timeslider **/
-	private function timedownHandler(evt:MouseEvent) {
-		var tsl = bar.timeSlider;
-		var rct = new Rectangle(0,
-			tsl.icon.y,tsl.rail.width-tsl.icon.width,0);
-		tsl.icon.startDrag(true,rct);
-		scrubbing = true;
-    	bar.stage.addEventListener(MouseEvent.MOUSE_UP,timeupHandler);
-	};
-
-	/** Handle a move out the timeslider **/
-	private function timeoutHandler(evt:MouseEvent) {
-		bar.timeSlider.icon.gotoAndPlay('out');
-	};
-
-
-	/** Handle a press release on the timeslider **/
-	private function timeupHandler(evt:MouseEvent) {
-		bar.timeSlider.icon.stopDrag();
+	/** Handle mouse releases on sliders. **/
+	private function upHandler(evt:MouseEvent) {
+		var tgt = evt.target;
+		var mpl = 0;
+		tgt.icon.stopDrag();
 		scrubbing = false;
-    	bar.stage.removeEventListener(MouseEvent.MOUSE_UP,timeupHandler);
-		var xps = bar.timeSlider.icon.x-bar.timeSlider.rail.x;
-		if(view.playlist.length) {
-			var dur = view.playlist[view.config['item']]['duration'];
-			var pct = Math.round(xps*dur*10/bar.timeSlider.rail.width/10);
-			view.sendEvent(ViewEvent.SEEK,pct);
+    	bar.stage.removeEventListener(MouseEvent.MOUSE_UP,upHandler);
+		if(tgt.name == 'timeSlider' && view.playlist.length) {
+			mpl = view.playlist[view.config['item']]['duration'];
+		} else if(tgt.name == 'volumeSlider') { 
+			mpl = 100;
 		}
-	};
-
-
-	/** Handle a move over the timeslider **/
-	private function timeoverHandler(evt:MouseEvent) {
-		bar.timeSlider.icon.gotoAndPlay('over');
+		var pct = (tgt.icon.x-tgt.rail.x) / (tgt.rail.width-tgt.icon.width) * mpl;
+		view.sendEvent(SLIDERS[tgt.name],Math.round(pct));
 	};
 
 
@@ -359,38 +396,6 @@ public class ControlbarView {
 			vsl.mark.width = view.config['volume']*(vsl.rail.width-vsl.icon.width/2)/100;
 			vsl.icon.x = view.config['volume']*(vsl.rail.width-vsl.icon.width)/100;
 		} catch (err:Error) {}
-	};
-
-
-	/** Handle a move over the volumebar **/
-	private function volumedownHandler(evt:MouseEvent) {
-		var vsl = bar.volumeSlider;
-		var rct = new Rectangle(vsl.rail.x,vsl.icon.y,vsl.width-vsl.icon.width,0);
-		vsl.icon.startDrag(true,rct);
-		bar.stage.addEventListener(MouseEvent.MOUSE_UP,volumeupHandler);
-	};
-
-
-	/** Handle a move out the volumebar. **/
-	private function volumeoutHandler(evt:MouseEvent) {
-		bar.volumeSlider.icon.gotoAndPlay('out');
-	};
-
-
-	/** Handle a move over the volumebar. **/
-	private function volumeoverHandler(evt:MouseEvent) {
-		bar.volumeSlider.icon.gotoAndPlay('over');
-	};
-
-
-	/** Handle a press release on the volumebar. **/
-	private function volumeupHandler(evt:MouseEvent) {
-		var vsl = bar.volumeSlider;
-		vsl.icon.stopDrag();
-    	bar.stage.removeEventListener(MouseEvent.MOUSE_UP,volumeupHandler);
-		var xps = vsl.icon.x - bar.volumeSlider.rail.x;
-		var pct = Math.round(xps*100/(vsl.rail.width-vsl.icon.width));
-		view.sendEvent(ViewEvent.VOLUME,pct);
 	};
 
 

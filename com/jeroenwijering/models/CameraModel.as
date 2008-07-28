@@ -58,43 +58,13 @@ public class CameraModel implements ModelInterface {
 	};
 
 
-	/** xtract the current ID from an RTMP URL **/
-	private function getStream(url:String):String {
-		var i = 0;
-		var idx = 0;
-		do {
-			idx = url.indexOf('/',idx+1);
-			i++;
-		} while (i < 4);
-		return url.substr(0,idx);
-	};
-
-
-	/** xtract the current Stream from an RTMP URL **/
-	private function getID(url:String):String {
-		var i = 0;
-		var idx = 0;
-		do {
-			idx = url.indexOf('/',idx)+1;
-			i++;
-		} while (i < 4);
-		var str = url.substr(idx);
-		if(str.substr(-4) == '.mp3') { 
-			str = 'mp3:'+str.substr(0,str.length-4);
-		} else if (str.substr(-4) == '.flv'){ 
-			str = str.substr(0,str.length-4);
-		}
-		return str;
-	};
-
 
 	/** Load the camera into the video **/
 	public function load() {
-		var url = model.playlist[model.config['item']]['file'];
 		position = model.playlist[model.config['item']]['start'];
 		model.mediaHandler(video);
-		if(url.indexOf('rtmp://') == 0) {
-			connection.connect(getStream(url));
+		if(model.config['streamer']) {
+			connection.connect(model.config['streamer']);
 		} else { 
 			play();
 		}
@@ -120,7 +90,7 @@ public class CameraModel implements ModelInterface {
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 		interval = setInterval(timeInterval,100);
 		if(stream) {
-			stream.publish(getID(model.playlist[model.config['item']]['file']));
+			stream.publish(model.playlist[model.config['item']]['file']);
 			stream.attachAudio(microphone);
 			stream.attachCamera(camera);
 		}

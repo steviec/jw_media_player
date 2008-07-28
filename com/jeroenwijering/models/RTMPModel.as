@@ -8,6 +8,7 @@ import com.jeroenwijering.events.*;
 import com.jeroenwijering.models.ModelInterface;
 import com.jeroenwijering.player.Model;
 import com.jeroenwijering.utils.NetClient;
+import com.meychi.ascrypt.TEA;
 import flash.display.DisplayObject;
 import flash.events.*;
 import flash.media.*;
@@ -60,23 +61,21 @@ public class RTMPModel implements ModelInterface {
 
 
 	/** xtract the current Stream from an RTMP URL **/
-	private function getID(str:String):String {
-		if(str.substr(-4) == '.mp3') {
-			str = 'mp3:'+str.substr(0,str.length-4);
-		} else if(str.substr(-4) == '.mp4' || str.substr(-4)=='.mov') {
-			str = 'mp4:'+str.substr(0,str.length-4);
-		} else if(str.substr(-4) == '.aac' || str.substr(-4)=='.m4a') {
-			str = 'mp4:'+str;
-		} else if (str.substr(-4) == '.flv'){
-			str = str.substr(0,str.length-4);
+	private function getID(url:String):String {
+		if(url.substr(-4) == '.mp3') {
+			url = 'mp3:'+url.substr(0,url.length-4);
+		} else if(url.substr(-4) == '.mp4' || url.substr(-4) == '.mov' || 
+			url.substr(-4) == '.aac' || url.substr(-4) == '.m4a') {
+			url = 'mp4:'+url.substr(0,url.length-4);
+		} else if (url.substr(-4) == '.flv'){
+			url = url.substr(0,url.length-4);
 		}
-		return str;
+		return url;
 	};
 
 
 	/** Load content. **/
 	public function load() {
-		trace(model.config['streamer']);
 		connection.connect(model.config['streamer']);
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 	};
@@ -181,18 +180,23 @@ public class RTMPModel implements ModelInterface {
 	/** Receive NetStream status updates. **/
 	private function statusHandler(evt:NetStatusEvent) {
 		if(evt.info.code == "NetConnection.Connect.Success") {
+			if (evt.info.secureToken != undefined) {
+				connection.call("secureTokenResponse",null,
+					TEA.decrypt(evt.info.secureToken,model.config['token']));
+			}
 			setStream();
 		} else if(evt.info.code == "NetStream.Seek.Notify") {
 			clearInterval(timeinterval);
 			timeinterval = setInterval(timeHandler,100);
-		} else if (evt.info.code == "NetConnection.Connect.Rejected" || 
-			evt.info.code == "NetConnection.Connect.Failed" || 
-			evt.info.code == "NetStream.Play.StreamNotFound") {
+		} else if(evt.info.code == "NetStream.Play.StreamNotFound" || 
+			evt.info.code == "NetConnection.Connect.Rejected" || 
+			evt.info.code == "NetConnection.Connect.Failed") {
 			stop();
 			model.sendEvent(ModelEvent.ERROR,{message:"Stream not found: "+
 				model.playlist[model.config['item']]['file']});
+		} else { 
+			model.sendEvent(ModelEvent.META,{info:evt.info.code});
 		}
-		model.sendEvent(ModelEvent.META,{info:evt.info.code});
 	};
 
 

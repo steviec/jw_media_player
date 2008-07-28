@@ -5,9 +5,8 @@ package com.jeroenwijering.player {
 
 
 import com.jeroenwijering.player.*;
+import com.jeroenwijering.plugins.*;
 import com.jeroenwijering.utils.Configger;
-import com.jeroenwijering.utils.Skinner;
-import com.jeroenwijering.views.*;
 import flash.display.MovieClip;
 import flash.events.Event;
 
@@ -15,10 +14,9 @@ import flash.events.Event;
 public class Player extends MovieClip {
 
 
-	/** A list with all default configuration values. **/
+	/** A list with all default configuration values. Change to hard-code your values. **/
 	private var defaults:Object = {
 		author:undefined,
-		captions:undefined,
 		description:undefined,
 		duration:0,
 		file:undefined,
@@ -28,15 +26,22 @@ public class Player extends MovieClip {
 		title:undefined,
 		type:undefined,
 
+		backcolor:undefined,
+		frontcolor:undefined,
+		lightcolor:undefined,
+		screencolor:undefined,
+
 		controlbar:'bottom',
 		controlbarsize:20,
+		height:300,
 		logo:undefined,
 		playlist:'none',
 		playlistsize:180,
 		skin:undefined,
+		width:400,
 
 		autostart:false,
-		bufferlength:0.1,
+		bufferlength:1,
 		displayclick:'play',
 		fullscreen:false,
 		item:0,
@@ -44,41 +49,40 @@ public class Player extends MovieClip {
 		quality:true,
 		repeat:'none',
 		shuffle:false,
+		state:'IDLE',
 		stretching:'uniform',
-		volume:80,
+		volume:90,
 
 		abouttext:undefined,
 		aboutlink:"http://www.jeroenwijering.com/?item=JW_FLV_Player",
+		client:undefined,
+		id:undefined,
 		linktarget:'_blank',
+		margins:'0,0',
 		plugins:undefined,
 		streamer:undefined,
 		token:undefined,
 		tracecall:undefined,
-
-		client:undefined,
-		height:300,
-		margins:'0,0',
-		state:'IDLE',
-		version:'4.0.48',
-		width:400
+		version:'4.0.48'
 	};
 	/** Object that loads all configuration variables. **/
 	private var configger:Configger;
 	/** Object that load the skin and plugins. **/
-	private var skinner:Skinner;
+	private var loader:SWFLoader;
 	/** Reference to the Controller of the MVC cycle. **/
 	private var controller:Controller;
 	/** Reference to the model of the MVC cycle. **/
 	private var model:Model;
 	/** Reference to the View of the MVC cycle. **/
 	private var _view:View;
-	/** A list with all the active views. **/
-	private var views:Array;
+	/** A list with all the active plugins. **/
+	private var plugins:Array;
 
 
-	/** Constructor; Loads config parameters.**/
+	/** Constructor; Loads config parameters. **/
 	public function Player() {
 		visible = false;
+		plugins = new Array();
 		configger = new Configger(this);
 		configger.addEventListener(Event.COMPLETE,configHandler);
 		configger.load(defaults);
@@ -87,30 +91,48 @@ public class Player extends MovieClip {
 
 	/** Config loading completed; now load skin. **/
 	private function configHandler(evt:Event) {
-		skinner = new Skinner(this);
-		skinner.addEventListener(Event.COMPLETE,skinHandler);
-		skinner.load(configger.config);
+		loader = new SWFLoader(this);
+		loader.addEventListener(Event.INIT,skinHandler);
+		loader.addEventListener(Event.COMPLETE,pluginHandler);
+		loader.loadSkin(configger.config['skin']);
 	};
 
 
 	/** Skin loading completed, now load MVC and plugins. **/
 	private function skinHandler(evt:Event) {
-		visible = true;
-		controller = new Controller(configger.config,skinner.skin);
-		model = new Model(configger.config,skinner.skin,controller);
-		_view = new View(configger.config,skinner.skin,controller,model);
-		views = new Array(
-			new ExternalView(_view),
-			new RightclickView(_view),
-			new DisplayView(_view),
-			new ControlbarView(_view),
-			new PlaylistView(_view)
-		);
-		controller.start(model,_view);
+		controller = new Controller(configger.config,loader.skin);
+		model = new Model(configger.config,loader.skin,controller);
+		_view = new View(configger.config,loader.skin,controller,model);
+		addPlugin(new DisplayPlugin());
+		addPlugin(new ControlbarPlugin());
+		addPlugin(new PlaylistPlugin());
+		loader.loadPlugins(configger.config['plugins']);
 	};
 
 
-	/** reference to the view, so plugins and listeners can interface. **/
+	/** 
+	* Add a certain plugin to the list.
+	*
+	* @prm plg		Any object that implements the PluginInterface.
+	**/
+	public function addPlugin(plg:Object) { 
+		plugins.push(plg);
+	};
+
+
+	/** Plugin loading completed; let's start! **/
+	private function pluginHandler(evt:Event=null) {
+		for(var i=0; i<plugins.length; i++) { plugins[i].initialize(_view); }
+		controller.start(model,_view);
+		visible = true;
+	};
+
+
+	/** 
+	* Reference to the view, so actionscript applications can access the API. 
+	* 
+	* @return	A reference to the view, which has access points for config, playlist, listeners and events.
+	**/
 	public function get view():View {
 		return _view;
 	};

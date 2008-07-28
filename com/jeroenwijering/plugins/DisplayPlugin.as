@@ -1,11 +1,10 @@
 ﻿/**
 * Interface for all display elements.
 **/
-package com.jeroenwijering.views {
+package com.jeroenwijering.plugins {
 
 
 import com.jeroenwijering.events.*;
-import com.jeroenwijering.player.View;
 import com.jeroenwijering.utils.Draw;
 import com.jeroenwijering.utils.Strings;
 import flash.display.Loader;
@@ -13,14 +12,15 @@ import flash.display.MovieClip;
 import flash.display.Sprite;
 import flash.events.Event;
 import flash.events.MouseEvent;
+import flash.geom.ColorTransform;
 import flash.net.URLRequest;
 
 
-public class DisplayView {
+public class DisplayPlugin implements PluginInterface {
 
 
 	/** Reference to the MVC view. **/
-	private var view:View;
+	private var view:AbstractView;
 	/** Reference to the display MC. **/
 	private var display:MovieClip;
 	/** Loader object for loading a logo. **/
@@ -42,9 +42,12 @@ public class DisplayView {
 
 
 	/** Constructor; add all needed listeners. **/
-	public function DisplayView(vie:View) {
+	public function DisplayPlugin() {};
+
+
+	/** Initialize the plugin. **/
+	public function initialize(vie:AbstractView) {
 		view = vie;
-		if(!view.skin['display']) { return; }
 		view.addControllerListener(ControllerEvent.ERROR,errorHandler);
 		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
 		view.addModelListener(ModelEvent.BUFFER,bufferHandler);
@@ -53,11 +56,16 @@ public class DisplayView {
 		view.addViewListener(ModelEvent.ERROR,errorHandler);
 		display = view.skin['display'];
 		display.media.mask = display.masker;
+		display.mouseChildren = false;
+		if(view.config['screencolor']) { 
+			var clr = new ColorTransform();
+			clr.color = '0x'+view.config['screencolor'].substr(-6);
+			display.back.transform.colorTransform = clr;
+		}
 		if(view.config['displayclick'] != 'none') {
 			display.addEventListener(MouseEvent.CLICK,clickHandler);
 			display.buttonMode = true;
 		}
-		display.mouseChildren = false;
 		try {
 			Draw.clear(display.logo);
 			if(view.config['logo']) { setLogo(); }

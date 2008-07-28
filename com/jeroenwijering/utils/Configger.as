@@ -22,8 +22,6 @@ public class Configger extends EventDispatcher {
 	public var config:Object;
 	/** XML loading object reference **/
 	private var loader:URLLoader;
-	/** Cookie object. **/
-	private static var cookie:SharedObject;
 
 
 	/** Constructor; nothing fancy. **/
@@ -43,7 +41,7 @@ public class Configger extends EventDispatcher {
 		if(xml) {
 			loadXML(Strings.decode(xml));
 		} else {
-			loadCookies();
+			loadFlashvars();
 		}
 	};
 
@@ -66,14 +64,6 @@ public class Configger extends EventDispatcher {
 			obj[prp.name()] = prp.text();
 		}
 		compareWrite(obj)
-		loadCookies();
-	};
-
-
-	/** Load configuration data from flashcookie. **/
-	private function loadCookies() {
-		Configger.cookie = SharedObject.getLocal('com.jeroenwijering','/');
-		compareWrite(Configger.cookie.data);
 		loadFlashvars();
 	};
 
@@ -95,18 +85,6 @@ public class Configger extends EventDispatcher {
 				config[lfv] = obj[lfv];
 			}
 		}
-	};
-
-
-	/**
-	* Save config parameter to cookie.
-	*
-	* @param prm	The parameter name.
-	* @param val	The parameter value.
-	**/
-	public static function saveCookie(prm:String,val:Object) {
-		Configger.cookie.data[prm] = val;
-		Configger.cookie.flush();
 	};
 
 

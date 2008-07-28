@@ -67,8 +67,7 @@ public class SoundModel implements ModelInterface {
 		sound = new Sound();
 		sound.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
 		sound.addEventListener(ProgressEvent.PROGRESS,progressHandler);
-		var url = model.playlist[model.config['item']]['file'];
-		sound.load(new URLRequest(url),context);
+		sound.load(new URLRequest(model.playlist[model.config['item']]['file']),context);
 		model.mediaHandler();
 		play();
 	};

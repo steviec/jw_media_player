@@ -52,7 +52,6 @@ public class Controller extends EventDispatcher {
 		model.addEventListener(ModelEvent.TIME,metaHandler);
 		model.addEventListener(ModelEvent.STATE,stateHandler);
 		view = vie;
-		view.addEventListener(ViewEvent.CAPTION,captionHandler);
 		view.addEventListener(ViewEvent.FULLSCREEN,fullscreenHandler);
 		view.addEventListener(ViewEvent.ITEM,itemHandler);
 		view.addEventListener(ViewEvent.LINK,linkHandler);
@@ -75,21 +74,6 @@ public class Controller extends EventDispatcher {
 		}
 	};
 
-
-	/** Save new state of the dub/caption switches. **/
-	private function captionHandler(evt:ViewEvent) {
-		if(evt.data.state != undefined) {
-			if(evt.data.state == config['caption']) { 
-				return;
-			} else { 
-				config['caption'] = evt.data.state;
-			}
-		} else { 
-			config['caption'] = !config['caption'];
-		}
-		Configger.saveCookie('caption',config['caption']);
-		dispatchEvent(new ControllerEvent(ControllerEvent.CAPTION,{state:config['caption']}));
-	};
 
 
 	/** Catch errors dispatched by the playlister. **/
@@ -178,7 +162,6 @@ public class Controller extends EventDispatcher {
 		} else {
 			config['mute'] = !config['mute'];
 		}
-		Configger.saveCookie('mute',config['mute']);
 		dispatchEvent(new ControllerEvent(ControllerEvent.MUTE,{state:config['mute']}));
 	};
 
@@ -204,7 +187,7 @@ public class Controller extends EventDispatcher {
 				dispatchEvent(new ControllerEvent(ControllerEvent.SEEK,{position:playlist[config['item']]['start']}));
 			} else if(evt.data.state != false && config['state'] == ModelStates.IDLE) {
 				playItem();
-			} else if (evt.data.state != true && 
+			} else if (evt.data.state != true &&
 				(config['state'] == ModelStates.PLAYING || config['state'] == ModelStates.BUFFERING)) {
 				dispatchEvent(new ControllerEvent(ControllerEvent.PLAY,{state:false}));
 			}
@@ -260,7 +243,6 @@ public class Controller extends EventDispatcher {
 		} else {
 			config['quality'] = !config['quality'];
 		}
-		Configger.saveCookie('quality',config['quality']);
 		fullscreenrect();
 		dispatchEvent(new ControllerEvent(ControllerEvent.QUALITY,{state:config['quality']}));
 	};
@@ -341,7 +323,6 @@ public class Controller extends EventDispatcher {
 				muteHandler(new ViewEvent(ViewEvent.MUTE,{state:false}));
 			}
 			config['volume'] = vol;
-			Configger.saveCookie('volume',vol);
 			dispatchEvent(new ControllerEvent(ControllerEvent.VOLUME,{percentage:vol}));
 		}
 	}; 

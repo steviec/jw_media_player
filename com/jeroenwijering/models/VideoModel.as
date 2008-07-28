@@ -155,10 +155,9 @@ public class VideoModel implements ModelInterface {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
 		} else if (evt.info.code == "NetStream.Play.StreamNotFound") {
 			stop();
-			model.sendEvent(ModelEvent.ERROR,{message:'Video not available: '+
-			model.playlist[model.config['item']]['file']});
+			model.sendEvent(ModelEvent.ERROR,{message:'Video not found: '+model.playlist[model.config['item']]['file']});
 		}
-		model.sendEvent(ModelEvent.META,{code:evt.info.code,level:evt.info.level});
+		model.sendEvent(ModelEvent.META,{info:evt.info.code});
 	};
 
 

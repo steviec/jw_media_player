@@ -1,27 +1,27 @@
 ﻿/**
 * Display a searchbar and direct the search externally.
 **/
-package com.jeroenwijering.views {
+package com.jeroenwijering.plugins {
 
 
 import com.jeroenwijering.events.*;
-import com.jeroenwijering.player.View;
 import com.jeroenwijering.utils.*;
 import flash.display.Loader;
 import flash.display.MovieClip;
 import flash.events.Event;
 import flash.events.MouseEvent;
+import flash.geom.ColorTransform;
 import flash.geom.Rectangle;
 import flash.net.URLRequest;
 import flash.utils.setInterval;
 import flash.utils.clearInterval;
 
 
-public class PlaylistView {
+public class PlaylistPlugin implements PluginInterface {
 
 
 	/** Reference to the view. **/
-	private var view:View;
+	private var view:AbstractView;
 	/** Reference to the playlist MC. **/
 	private var clip:MovieClip;
 	/** Array with all button instances **/
@@ -36,11 +36,20 @@ public class PlaylistView {
 	private var scrollInterval:Number;
 	/** Image dimensions. **/
 	private var image:Array;
+	/** Color object for backcolor. **/
+	private var back:ColorTransform;
+	/** Color object for frontcolor. **/
+	private var front:ColorTransform;
+	/** Color object for lightcolor. **/
+	private var light:ColorTransform;
 
 
-	public function PlaylistView(vie:View) {
+	public function PlaylistPlugin() {};
+
+
+	/** Initialize the communication with the player. **/
+	public function initialize(vie:AbstractView) {
 		view = vie;
-		if(!view.skin['playlist']) { return; }
 		view.addControllerListener(ControllerEvent.ITEM,itemHandler);
 		view.addControllerListener(ControllerEvent.PLAYLIST,playlistHandler);
 		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
@@ -63,6 +72,7 @@ public class PlaylistView {
 		try { 
 			image = new Array(clip.list.button.image.width,clip.list.button.image.height);
 		} catch (err:Error) {}
+		setColors();
 	};
 
 
@@ -127,11 +137,11 @@ public class PlaylistView {
 	/** Switch the currently active item */
 	private function itemHandler(evt:ControllerEvent) {
 		var idx = view.config['item'];
-		if(!isNaN(active) && buttons.length > 0) {
-			buttons[active].c.gotoAndPlay('out');
-		}
-		if(buttons.length > 0) {
-			buttons[idx].c.gotoAndPlay('active');
+		if(buttons[idx] && buttons[idx].c['back']) { 
+			buttons[idx].c['back'].visible = true;
+			if(!isNaN(active)) {
+				buttons[active].c['back'].visible = false;
+			}
 		}
 		active = idx;
 	};
@@ -140,24 +150,28 @@ public class PlaylistView {
 	/** Loading of image completed; resume loading **/
 	private function loaderHandler(evt:Event) {
 		var ldr = Loader(evt.target.loader);
-		Stretcher.stretch(ldr,image[0],image[1],Stretcher.FILL);
+		Stretcher.stretch(ldr,image[0],image[1],Stretcher.EXACTFIT);
 	};
 
 
 	/** Handle a button rollover. **/
 	private function overHandler(evt:MouseEvent) {
 		var idx = Number(evt.target.name);
-		buttons[idx].c.gotoAndPlay('over');
+		for (var itm in view.playlist[idx]) {
+			if(light && buttons[idx].c[itm]) { 
+				buttons[idx].c[itm].textColor = light.color;
+			}
+		}
 	};
 
 
 	/** Handle a button rollover. **/
 	private function outHandler(evt:MouseEvent) {
 		var idx = Number(evt.target.name);
-		if(idx == active) {
-			buttons[idx].c.gotoAndPlay('active');
-		} else { 
-			buttons[idx].c.gotoAndPlay('out');
+		for (var itm in view.playlist[idx]) {
+			if(front && buttons[idx].c[itm]) { 
+				buttons[idx].c[itm].textColor = front.color;
+			}
 		}
 	};
 
@@ -225,6 +239,28 @@ public class PlaylistView {
 	};
 
 
+	/** Init the colors. **/
+	private function setColors() {
+		if(view.config['backcolor']) { 
+			back = new ColorTransform();
+			back.color = uint('0x'+view.config['backcolor'].substr(-6));
+			clip.back.transform.colorTransform = back;
+		}
+		if(view.config['frontcolor']) {
+			front = new ColorTransform();
+			front.color = uint('0x'+view.config['frontcolor'].substr(-6));
+			try { 
+				clip.slider.icon.transform.colorTransform = front;
+				clip.slider.rail.transform.colorTransform = front;
+			} catch (err:Error) {}
+		}
+		if(view.config['lightcolor']) {
+			light = new ColorTransform();
+			light.color = uint('0x'+view.config['lightcolor'].substr(-6));
+		}
+	};
+
+
 	/** Setup button elements **/
 	private function setContents(idx:Number) {
 		for (var itm in view.playlist[idx]) {
@@ -241,10 +277,22 @@ public class PlaylistView {
 			} else if(itm == 'duration') {
 				if(view.playlist[idx][itm] > 0) {
 					buttons[idx].c[itm].text = Strings.digits(view.playlist[idx][itm]);
+					if(front) { 
+						buttons[idx].c[itm].textColor = front.color;
+					}
 				}
 			} else {
 				buttons[idx].c[itm].text = view.playlist[idx][itm];
+				if(front) { 
+					buttons[idx].c[itm].textColor = front.color;
+				}
 			}
+		}
+		if(buttons[idx].c['back']) {
+			if(light) {
+				buttons[idx].c['back'].transform.colorTransform = light;
+			}
+			buttons[idx].c['back'].visible = false;
 		}
 		if(!view.playlist[idx]['image'] && buttons[idx].c['image']) {
 			buttons[idx].c['image'].visible = false;
@@ -263,13 +311,17 @@ public class PlaylistView {
 
 	/** Revert the highlight on mouseout. **/
 	private function soutHandler(evt:MouseEvent) {
-		clip.slider.icon.gotoAndPlay('out');
+		if(front) {
+			clip.slider.icon.transform.colorTransform = front;
+		}
 	};
 
 
 	/** Highlight the icon on rollover. **/
 	private function soverHandler(evt:MouseEvent) {
-		clip.slider.icon.gotoAndPlay('over');
+		if(light) {
+			clip.slider.icon.transform.colorTransform = light;
+		}
 	};
 
 

@@ -182,7 +182,7 @@ public class Model extends EventDispatcher {
 		if(currentModel) {
 			models[currentModel].stop();
 		}
-		Draw.clear(skin.display.media);
+		thumbHandler();
 		sendEvent(ModelEvent.LOADED,{loaded:0,total:0});
 		sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
 	};
@@ -215,7 +215,7 @@ public class Model extends EventDispatcher {
 	};
 
 	/** Place a loaded thumb on stage. **/
-	private function thumbHandler(evt:Event) {
+	private function thumbHandler(evt:Event=null) {
 		mediaHandler(loader);
 	};
 

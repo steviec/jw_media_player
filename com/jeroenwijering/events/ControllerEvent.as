@@ -11,7 +11,6 @@ public class ControllerEvent extends Event {
 
 
 	/** Identifiers for the accepted event types. **/
-	public static var CAPTION:String = "CAPTION";
 	public static var ERROR:String = "ERROR";
 	public static var ITEM:String = "ITEM";
 	public static var MUTE:String = "MUTE";
