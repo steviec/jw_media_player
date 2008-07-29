@@ -55,9 +55,9 @@ public class View extends AbstractView {
 				}
 				ExternalInterface.addCallback("getConfig", getConfig);
 				ExternalInterface.addCallback("getPlaylist", getPlaylist);
-				ExternalInterface.addCallback("addJSControllerListener", addControllerListener);
-				ExternalInterface.addCallback("addJSModelListener", addModelListener);
-				ExternalInterface.addCallback("addJSViewListener", addViewListener);
+				ExternalInterface.addCallback("addControllerListener", addJSControllerListener);
+				ExternalInterface.addCallback("addModelListener", addJSModelListener);
+				ExternalInterface.addCallback("addViewListener", addJSViewListener);
 				ExternalInterface.addCallback("sendEvent", sendEvent);
 			} catch (err:Error) {}
 			setTimeout(playerReady,50);
