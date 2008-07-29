@@ -222,6 +222,11 @@ public class RTMPModel implements ModelInterface {
 			}
 		} else if (model.config['state'] == ModelStates.BUFFERING) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
+			if(!metadata) { 
+				video.width = 320;
+				video.height = 240;
+				model.mediaHandler(video);
+			}
 		}
 		if(dur > 0) {
 			model.sendEvent(ModelEvent.TIME,{position:pos,duration:dur});

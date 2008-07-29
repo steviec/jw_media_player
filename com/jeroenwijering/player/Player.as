@@ -63,7 +63,7 @@ public class Player extends MovieClip {
 		streamer:undefined,
 		token:undefined,
 		tracecall:undefined,
-		version:'4.0.48'
+		version:'4.0.49'
 	};
 	/** Object that loads all configuration variables. **/
 	private var configger:Configger;
