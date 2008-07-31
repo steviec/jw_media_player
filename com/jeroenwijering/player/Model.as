@@ -74,9 +74,9 @@ public class Model extends EventDispatcher {
 			if(!models[typ]) { 
 				loadModel(typ); 
 			}
-			models[typ].load();
 			currentModel = typ;
 			currentURL = url;
+			models[typ].load();
 		}
 	};
 
@@ -135,10 +135,12 @@ public class Model extends EventDispatcher {
 
 	/** Togge the playback state. **/
 	private function playHandler(evt:ControllerEvent) {
-		if(currentModel && evt.data.state == true) {
-			models[currentModel].play();
-		} else { 
-			models[currentModel].pause();
+		if(currentModel) {
+			if(evt.data.state == true) {
+				models[currentModel].play();
+			} else { 
+				models[currentModel].pause();
+			}
 		}
 	};
 

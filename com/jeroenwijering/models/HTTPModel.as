@@ -129,9 +129,9 @@ public class HTTPModel implements ModelInterface {
 		stream.play(url);
 		clearInterval(loadinterval);
 		clearInterval(timeinterval);
-		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 		loadinterval = setInterval(loadHandler,100);
 		timeinterval = setInterval(timeHandler,100);
+		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 	};
 
 
@@ -139,10 +139,10 @@ public class HTTPModel implements ModelInterface {
 	private function loadHandler() {
 		loaded = stream.bytesLoaded;
 		var ttl = stream.bytesTotal;
-		model.sendEvent(ModelEvent.LOADED,{loaded:loaded,total:ttl+offset,offset:offset});
 		if(loaded >= ttl && loaded > 0) {
 			clearInterval(loadinterval);
 		}
+		model.sendEvent(ModelEvent.LOADED,{loaded:loaded,total:ttl+offset,offset:offset});
 	};
 
 
@@ -202,8 +202,8 @@ public class HTTPModel implements ModelInterface {
 	/** Resume playing. **/
 	public function play() {
 		stream.resume();
-		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 		timeinterval = setInterval(timeHandler,100);
+		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 	};
 
 

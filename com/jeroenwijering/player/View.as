@@ -219,6 +219,9 @@ public class View extends AbstractView {
 		typ = typ.toUpperCase();
 		var dat = new Object();
 		switch(typ) {
+			case 'META':
+				dat['message'] = prm;
+				break;
 			case 'LINK':
 				if (prm != null) {
 					dat['index'] = prm;
@@ -239,7 +242,7 @@ public class View extends AbstractView {
 				dat['percentage'] = prm;
 				break;
 			default:
-				if(prm) {
+				if(prm!=null) {
 					if(prm == true || prm == 'true') {
 						dat['state'] = true;
 					} else if(prm == false || prm == 'false') {
@@ -281,6 +284,7 @@ public class View extends AbstractView {
 		addViewListener(ViewEvent.LINK,setView);
 		addViewListener(ViewEvent.LOAD,setView);
 		addViewListener(ViewEvent.MUTE,setView);
+		addViewListener(ViewEvent.META,setView);
 		addViewListener(ViewEvent.NEXT,setView);
 		addViewListener(ViewEvent.PLAY,setView);
 		addViewListener(ViewEvent.PREV,setView);

@@ -57,11 +57,11 @@ public class ImageModel implements ModelInterface {
 
 	/** Load and place the image on stage. **/
 	private function loaderHandler(evt:Event) {
-		model.sendEvent(ModelEvent.META,{height:evt.target.height,width:evt.target.width});
-		model.sendEvent(ModelEvent.LOADED,{loaded:evt.target.bytesLoaded,total:evt.target.bytesTotal});
 		model.mediaHandler(loader);
 		quality(model.config['quality']);
 		play();
+		model.sendEvent(ModelEvent.META,{height:evt.target.height,width:evt.target.width});
+		model.sendEvent(ModelEvent.LOADED,{loaded:evt.target.bytesLoaded,total:evt.target.bytesTotal});
 	};
 
 

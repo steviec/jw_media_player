@@ -117,14 +117,6 @@ public class RTMPModel implements ModelInterface {
 		clearInterval(timeinterval);
 		stream.pause();
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PAUSED});
-		timeout = setTimeout(disconnect,60000);
-	};
-
-
-	/** Pause takes too long: disconnect. **/
-	private function disconnect() {
-		stop();
-		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
 	};
 
 
@@ -232,12 +224,12 @@ public class RTMPModel implements ModelInterface {
 				model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 			}
 		} else if (model.config['state'] == ModelStates.BUFFERING) {
-			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 			if(!metadata) { 
 				video.width = 320;
 				video.height = 240;
 				model.mediaHandler(video);
 			}
+			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 		}
 		if(dur > 0) {
 			model.sendEvent(ModelEvent.TIME,{position:pos,duration:dur});

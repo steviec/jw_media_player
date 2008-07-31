@@ -15,6 +15,7 @@ public class ViewEvent extends Event {
 	public static var ITEM:String = "ITEM";
 	public static var LINK:String = "LINK";
 	public static var LOAD:String = "LOAD";
+	public static var META:String = "META";
 	public static var MUTE:String = "MUTE";
 	public static var NEXT:String = "NEXT";
 	public static var PLAY:String = "PLAY";
