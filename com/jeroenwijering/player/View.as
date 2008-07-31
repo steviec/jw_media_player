@@ -42,7 +42,7 @@ public class View extends AbstractView {
 		_skin.stage.scaleMode = "noScale";
 		_skin.stage.align = "TL";
 		_skin.stage.addEventListener(Event.RESIZE,resizeSetter);
-		_config['controlbarsize'] = _skin['controlbar'].back.height;
+		_config['controlbarsize'] = _skin['controlbar'].height;
 		controller = ctr;
 		model = mdl;
 		menuSet();
@@ -153,7 +153,7 @@ public class View extends AbstractView {
 		}
 		menuAdd(qua,qualitySetter);
 		try {
-			if(config['fullscreen'] && skin.stage['displayState']) {
+			if(skin.stage['displayState']) {
 				addControllerListener(ControllerEvent.RESIZE,resizeHandler);
 				var fsm = new ContextMenuItem('Switch to fullscreen');
 				menuAdd(fsm,fullscreenSetter);
@@ -219,9 +219,6 @@ public class View extends AbstractView {
 		typ = typ.toUpperCase();
 		var dat = new Object();
 		switch(typ) {
-			case 'ERROR':
-				dat['message'] = prm;
-				break;
 			case 'LINK':
 				if (prm != null) {
 					dat['index'] = prm;
@@ -279,7 +276,6 @@ public class View extends AbstractView {
 		addModelListener(ModelEvent.META,setModel);
 		addModelListener(ModelEvent.STATE,setModel);
 		addModelListener(ModelEvent.TIME,setModel);
-		addViewListener(ViewEvent.ERROR,setView);
 		addViewListener(ViewEvent.FULLSCREEN,setView);
 		addViewListener(ViewEvent.ITEM,setView);
 		addViewListener(ViewEvent.LINK,setView);

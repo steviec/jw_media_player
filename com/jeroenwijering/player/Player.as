@@ -43,7 +43,6 @@ public class Player extends MovieClip {
 		autostart:false,
 		bufferlength:1,
 		displayclick:'play',
-		fullscreen:false,
 		item:0,
 		mute:false,
 		quality:true,
@@ -51,7 +50,7 @@ public class Player extends MovieClip {
 		shuffle:false,
 		state:'IDLE',
 		stretching:'uniform',
-		volume:90,
+		volume:80,
 
 		abouttext:undefined,
 		aboutlink:"http://www.jeroenwijering.com/?item=JW_FLV_Player",
@@ -63,7 +62,7 @@ public class Player extends MovieClip {
 		streamer:undefined,
 		token:undefined,
 		tracecall:undefined,
-		version:'4.0.49'
+		version:'4.1.52'
 	};
 	/** Object that loads all configuration variables. **/
 	private var configger:Configger;
@@ -103,9 +102,10 @@ public class Player extends MovieClip {
 		controller = new Controller(configger.config,loader.skin);
 		model = new Model(configger.config,loader.skin,controller);
 		_view = new View(configger.config,loader.skin,controller,model);
-		addPlugin(new DisplayPlugin());
-		addPlugin(new ControlbarPlugin());
-		addPlugin(new PlaylistPlugin());
+		if(loader.skin['captions']) { addPlugin(new Captions()); }
+		if(loader.skin['controlbar']) { addPlugin(new Controlbar()); }
+		if(loader.skin['display']) { addPlugin(new Display()); }
+		if(loader.skin['playlist']) { addPlugin(new Playlist()); }
 		loader.loadPlugins(configger.config['plugins']);
 	};
 
@@ -115,7 +115,7 @@ public class Player extends MovieClip {
 	*
 	* @prm plg		Any object that implements the PluginInterface.
 	**/
-	public function addPlugin(plg:Object) { 
+	public function addPlugin(plg:Object) {
 		plugins.push(plg);
 	};
 

@@ -145,8 +145,8 @@ public class Model extends EventDispatcher {
 
 	/** Send an idle with new playlist. **/
 	private function playlistHandler(evt:ControllerEvent) {
-		if(currentModel) {
-			stopHandler();
+		if(currentModel) { 
+			stopHandler(); 
 		} else {
 			sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
 		}

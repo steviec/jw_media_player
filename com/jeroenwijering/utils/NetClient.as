@@ -53,6 +53,14 @@ public class NetClient {
 	};
 
 
+	/** Some Limelight crap. **/
+	public function onFCSubscribe(obj:Object) {
+		var dat = {type:'fcsubscribe'};
+		for(var i in obj) { dat[i] = obj[i]; }
+		forward(dat);
+	};
+
+
 	/** Get image data from netstream. **/
 	public function onImageData(obj:Object) {
 		var dat = {type:'imagedata'};
@@ -71,7 +79,7 @@ public class NetClient {
 	public function onMetaData(obj:Object) {
 		var dat = {type:'metadata'};
 		for(var i in obj) { dat[i] = obj[i]; }
-		if(dat.videodatarate && !dat.width) {
+		if(dat.videocodecid && !dat.width) {
 			dat.width = 320;
 			dat.height = 240;
 		}

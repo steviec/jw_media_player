@@ -11,7 +11,6 @@ public class ViewEvent extends Event {
 
 
 	/** Identifiers for the accepted event types. **/
-	public static var ERROR:String = "ERROR";
 	public static var FULLSCREEN:String = "FULLSCREEN";
 	public static var ITEM:String = "ITEM";
 	public static var LINK:String = "LINK";

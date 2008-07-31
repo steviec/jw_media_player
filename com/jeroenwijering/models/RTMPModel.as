@@ -8,7 +8,7 @@ import com.jeroenwijering.events.*;
 import com.jeroenwijering.models.ModelInterface;
 import com.jeroenwijering.player.Model;
 import com.jeroenwijering.utils.NetClient;
-import com.meychi.ascrypt.TEA;
+import com.jeroenwijering.utils.TEA;
 import flash.display.DisplayObject;
 import flash.events.*;
 import flash.media.*;
@@ -104,6 +104,9 @@ public class RTMPModel implements ModelInterface {
 		} else if(dat.type == 'complete') {
 			clearInterval(timeinterval);
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
+		} else if(dat.type == 'fcsubscribe' && dat.code == 'NetStream.Play.Start') {
+			setStream();
+			clearInterval(timeout);
 		}
 		model.sendEvent(ModelEvent.META,dat);
 	};
@@ -185,6 +188,8 @@ public class RTMPModel implements ModelInterface {
 					TEA.decrypt(evt.info.secureToken,model.config['token']));
 			}
 			setStream();
+			// If you use Limelight/Akamai: comment the above line and uncomment the one below...
+			// timeout = setInterval(subscribe,2000,model.playlist[model.config['item']]['file']);
 		} else if(evt.info.code == "NetStream.Seek.Notify") {
 			clearInterval(timeinterval);
 			timeinterval = setInterval(timeHandler,100);
@@ -207,6 +212,12 @@ public class RTMPModel implements ModelInterface {
 		connection.close();
 		if(stream) { stream.close(); }
 		video.attachNetStream(null);
+	};
+
+
+	/** Akamai & Limelight subscribes. **/
+	private function subscribe(nme:String) {
+		connection.call("FCSubscribe",null,nme);
 	};
 
 

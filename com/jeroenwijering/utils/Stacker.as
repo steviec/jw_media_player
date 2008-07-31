@@ -52,8 +52,8 @@ public class Stacker {
 		for (var i in stack) {
 			if(i!=idx && stack[i].c.visible==true && stack[i].w < _width &&
 				stack[i].x < max && stack[i].x+stack[i].w > min) {
-				//trace(stack[idx].n+'overlaps with'+stack[i].n);
-				//trace(stack[i].x+'-'+max+' / '+(stack[i].x+stack[i].w)+'-'+min);
+				// trace(stack[idx].n+'overlaps with'+stack[i].n);
+				// trace(stack[i].x+'-'+max+' / '+(stack[i].x+stack[i].w)+'-'+min);
 				return true;
 			}
 		}

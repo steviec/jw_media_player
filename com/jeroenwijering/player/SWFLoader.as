@@ -46,7 +46,7 @@ public class SWFLoader extends EventDispatcher {
 	* @prm pgi		A commaseparated list with plugins. 
 	**/
 	public function loadPlugins(pgi:String=null) {
-		if(pgi) { 
+		if(pgi) {
 			var arr = pgi.split(',');
 			amount = arr.length;
 			for(var i in arr) { loadSWF(arr[i],false); }
