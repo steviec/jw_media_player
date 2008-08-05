@@ -33,7 +33,7 @@ public class Playlister extends EventDispatcher {
 
 	/** Determine filetype and load file or list. **/
 	public function load(obj:Object) {
-		if(typeof(obj) == 'string') { 
+		if(typeof(obj) == 'string') {
 			var obj = {file:obj};
 		} 
 		if(obj['file']) {

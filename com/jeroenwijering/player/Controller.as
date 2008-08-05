@@ -95,11 +95,9 @@ public class Controller extends EventDispatcher {
 
 	/** Set the fullscreen rectangle **/
 	private function fullscreenrect() {
-		var dif = 1;
-		if(config['quality'] == false) { dif = 2; }
 		try { 
 			skin.stage["fullScreenSourceRect"] = new Rectangle(0,0,
-				Capabilities.screenResolutionX/dif,Capabilities.screenResolutionY/dif);
+				Capabilities.screenResolutionX/2,Capabilities.screenResolutionY/2);
 		} catch (err:Error) {}
 	};
 

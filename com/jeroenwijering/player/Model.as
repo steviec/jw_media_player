@@ -90,15 +90,20 @@ public class Model extends EventDispatcher {
 			case 'image':
 				models[typ] = new ImageModel(this);
 				break;
-			case 'rtmp':
-				models[typ] = new RTMPModel(this);
-				break;
 			case 'sound':
-				models[typ] = new SoundModel(this);
+				if(config['streamer'] && config['streamer'].substr(0,4) == 'rtmp') {
+					models[typ] = new RTMPModel(this);
+				} else { 
+					models[typ] = new SoundModel(this);
+				}
 				break;
 			case 'video':
 				if(config['streamer']) {
-					models[typ] = new HTTPModel(this);
+					if(config['streamer'].substr(0,4) == 'rtmp') {
+						models[typ] = new RTMPModel(this);
+					} else {
+						models[typ] = new HTTPModel(this);
+					}
 				} else {
 					models[typ] = new VideoModel(this);
 				}

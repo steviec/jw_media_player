@@ -78,7 +78,7 @@ public class Display implements PluginInterface {
 	/** Receive buffer updates. **/
 	private function bufferHandler(evt:ModelEvent) {
 		var pct = '';
-		if(evt.data.percentage > 0) { 
+		if(evt.data.percentage > 0) {
 			pct = Strings.zero(evt.data.percentage);
 		}
 		try {

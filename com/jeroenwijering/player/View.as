@@ -49,8 +49,9 @@ public class View extends AbstractView {
 		if(ExternalInterface.available && skin.loaderInfo.url.indexOf('http://') == 0) {
 			listeners = new Array();
 			setListening();
+			setTimeout(playerReady,50);
 			try {
-				if(ExternalInterface.objectID) { 
+				if(ExternalInterface.objectID) {
 					_config['id'] = ExternalInterface.objectID;
 				}
 				ExternalInterface.addCallback("getConfig", getConfig);
@@ -60,7 +61,6 @@ public class View extends AbstractView {
 				ExternalInterface.addCallback("addViewListener", addJSViewListener);
 				ExternalInterface.addCallback("sendEvent", sendEvent);
 			} catch (err:Error) {}
-			setTimeout(playerReady,50);
 		} else if (Capabilities.playerType == 'External') {
 			setListening();
 		}
@@ -220,7 +220,7 @@ public class View extends AbstractView {
 		var dat = new Object();
 		switch(typ) {
 			case 'META':
-				dat['message'] = prm;
+				dat = prm;
 				break;
 			case 'LINK':
 				if (prm != null) {
@@ -242,7 +242,7 @@ public class View extends AbstractView {
 				dat['percentage'] = prm;
 				break;
 			default:
-				if(prm!=null) {
+				if(prm!=null && prm != '') {
 					if(prm == true || prm == 'true') {
 						dat['state'] = true;
 					} else if(prm == false || prm == 'false') {

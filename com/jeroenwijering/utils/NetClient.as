@@ -79,7 +79,7 @@ public class NetClient {
 	public function onMetaData(obj:Object) {
 		var dat = {type:'metadata'};
 		for(var i in obj) { dat[i] = obj[i]; }
-		if(dat.videocodecid && !dat.width) {
+		if((dat.videocodecid || dat.videodatarate) && !dat.width) {
 			dat.width = 320;
 			dat.height = 240;
 		}

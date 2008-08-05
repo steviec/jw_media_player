@@ -97,6 +97,7 @@ public class Animations {
 		var dif = Math.floor((tgt.str.length-tgt.tf.text.length)/tgt.spd);
 		tgt.tf.text = tgt.str.substr(0,tgt.str.length-dif);
 		if(tgt.tf.text == tgt.str) {
+			tgt.tf.htmlText = tgt.str;
 			tgt.removeEventListener(Event.ENTER_FRAME,easeHandler);
 		}
 	};
