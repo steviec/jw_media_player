@@ -78,21 +78,16 @@ public class HTTPModel implements ModelInterface {
 
 	/** Return a keyframe byteoffset or timeoffset. **/
 	private function getOffset(pos:Number,tme:Boolean=false):Number {
-		var off = 0;
-		if(keyframes === null) {
-			return off;
-		}
 		for (var i=0; i< keyframes.times.length; i++) {
-			if((keyframes.times[i] <= pos || i ==0) && (keyframes.times[i+1] >= pos || !keyframes.times[i+1])) {
+			if((keyframes.times[i] <= pos) && (keyframes.times[i+1] >= pos || !keyframes.times[i+1])) {
 				if(tme == true) {
-					off = keyframes.times[i];
+					return keyframes.times[i];
 				} else { 
-					off = keyframes.filepositions[i];
+					return keyframes.filepositions[i];
 				}
-				break;
 			}
 		}
-		return off;
+		return 0;
 	};
 
 
@@ -168,18 +163,11 @@ public class HTTPModel implements ModelInterface {
 				keyframes.times = new Array();
 				keyframes.filepositions = new Array();
 				for (var j in dat.seekpoints) {
-					keyframes.times.push(Number(dat.seekpoints[j]['time']));
-					keyframes.filepositions.push(Number(dat.seekpoints[j]['offset']));
+					keyframes.times[j] = Number(dat.seekpoints[j]['time']);
+					keyframes.filepositions[j] = Number(dat.seekpoints[j]['offset']);
 				}
 			} else if(dat.keyframes) {
 				keyframes = dat.keyframes;
-			}
-			if(keyframes) {
-				delete dat.seekpoints;
-				dat.keyframes = '';
-				for(var k=0; k<keyframes.times.length; k++) {
-					dat['keyframes'] += ','+keyframes.times[k]+':'+keyframes.filepositions[k];
-				}
 			}
 			if(model.playlist[model.config['item']]['start'] > 0) {
 				seek(model.playlist[model.config['item']]['start']);

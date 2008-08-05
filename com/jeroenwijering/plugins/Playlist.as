@@ -299,8 +299,12 @@ public class Playlist implements PluginInterface {
 					}
 				}
 			} else {
-				buttons[idx].c[itm].htmlText = view.playlist[idx][itm];
-				if(front) { 
+				if(itm == 'description') { 
+					buttons[idx].c[itm].htmlText = view.playlist[idx][itm];
+				} else { 
+					buttons[idx].c[itm].text = view.playlist[idx][itm];
+				}
+				if(front) {
 					buttons[idx].c[itm].textColor = front.color;
 				}
 			}
