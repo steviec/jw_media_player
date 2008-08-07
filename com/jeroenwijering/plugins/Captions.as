@@ -39,7 +39,7 @@ public class Captions implements PluginInterface {
 
 
 	/** Initing the plugin. **/
-	public function initialize(vie:AbstractView) {
+	public function initializePlugin(vie:AbstractView) {
 		view = vie;
 		if(!view.skin['captions']) { return; }
 		view.addControllerListener(ControllerEvent.ITEM,itemHandler);

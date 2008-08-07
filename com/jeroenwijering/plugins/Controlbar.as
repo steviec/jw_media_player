@@ -59,7 +59,7 @@ public class Controlbar implements PluginInterface {
 
 
 	/** Initialize from view. **/
-	public function initialize(vie:AbstractView) {
+	public function initializePlugin(vie:AbstractView) {
 		view = vie;
 		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
 		view.addModelListener(ModelEvent.LOADED,loadedHandler);

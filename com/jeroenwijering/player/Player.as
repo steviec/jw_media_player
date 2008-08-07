@@ -122,7 +122,7 @@ public class Player extends MovieClip {
 
 	/** Plugin loading completed; let's start! **/
 	private function pluginHandler(evt:Event=null) {
-		for(var i=0; i<plugins.length; i++) { plugins[i].initialize(_view); }
+		for(var i=0; i<plugins.length; i++) { plugins[i].initializePlugin(_view); }
 		controller.start(model,_view);
 		visible = true;
 	};

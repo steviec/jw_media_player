@@ -48,7 +48,7 @@ public class Playlist implements PluginInterface {
 
 
 	/** Initialize the communication with the player. **/
-	public function initialize(vie:AbstractView) {
+	public function initializePlugin(vie:AbstractView) {
 		view = vie;
 		view.addControllerListener(ControllerEvent.ITEM,itemHandler);
 		view.addControllerListener(ControllerEvent.PLAYLIST,playlistHandler);

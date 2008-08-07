@@ -10,7 +10,7 @@ import flash.events.Event;
 public interface PluginInterface {
 
 
-	function initialize(vie:AbstractView);
+	function initializePlugin(vie:AbstractView);
 
 
 }

@@ -46,7 +46,7 @@ public class Display implements PluginInterface {
 
 
 	/** Initialize the plugin. **/
-	public function initialize(vie:AbstractView) {
+	public function initializePlugin(vie:AbstractView) {
 		view = vie;
 		view.addControllerListener(ControllerEvent.ERROR,errorHandler);
 		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
