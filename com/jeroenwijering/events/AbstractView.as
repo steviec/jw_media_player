@@ -22,13 +22,13 @@ public class AbstractView extends EventDispatcher {
 
 
 	/**  Subscribers to the controller and model. **/
-	public function addControllerListener(typ:String,fcn:Function) {};
-	public function addModelListener(typ:String,fcn:Function) {};
-	public function addViewListener(typ:String,fcn:Function) {};
+	public function addControllerListener(typ:String,fcn:Function):void {};
+	public function addModelListener(typ:String,fcn:Function):void {};
+	public function addViewListener(typ:String,fcn:Function):void {};
 
 
 	/**  Dispatch events. **/
-	public function sendEvent(typ:String,prm:Object=undefined) { };
+	public function sendEvent(typ:String,prm:Object=undefined):void { };
 
 
 }

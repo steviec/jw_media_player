@@ -89,7 +89,7 @@ public class SMILParser extends ObjectParser {
 
 
 	/** Get attributes from a SMIL element. **/
-	public static function parseAttributes(obj:Object,itm:Object) {
+	public static function parseAttributes(obj:Object,itm:Object):Object {
 		for(var i=0; i<obj.attributes().length(); i++) {
 			var att = String(obj.attributes()[i].name());
 			switch(att) {

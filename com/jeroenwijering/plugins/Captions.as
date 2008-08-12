@@ -35,11 +35,11 @@ public class Captions implements PluginInterface {
 	private var current:Number;
 
 
-	public function Captions() {};
+	public function Captions():void {};
 
 
 	/** Initing the plugin. **/
-	public function initializePlugin(vie:AbstractView) {
+	public function initializePlugin(vie:AbstractView):void {
 		view = vie;
 		if(!view.skin['captions']) { return; }
 		view.addControllerListener(ControllerEvent.ITEM,itemHandler);
@@ -55,7 +55,7 @@ public class Captions implements PluginInterface {
 
 
 	/** Check for captions with a new item. **/
-	private function itemHandler(evt:ControllerEvent) {
+	private function itemHandler(evt:ControllerEvent):void {
 		current = -1;
 		setCaption('');
 		captions = new Array();
@@ -73,7 +73,7 @@ public class Captions implements PluginInterface {
 
 
 	/** Captions are loaded; now display them. **/
-	private function loaderHandler(evt:Event) {
+	private function loaderHandler(evt:Event):void {
 		try {
 			var dat = XML(evt.target.data);
 		} catch (err:Error) {
@@ -90,7 +90,7 @@ public class Captions implements PluginInterface {
 
 
 	/** Resize the captions if the display changes. **/
-	private function resizeHandler(evt:ControllerEvent=undefined) {
+	private function resizeHandler(evt:ControllerEvent=undefined):void {
 		clip.back.height = clip.field.height+15;
 		clip.width = view.config['width'];
 		clip.scaleY = clip.scaleX;
@@ -99,7 +99,7 @@ public class Captions implements PluginInterface {
 
 
 	/** Catch and display captions that are sent through metadata. **/
-	private function metaHandler(evt:ModelEvent) {
+	private function metaHandler(evt:ModelEvent):void {
 		if (evt.data.text != undefined && evt.data.trackid != undefined) {
 			setCaption(evt.data.text);
 		} else if(evt.data.captions != undefined) { 
@@ -109,7 +109,7 @@ public class Captions implements PluginInterface {
 
 
 	/** Set a caption on screen. **/
-	private function setCaption(txt:String) {
+	private function setCaption(txt:String):void {
 		clip.visible = true;
 		clip.field.htmlText = txt;
 		resizeHandler();
@@ -117,7 +117,7 @@ public class Captions implements PluginInterface {
 
 
 	/** Check the playback state; hide captions if not playing. **/
-	private function stateHandler(evt:ModelEvent) {
+	private function stateHandler(evt:ModelEvent):void {
 		if(view.config['caption'] == true) {
 			clip.visible = true;
 		} else { 
@@ -127,7 +127,7 @@ public class Captions implements PluginInterface {
 
 
 	/** Check timing of the player to sync captions.  **/
-	private function timeHandler(evt:ModelEvent) {
+	private function timeHandler(evt:ModelEvent):void {
 		var cur = -1;
 		var pos = evt.data.position;
 		for(var i=0; i<captions.length; i++) {

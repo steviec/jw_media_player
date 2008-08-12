@@ -30,7 +30,7 @@ public class ImageModel implements ModelInterface {
 
 
 	/** Constructor; sets up listeners **/
-	public function ImageModel(mod:Model) {
+	public function ImageModel(mod:Model):void {
 		model = mod;
 		loader = new Loader();
 		loader.contentLoaderInfo.addEventListener(Event.COMPLETE,loaderHandler);
@@ -40,7 +40,7 @@ public class ImageModel implements ModelInterface {
 
 
 	/** load image into screen **/
-	public function load() {
+	public function load():void {
 		clearInterval(interval);
 		position = model.playlist[model.config['item']]['start'];
 		loader.load(new URLRequest(model.playlist[model.config['item']]['file']));
@@ -50,13 +50,13 @@ public class ImageModel implements ModelInterface {
 
 
 	/** Catch errors. **/
-	private function errorHandler(evt:ErrorEvent) {
+	private function errorHandler(evt:ErrorEvent):void {
 		model.sendEvent(ModelEvent.ERROR,{message:evt.text});
 	};
 
 
 	/** Load and place the image on stage. **/
-	private function loaderHandler(evt:Event) {
+	private function loaderHandler(evt:Event):void {
 		model.mediaHandler(loader);
 		quality(model.config['quality']);
 		play();
@@ -66,28 +66,28 @@ public class ImageModel implements ModelInterface {
 
 
 	/** Resume playback of the images **/
-	public function play() {
+	public function play():void {
 		interval = setInterval(timeInterval,100);
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 	};
 
 
 	/** Show or hide the camera. **/
-	public function pause() {
+	public function pause():void {
 		clearInterval(interval);
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PAUSED});
 	};
 
 
 	/** Send load progress to player. **/
-	private function progressHandler(evt:ProgressEvent) {
+	private function progressHandler(evt:ProgressEvent):void {
 		var pct = Math.round(evt.bytesLoaded/evt.bytesTotal*100);
 		model.sendEvent(ModelEvent.BUFFER,{percentage:pct});
 	};
 
 
 	/** Change the quality mode. **/
-	public function quality(stt:Boolean) {
+	public function quality(stt:Boolean):void {
 		try {
 			Bitmap(loader.content).smoothing = stt;
 		} catch (err:Error) {}
@@ -95,7 +95,7 @@ public class ImageModel implements ModelInterface {
 
 
 	/** Scrub the image to a certain position. **/
-	public function seek(pos:Number) {
+	public function seek(pos:Number):void {
 		clearInterval(interval);
 		position = pos;
 		play();
@@ -103,7 +103,7 @@ public class ImageModel implements ModelInterface {
 
 
 	/** Stop the image interval. **/
-	public function stop() {
+	public function stop():void {
 		flash.media.SoundMixer.stopAll();
 		clearInterval(interval);
 		if(loader.contentLoaderInfo.bytesLoaded != loader.contentLoaderInfo.bytesTotal) { 
@@ -115,7 +115,7 @@ public class ImageModel implements ModelInterface {
 
 
 	/** Interval function that countdowns the time. **/
-	private function timeInterval() {
+	private function timeInterval():void {
 		position = Math.round(position*10+1)/10;
 		var dur = model.playlist[model.config['item']]['duration'];
 		if(position >= dur && dur>0) {
@@ -129,7 +129,7 @@ public class ImageModel implements ModelInterface {
 
 
 	/** Volume setting **/
-	public function volume(pct:Number) { };
+	public function volume(pct:Number):void { };
 
 
 };

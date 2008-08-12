@@ -55,11 +55,11 @@ public class Controlbar implements PluginInterface {
 
 
 	/** Constructor. **/
-	public function Controlbar() {};
+	public function Controlbar():void {};
 
 
 	/** Initialize from view. **/
-	public function initializePlugin(vie:AbstractView) {
+	public function initializePlugin(vie:AbstractView):void {
 		view = vie;
 		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
 		view.addModelListener(ModelEvent.LOADED,loadedHandler);
@@ -85,13 +85,13 @@ public class Controlbar implements PluginInterface {
 
 
 	/** Handle clicks from all buttons. **/
-	private function clickHandler(evt:MouseEvent) {
+	private function clickHandler(evt:MouseEvent):void {
 		view.sendEvent(BUTTONS[evt.target.name]);
 	};
 
 
 	/** Handle mouse presses on sliders. **/
-	private function downHandler(evt:MouseEvent) {
+	private function downHandler(evt:MouseEvent):void {
 		var tgt = evt.target;
 		var rct = new Rectangle(tgt.rail.x,tgt.icon.y,tgt.rail.width-tgt.icon.width,0);
 		tgt.icon.startDrag(true,rct);
@@ -101,7 +101,7 @@ public class Controlbar implements PluginInterface {
 
 
 	/** Fix the timeline display. **/
-	private function fixTime() {
+	private function fixTime():void {
 		try {
 			var scp = bar.timeSlider.scaleX;
 			bar.timeSlider.scaleX = 1;
@@ -114,7 +114,7 @@ public class Controlbar implements PluginInterface {
 
 
 	/** Handle a change in the current item **/
-	private function itemHandler(evt:ControllerEvent=null) {
+	private function itemHandler(evt:ControllerEvent=null):void {
 		try {
 			if(view.playlist && view.playlist.length > 1) {
 				bar.prevButton.visible = bar.nextButton.visible = true;
@@ -136,7 +136,7 @@ public class Controlbar implements PluginInterface {
 
 
 	/** Process bytesloaded updates given by the model. **/
-	private function loadedHandler(evt:ModelEvent=null) {
+	private function loadedHandler(evt:ModelEvent=null):void {
 		var pc1 = 0;
 		if(evt && evt.data.total > 0) {
 			pc1 = evt.data.loaded/evt.data.total;
@@ -154,7 +154,7 @@ public class Controlbar implements PluginInterface {
 
 
 	/** Show above controlbar on mousemove. **/
-	private function moveHandler(evt:MouseEvent=null) {
+	private function moveHandler(evt:MouseEvent=null):void {
 		if(bar.alpha == 0) { Animations.fade(bar,1); }
 		clearTimeout(hiding);
 		hiding = setTimeout(moveTimeout,1000);
@@ -163,7 +163,7 @@ public class Controlbar implements PluginInterface {
 
 
 	/** Hide above controlbar again when move has timed out. **/
-	private function moveTimeout() {
+	private function moveTimeout():void {
 		if((bar.mouseY<0 || bar.mouseY>bar.height)  && bar.alpha == 1) {
 			Animations.fade(bar,0);
 			Mouse.hide();
@@ -172,7 +172,7 @@ public class Controlbar implements PluginInterface {
 
 
 	/** Show a mute icon if playing. **/
-	private function muteHandler(evt:ControllerEvent=null) {
+	private function muteHandler(evt:ControllerEvent=null):void {
 		try {
 			if(view.config['mute'] == true) {
 				bar.muteButton.visible = false;
@@ -190,7 +190,7 @@ public class Controlbar implements PluginInterface {
 
 
 	/** Handle mouseouts from all buttons **/
-	private function outHandler(evt:MouseEvent) {
+	private function outHandler(evt:MouseEvent):void {
 		if(front) { 
 			bar[evt.target.name]['icon'].transform.colorTransform = front;
 		} else {
@@ -200,7 +200,7 @@ public class Controlbar implements PluginInterface {
 
 
 	/** Handle clicks from all buttons **/
-	private function overHandler(evt:MouseEvent) {
+	private function overHandler(evt:MouseEvent):void {
 		if(light) { 
 			bar[evt.target.name]['icon'].transform.colorTransform = light;
 		} else {
@@ -210,7 +210,7 @@ public class Controlbar implements PluginInterface {
 
 
 	/** Process resizing requests **/
-	private function resizeHandler(evt:ControllerEvent=null) {
+	private function resizeHandler(evt:ControllerEvent=null):void {
 		var wid = stacker.width;
 		if(view.config['controlbar'] == 'over' || (evt && evt.data.fullscreen == true)) {
 			bar.y = view.config['height'] - view.config['controlbarsize'] - margin;
@@ -255,7 +255,7 @@ public class Controlbar implements PluginInterface {
 
 
 	/** Clickhandler for all buttons. **/
-	private function setButtons() {
+	private function setButtons():void {
 		for(var btn in BUTTONS) {
 			if(bar[btn]) {
 				bar[btn].mouseChildren = false;
@@ -278,7 +278,7 @@ public class Controlbar implements PluginInterface {
 
 
 	/** Init the colors. **/
-	private function setColors() {
+	private function setColors():void {
 		if(view.config['backcolor']) { 
 			var clr = new ColorTransform();
 			clr.color = '0x'+view.config['backcolor'].substr(-6);
@@ -312,7 +312,7 @@ public class Controlbar implements PluginInterface {
 
 
 	/** Process state changes **/
-	private function stateHandler(evt:ModelEvent=undefined) {
+	private function stateHandler(evt:ModelEvent=undefined):void {
 		clearTimeout(hiding);
 		view.skin.removeEventListener(MouseEvent.MOUSE_MOVE,moveHandler);
 		Mouse.show();
@@ -346,7 +346,7 @@ public class Controlbar implements PluginInterface {
 
 
 	/** Process time updates given by the model. **/
-	private function timeHandler(evt:ModelEvent=null) {
+	private function timeHandler(evt:ModelEvent=null):void {
 		var dur = 0;
 		var pos = 0;
 		if(evt) {
@@ -379,7 +379,7 @@ public class Controlbar implements PluginInterface {
 
 
 	/** Handle mouse releases on sliders. **/
-	private function upHandler(evt:MouseEvent) {
+	private function upHandler(evt:MouseEvent):void {
 		var tgt = evt.target;
 		var mpl = 0;
 		tgt.icon.stopDrag();
@@ -396,7 +396,7 @@ public class Controlbar implements PluginInterface {
 
 
 	/** Reflect the new volume in the controlbar **/
-	private function volumeHandler(evt:ControllerEvent=null) {
+	private function volumeHandler(evt:ControllerEvent=null):void {
 		try { 
 			var vsl = bar.volumeSlider;
 			vsl.mark.width = view.config['volume']*(vsl.rail.width-vsl.icon.width/2)/100;

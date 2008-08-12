@@ -35,7 +35,7 @@ public class ViewEvent extends Event {
 	* @param typ	The type of event.
 	* @param dat	An object with all associated data.
 	**/
-	public function ViewEvent(typ:String,dat:Object=undefined,bbl:Boolean=false,ccb:Boolean=false) {
+	public function ViewEvent(typ:String,dat:Object=undefined,bbl:Boolean=false,ccb:Boolean=false):void {
 		super(typ, bbl, ccb);
 		_data = dat;
 	};

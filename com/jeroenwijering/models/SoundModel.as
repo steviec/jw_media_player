@@ -36,7 +36,7 @@ public class SoundModel implements ModelInterface {
 
 
 	/** Constructor; sets up the connection and display. **/
-	public function SoundModel(mod:Model) {
+	public function SoundModel(mod:Model):void {
 		model = mod;
 		transform = new SoundTransform();
 		model.config['mute'] == true ? volume(0): volume(model.config['volume']);
@@ -45,7 +45,7 @@ public class SoundModel implements ModelInterface {
 
 
 	/** Sound completed; send event. **/
-	private function completeHandler(evt:Event) {
+	private function completeHandler(evt:Event):void {
 		clearInterval(interval);
 		position = model.playlist[model.config['item']]['start'];
 		model.sendEvent(ModelEvent.TIME,{position:position,duration:duration});
@@ -54,14 +54,14 @@ public class SoundModel implements ModelInterface {
 
 
 	/** Catch errors. **/
-	private function errorHandler(evt:ErrorEvent) {
+	private function errorHandler(evt:ErrorEvent):void {
 		model.sendEvent(ModelEvent.ERROR,{message:evt.text});
 		stop();
 	};
 
 
 	/** Load the sound. **/
-	public function load() {
+	public function load():void {
 		position = model.playlist[model.config['item']]['start'];
 		duration = model.playlist[model.config['item']]['duration'];
 		sound = new Sound();
@@ -74,7 +74,7 @@ public class SoundModel implements ModelInterface {
 
 
 	/** Pause the sound. **/
-	public function pause() {
+	public function pause():void {
 		clearInterval(interval);
 		channel.stop();
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PAUSED});
@@ -82,7 +82,7 @@ public class SoundModel implements ModelInterface {
 
 
 	/** Play the sound. **/
-	public function play() {
+	public function play():void {
 		channel = sound.play(position*1000,0,transform);
 		channel.removeEventListener(Event.SOUND_COMPLETE,completeHandler);
 		channel.addEventListener(Event.SOUND_COMPLETE,completeHandler);
@@ -92,7 +92,7 @@ public class SoundModel implements ModelInterface {
 
 
 	/** Interval for the loading progress **/
-	private function progressHandler(evt:ProgressEvent) {
+	private function progressHandler(evt:ProgressEvent):void {
 		var ldd = evt.bytesLoaded;
 		var ttl = evt.bytesTotal;
 		model.sendEvent(ModelEvent.LOADED,{loaded:ldd,total:ttl});
@@ -100,11 +100,11 @@ public class SoundModel implements ModelInterface {
 
 
 	/** Change quality setting. **/
-	public function quality(typ:Boolean) {};
+	public function quality(typ:Boolean):void {};
 
 
 	/** Seek in the sound. **/
-	public function seek(pos:Number) {
+	public function seek(pos:Number):void {
 		clearInterval(interval);
 		position = pos;
 		channel.stop();
@@ -113,7 +113,7 @@ public class SoundModel implements ModelInterface {
 
 
 	/** Destroy the sound. **/
-	public function stop() {
+	public function stop():void {
 		clearInterval(interval);
 		if(channel) { channel.stop(); }
 		try {
@@ -123,7 +123,7 @@ public class SoundModel implements ModelInterface {
 
 
 	/** Interval for the position progress **/
-	private function timeHandler() {
+	private function timeHandler():void {
 		position = Math.round(channel.position/100)/10;
 		var dur = Math.round(sound.length*sound.bytesTotal/sound.bytesLoaded/100)/10;
 		if(sound.isBuffering == true && sound.bytesTotal > sound.bytesLoaded) {
@@ -147,7 +147,7 @@ public class SoundModel implements ModelInterface {
 
 
 	/** Set the volume level. **/
-	public function volume(vol:Number) {
+	public function volume(vol:Number):void {
 		transform.volume = vol/100;
 		if(channel) {
 			channel.soundTransform = transform;

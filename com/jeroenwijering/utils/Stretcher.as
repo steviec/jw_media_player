@@ -28,7 +28,7 @@ public class Stretcher {
 	* @param hei	The target height.
 	* @param typ	The stretching type.
 	**/
-	public static function stretch(clp:DisplayObject,wid:Number,hei:Number,typ:String='uniform') {
+	public static function stretch(clp:DisplayObject,wid:Number,hei:Number,typ:String='uniform'):void {
 		var xsc = wid/clp.width;
 		var ysc = hei/clp.height;
 		switch(typ.toLowerCase()) {

@@ -37,7 +37,7 @@ public class YoutubeModel implements ModelInterface {
 
 
 	/** Setup YouTube connections and load proxy. **/
-	public function YoutubeModel(mod:Model) {
+	public function YoutubeModel(mod:Model):void {
 		model = mod;
 		outgoing = new LocalConnection();
 		outgoing.allowDomain('*');
@@ -64,7 +64,7 @@ public class YoutubeModel implements ModelInterface {
 
 
 	/** Catch load errors. **/
-	private function errorHandler(evt:ErrorEvent) {
+	private function errorHandler(evt:ErrorEvent):void {
 		model.sendEvent(ModelEvent.ERROR,{message:evt.text});
 	};
 
@@ -84,7 +84,7 @@ public class YoutubeModel implements ModelInterface {
 
 
 	/** Load the YouTube movie. **/
-	public function load() {
+	public function load():void {
 		if(connected) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 			loading = true;
@@ -99,20 +99,20 @@ public class YoutubeModel implements ModelInterface {
 
 
 	/** Pause the YouTube movie. **/
-	public function pause() {
+	public function pause():void {
 		outgoing.send("_AS3_to_AS2","pauseVideo");
 	};
 
 
 
 	/** Play or pause the video. **/
-	public function play() {
+	public function play():void {
 		outgoing.send("_AS3_to_AS2","playVideo");
 	};
 
 
 	/** SWF loaded; add it to the tree **/
-	public function onSwfLoadComplete() {
+	public function onSwfLoadComplete():void {
 		outgoing.send("_AS3_to_AS2","setSize",320,240);
 		model.config['mute'] == true ? volume(0): volume(model.config['volume']);
 		if(loading) { load(); }
@@ -120,13 +120,13 @@ public class YoutubeModel implements ModelInterface {
 
 
 	/** error was thrown without this handler **/
-	public function onLocalConnectionStatusChange(evt:StatusEvent) {
+	public function onLocalConnectionStatusChange(evt:StatusEvent):void {
 		// model.sendEvent(ModelEvent.META,{status:evt.code});
 	};
 
 
 	/** Catch youtube errors. **/
-	public function onError(erc:String) {
+	public function onError(erc:String):void {
 		var fil = model.playlist[model.config['item']]['file'];
 		model.sendEvent(ModelEvent.ERROR,{message:"YouTube error (video not found?):\n"+fil});
 		stop();
@@ -134,7 +134,7 @@ public class YoutubeModel implements ModelInterface {
 
 
 	/** Catch youtube state changes. **/
-	public function onStateChange(stt:Number) {
+	public function onStateChange(stt:Number):void {
 		switch(Number(stt)) {
 			case -1:
 				// model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
@@ -159,13 +159,13 @@ public class YoutubeModel implements ModelInterface {
 
 
 	/** Catch Youtube load changes **/
-	public function onLoadChange(ldd:Number,ttl:Number,off:Number) {
+	public function onLoadChange(ldd:Number,ttl:Number,off:Number):void {
 		model.sendEvent(ModelEvent.LOADED,{loaded:ldd,total:ttl,offset:off});
 	};
 
 
 	/** Catch Youtube position changes **/
-	public function onTimeChange(pos:Number,dur:Number) {
+	public function onTimeChange(pos:Number,dur:Number):void {
 		model.sendEvent(ModelEvent.TIME,{position:pos,duration:dur});
 		if(!metasent) {
 			model.sendEvent(ModelEvent.META,{width:320,height:240,duration:dur});
@@ -175,25 +175,25 @@ public class YoutubeModel implements ModelInterface {
 
 
 	/** Toggle quality (perhaps access the H264 versions later?). **/
-	public function quality(stt:Boolean) {};
+	public function quality(stt:Boolean):void {};
 
 
 	/** Seek to position. **/
-	public function seek(pos:Number) {
+	public function seek(pos:Number):void {
 		outgoing.send("_AS3_to_AS2","seekTo",pos);
 		play();
 	};
 
 
 	/** Destroy the youtube video. **/
-	public function stop() {
+	public function stop():void {
 		outgoing.send("_AS3_to_AS2","stopVideo");
 	};
 
 
 
 	/** Set the volume level. **/
-	public function volume(pct:Number) {
+	public function volume(pct:Number):void {
 		outgoing.send("_AS3_to_AS2","setVolume",pct);
 	};
 

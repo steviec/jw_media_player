@@ -38,7 +38,7 @@ public class RTMPModel implements ModelInterface {
 
 
 	/** Constructor; sets up the connection and display. **/
-	public function RTMPModel(mod:Model) {
+	public function RTMPModel(mod:Model):void {
 		model = mod;
 		connection = new NetConnection();
 		connection.addEventListener(NetStatusEvent.NET_STATUS,statusHandler);
@@ -55,7 +55,7 @@ public class RTMPModel implements ModelInterface {
 
 
 	/** Catch security errors. **/
-	private function errorHandler(evt:ErrorEvent) {
+	private function errorHandler(evt:ErrorEvent):void {
 		model.sendEvent(ModelEvent.ERROR,{message:evt.text});
 	};
 
@@ -75,20 +75,20 @@ public class RTMPModel implements ModelInterface {
 
 
 	/** Load content. **/
-	public function load() {
+	public function load():void {
 		connection.connect(model.config['streamer']);
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 	};
 
 
 	/** Catch noncritical errors. **/
-	private function metaHandler(evt:ErrorEvent) {
+	private function metaHandler(evt:ErrorEvent):void {
 		model.sendEvent(ModelEvent.META,{error:evt.text});
 	};
 
 
 	/** Get metadata information from netstream class. **/
-	public function onData(dat:Object) {
+	public function onData(dat:Object):void {
 		if(dat.type == 'metadata' && !metadata) {
 			metadata = true;
 			if(dat.width) {
@@ -113,7 +113,7 @@ public class RTMPModel implements ModelInterface {
 
 
 	/** Pause playback. **/
-	public function pause() {
+	public function pause():void {
 		clearInterval(timeinterval);
 		stream.pause();
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PAUSED});
@@ -121,7 +121,7 @@ public class RTMPModel implements ModelInterface {
 
 
 	/** Resume playing. **/
-	public function play() {
+	public function play():void {
 		clearTimeout(timeout);
 		clearInterval(timeinterval);
 		stream.resume();
@@ -131,7 +131,7 @@ public class RTMPModel implements ModelInterface {
 
 
 	/** Change the smoothing mode. **/
-	public function quality(qua:Boolean) {
+	public function quality(qua:Boolean):void {
 		if(qua == true) { 
 			video.smoothing = true;
 			video.deblocking = 3;
@@ -143,7 +143,7 @@ public class RTMPModel implements ModelInterface {
 
 
 	/** Change the smoothing mode. **/
-	public function seek(pos:Number) {
+	public function seek(pos:Number):void {
 		clearTimeout(timeout);
 		clearInterval(timeinterval);
 		if(model.config['state'] == ModelStates.PAUSED) {
@@ -156,7 +156,7 @@ public class RTMPModel implements ModelInterface {
 
 
 	/** Set streaming object **/
-	public function setStream() {
+	public function setStream():void {
 		var url = getID(model.playlist[model.config['item']]['file']);
 		stream = new NetStream(connection);
 		stream.addEventListener(NetStatusEvent.NET_STATUS,statusHandler);
@@ -173,7 +173,7 @@ public class RTMPModel implements ModelInterface {
 
 
 	/** Receive NetStream status updates. **/
-	private function statusHandler(evt:NetStatusEvent) {
+	private function statusHandler(evt:NetStatusEvent):void {
 		if(evt.info.code == "NetConnection.Connect.Success") {
 			if (evt.info.secureToken != undefined) {
 				connection.call("secureTokenResponse",null,
@@ -198,7 +198,7 @@ public class RTMPModel implements ModelInterface {
 
 
 	/** Destroy the stream. **/
-	public function stop() {
+	public function stop():void {
 		metadata = false;
 		clearInterval(timeinterval);
 		connection.close();
@@ -208,13 +208,13 @@ public class RTMPModel implements ModelInterface {
 
 
 	/** Akamai & Limelight subscribes. **/
-	private function subscribe(nme:String) {
+	private function subscribe(nme:String):void {
 		connection.call("FCSubscribe",null,nme);
 	};
 
 
 	/** Interval for the position progress **/
-	private function timeHandler() {
+	private function timeHandler():void {
 		var bfr = Math.round(stream.bufferLength/stream.bufferTime*100);
 		var pos = Math.round(stream.time*10)/10;
 		var dur = model.playlist[model.config['item']]['duration'];
@@ -238,7 +238,7 @@ public class RTMPModel implements ModelInterface {
 
 
 	/** Set the volume level. **/
-	public function volume(vol:Number) {
+	public function volume(vol:Number):void {
 		transform.volume = vol/100;
 		if(stream) { 
 			stream.soundTransform = transform;

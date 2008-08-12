@@ -22,7 +22,7 @@ public class Playlister extends EventDispatcher {
 
 
 	/** Constructor. **/
-	public function Playlister() {
+	public function Playlister():void {
 		loader = new URLLoader();
 		loader.addEventListener(Event.COMPLETE,loaderHandler);
 		loader.addEventListener(SecurityErrorEvent.SECURITY_ERROR,errorHandler);
@@ -32,7 +32,7 @@ public class Playlister extends EventDispatcher {
 
 
 	/** Determine filetype and load file or list. **/
-	public function load(obj:Object) {
+	public function load(obj:Object):void {
 		if(typeof(obj) == 'string') {
 			var obj = {file:obj};
 		} 
@@ -64,13 +64,13 @@ public class Playlister extends EventDispatcher {
 
 
 	/** Catch security and io errors **/
-	private function errorHandler(evt:ErrorEvent) {
+	private function errorHandler(evt:ErrorEvent):void {
 		dispatchEvent(new ErrorEvent(ErrorEvent.ERROR,false,false,status+': '+evt.text));
 	};
 
 
 	/** Translate the XML object to the feed array. **/
-	private function loaderHandler(evt:Event) {
+	private function loaderHandler(evt:Event):void {
 		try {
 			var dat = XML(evt.target.data);
 		} catch (err:Error) {
@@ -105,7 +105,7 @@ public class Playlister extends EventDispatcher {
 
 
 	/** Save the http status **/
-	private function statusHandler(evt:HTTPStatusEvent) {
+	private function statusHandler(evt:HTTPStatusEvent):void {
 		status = evt.status;
 	};
 
@@ -117,7 +117,7 @@ public class Playlister extends EventDispatcher {
 
 
 	/** Handler for manually updating elements. **/
-	public function update(itm:Number,elm:String,val:Object) {
+	public function update(itm:Number,elm:String,val:Object):void {
 		if(_playlist[itm]) {
 			_playlist[itm][elm] = val;
 		}

@@ -47,7 +47,7 @@ public class HTTPModel implements ModelInterface {
 
 
 	/** Constructor; sets up the connection and display. **/
-	public function HTTPModel(mod:Model) {
+	public function HTTPModel(mod:Model):void {
 		model = mod;
 		connection = new NetConnection();
 		connection.addEventListener(NetStatusEvent.NET_STATUS,statusHandler);
@@ -71,7 +71,7 @@ public class HTTPModel implements ModelInterface {
 
 
 	/** Catch security errors. **/
-	private function errorHandler(evt:ErrorEvent) {
+	private function errorHandler(evt:ErrorEvent):void {
 		model.sendEvent(ModelEvent.ERROR,{message:evt.text});
 	};
 
@@ -98,7 +98,7 @@ public class HTTPModel implements ModelInterface {
 
 
 	/** Load content. **/
-	public function load() {
+	public function load():void {
 		if(stream.bytesLoaded != stream.bytesTotal) {
 			stream.close();
 		}
@@ -131,7 +131,7 @@ public class HTTPModel implements ModelInterface {
 
 
 	/** Interval for the loading progress **/
-	private function loadHandler() {
+	private function loadHandler():void {
 		loaded = stream.bytesLoaded;
 		var ttl = stream.bytesTotal;
 		if(loaded >= ttl && loaded > 0) {
@@ -142,13 +142,13 @@ public class HTTPModel implements ModelInterface {
 
 
 	/** Catch noncritical errors. **/
-	private function metaHandler(evt:ErrorEvent) {
+	private function metaHandler(evt:ErrorEvent):void {
 		model.sendEvent(ModelEvent.META,{error:evt.text});
 	};
 
 
 	/** Get metadata information from netstream class. **/
-	public function onData(dat:Object) {
+	public function onData(dat:Object):void {
 		if(dat.type == 'metadata' && !h264) {
 			if(dat.width) {
 				video.width = dat.width;
@@ -180,7 +180,7 @@ public class HTTPModel implements ModelInterface {
 
 
 	/** Pause playback. **/
-	public function pause() {
+	public function pause():void {
 		clearInterval(timeinterval);
 		stream.pause();
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PAUSED});
@@ -188,7 +188,7 @@ public class HTTPModel implements ModelInterface {
 
 
 	/** Resume playing. **/
-	public function play() {
+	public function play():void {
 		stream.resume();
 		timeinterval = setInterval(timeHandler,100);
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
@@ -196,7 +196,7 @@ public class HTTPModel implements ModelInterface {
 
 
 	/** Change the smoothing mode. **/
-	public function seek(pos:Number) {
+	public function seek(pos:Number):void {
 		clearInterval(timeinterval);
 		var off = getOffset(pos);
 		if(off < offset || off > offset+loaded) {
@@ -215,7 +215,7 @@ public class HTTPModel implements ModelInterface {
 
 
 	/** Change the smoothing mode. **/
-	public function quality(qua:Boolean) {
+	public function quality(qua:Boolean):void {
 		if(qua == true) { 
 			video.smoothing = true;
 			video.deblocking = 3;
@@ -227,7 +227,7 @@ public class HTTPModel implements ModelInterface {
 
 
 	/** Receive NetStream status updates. **/
-	private function statusHandler(evt:NetStatusEvent) {
+	private function statusHandler(evt:NetStatusEvent):void {
 		if(evt.info.code == "NetStream.Play.Stop") {
 			if(model.config['state'] != ModelStates.COMPLETED) { 
 				clearInterval(timeinterval);
@@ -244,7 +244,7 @@ public class HTTPModel implements ModelInterface {
 
 
 	/** Destroy the HTTP stream. **/
-	public function stop() {
+	public function stop():void {
 		clearInterval(loadinterval);
 		clearInterval(timeinterval);
 		offset = timeoffset = 0;
@@ -258,7 +258,7 @@ public class HTTPModel implements ModelInterface {
 
 
 	/** Interval for the position progress **/
-	private function timeHandler() {
+	private function timeHandler():void {
 		var bfr = Math.round(stream.bufferLength/stream.bufferTime*100);
 		var pos = Math.round(stream.time*10)/10;
 		if (h264) { pos += timeoffset; }
@@ -283,7 +283,7 @@ public class HTTPModel implements ModelInterface {
 
 
 	/** Set the volume level. **/
-	public function volume(vol:Number) {
+	public function volume(vol:Number):void {
 		transform.volume = vol/100;
 		stream.soundTransform = transform;
 	};

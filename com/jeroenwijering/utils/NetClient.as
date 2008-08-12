@@ -12,33 +12,33 @@ public class NetClient {
 
 
 	/** Constructor. **/
-	public function NetClient(cbk:Object) {
+	public function NetClient(cbk:Object):void {
 		callback = cbk;
 	};
 
 
 	/** Forward calls to callback **/
-	private function forward(dat:Object) {
+	private function forward(dat:Object):void {
 		callback.onData(dat);
 	};
 
 
 	/** Handler for captionate events. **/
-	public function onBWDone() {
+	public function onBWDone():void {
 		var dat = {type:'bwdone'};
 		forward(dat);
 	};
 
 
 	/** Handler for captionate events. **/
-	public function onCaption(cps:String,spk:Number) {
+	public function onCaption(cps:String,spk:Number):void {
 		var dat = {type:'caption',captions:cps,speaker:spk};
 		forward(dat);
 	};
 
 
 	/** Handler for captionate events. **/
-	public function onCaptionInfo(obj:Object) {
+	public function onCaptionInfo(obj:Object):void {
 		var dat = {type:'captioninfo'};
 		for(var i in obj) { dat[i] = obj[i]; }
 		forward(dat);
@@ -46,7 +46,7 @@ public class NetClient {
 
 
 	/** Handler for captionate events. **/
-	public function onCuePoint(obj:Object) {
+	public function onCuePoint(obj:Object):void {
 		var dat = {type:'cuepoint'};
 		for(var i in obj) { dat[i] = obj[i]; }
 		forward(dat);
@@ -54,7 +54,7 @@ public class NetClient {
 
 
 	/** Some Limelight crap. **/
-	public function onFCSubscribe(obj:Object) {
+	public function onFCSubscribe(obj:Object):void {
 		var dat = {type:'fcsubscribe'};
 		for(var i in obj) { dat[i] = obj[i]; }
 		forward(dat);
@@ -62,21 +62,21 @@ public class NetClient {
 
 
 	/** Get image data from netstream. **/
-	public function onImageData(obj:Object) {
+	public function onImageData(obj:Object):void {
 		var dat = {type:'imagedata'};
 		forward(obj);
 	};
 
 
 	/** Handler for LaasstSecond call. **/
-	public function onLastSecond(obj:Object) {
+	public function onLastSecond(obj:Object):void {
 		var dat = {type:'lastsecond'};
 		forward(dat);
 	};
 
 
 	/** Get metadata information from netstream class. **/
-	public function onMetaData(obj:Object) {
+	public function onMetaData(obj:Object):void {
 		var dat = {type:'metadata'};
 		for(var i in obj) { dat[i] = obj[i]; }
 		if((dat.videocodecid || dat.videodatarate) && !dat.width) {
@@ -88,7 +88,7 @@ public class NetClient {
 
 
 	/** Receive NetStream playback codes. **/
-	public function onPlayStatus(dat:Object) {
+	public function onPlayStatus(dat:Object):void {
 		if(dat.code == "NetStream.Play.Complete") {
 			var dat = {type:'complete'};
 			forward(dat);
@@ -97,14 +97,14 @@ public class NetClient {
 
 
 	/** RTMP Sample callback. **/
-	public function RtmpSampleAccess(obj:Object) {
+	public function RtmpSampleAccess(obj:Object):void {
 		var dat = {type:'rtmpsampleaccess'};
 		forward(dat);
 	};
 
 
 	/** Get textdata from netstream. **/
-	public function onTextData(obj:Object) {
+	public function onTextData(obj:Object):void {
 		var dat = {type:'textdata'};
 		for(var i in obj) { dat[i] = obj[i]; }
 		forward(dat);

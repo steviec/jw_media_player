@@ -34,7 +34,7 @@ public class SWFLoader extends EventDispatcher {
 	*
 	* @param ply	The player instance.
 	**/
-	public function SWFLoader(ply:MovieClip) {
+	public function SWFLoader(ply:MovieClip):void {
 		player = ply;
 		amount = 0;
 	};
@@ -45,7 +45,7 @@ public class SWFLoader extends EventDispatcher {
 	*
 	* @prm pgi		A commaseparated list with plugins. 
 	**/
-	public function loadPlugins(pgi:String=null) {
+	public function loadPlugins(pgi:String=null):void {
 		if(pgi) {
 			var arr = pgi.split(',');
 			amount = arr.length;
@@ -61,7 +61,7 @@ public class SWFLoader extends EventDispatcher {
 	*
 	* @param cfg	Object that contains all configuration parameters.
 	**/
-	public function loadSkin(skn:String=null) {
+	public function loadSkin(skn:String=null):void {
 		if(skn) {
 			loadSWF(skn,true);
 		} else {
@@ -72,7 +72,7 @@ public class SWFLoader extends EventDispatcher {
 
 
 	/** Load a particular SWF file. **/
-	public function loadSWF(str:String,skn:Boolean) {
+	public function loadSWF(str:String,skn:Boolean):void {
 		if(str.substr(-4) != '.swf') { str += '.swf'; }
 		var ldr = new Loader();
 		if(skn) {
@@ -97,7 +97,7 @@ public class SWFLoader extends EventDispatcher {
 
 
 	/** SWF loading failed; use default skin. **/
-	private function pluginError(evt:IOErrorEvent) {
+	private function pluginError(evt:IOErrorEvent):void {
 		amount--;
 		if (amount == 0) {
 			dispatchEvent(new Event(Event.COMPLETE));
@@ -106,7 +106,7 @@ public class SWFLoader extends EventDispatcher {
 
 
 	/** Plugin loading completed; add to stage and populate. **/
-	private function pluginHandler(evt:Event) {
+	private function pluginHandler(evt:Event):void {
 		var clp = evt.target.content;
 		player.addPlugin(clp);
 		amount--;
@@ -117,14 +117,14 @@ public class SWFLoader extends EventDispatcher {
 
 
 	/** SWF loading failed; use default skin. **/
-	private function skinError(evt:IOErrorEvent=null) {
+	private function skinError(evt:IOErrorEvent=null):void {
 		skin = player['player'];
 		dispatchEvent(new Event(Event.INIT));
 	};
 
 
 	/** Skin loading completed; add to stage and populate. **/
-	private function skinHandler(evt:Event) {
+	private function skinHandler(evt:Event):void {
 		var clp = evt.target.content;
 		if(clp['player']) {
 			skin = MovieClip(clp['player']);

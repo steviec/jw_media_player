@@ -8,7 +8,7 @@
 * Algorithm: David Wheeler & Roger Needham, Cambridge University Computer Lab
 * See http://www.movable-type.co.uk/scripts/TEAblock.html
 *
-* Took the liberty of renaming this so all JW Player utils are in one package..
+* JW took the liberty of renaming this so all JW Player utils are in one package..
 */
 package com.jeroenwijering.utils {
 

@@ -62,7 +62,7 @@ public class Player extends MovieClip {
 		streamer:undefined,
 		token:undefined,
 		tracecall:undefined,
-		version:'4.1.55'
+		version:'4.1.56'
 	};
 	/** Object that loads all configuration variables. **/
 	private var configger:Configger;
@@ -79,7 +79,7 @@ public class Player extends MovieClip {
 
 
 	/** Constructor; Loads config parameters. **/
-	public function Player() {
+	public function Player():void {
 		visible = false;
 		plugins = new Array();
 		configger = new Configger(this);
@@ -89,7 +89,7 @@ public class Player extends MovieClip {
 
 
 	/** Config loading completed; now load skin. **/
-	private function configHandler(evt:Event) {
+	private function configHandler(evt:Event):void {
 		loader = new SWFLoader(this);
 		loader.addEventListener(Event.INIT,skinHandler);
 		loader.addEventListener(Event.COMPLETE,pluginHandler);
@@ -98,7 +98,7 @@ public class Player extends MovieClip {
 
 
 	/** Skin loading completed, now load MVC and plugins. **/
-	private function skinHandler(evt:Event) {
+	private function skinHandler(evt:Event):void {
 		controller = new Controller(configger.config,loader.skin);
 		model = new Model(configger.config,loader.skin,controller);
 		_view = new View(configger.config,loader.skin,controller,model);
@@ -115,13 +115,13 @@ public class Player extends MovieClip {
 	*
 	* @prm plg		Any object that implements the PluginInterface.
 	**/
-	public function addPlugin(plg:Object) {
+	public function addPlugin(plg:Object):void {
 		plugins.push(plg);
 	};
 
 
 	/** Plugin loading completed; let's start! **/
-	private function pluginHandler(evt:Event=null) {
+	private function pluginHandler(evt:Event=null):void {
 		for(var i=0; i<plugins.length; i++) { plugins[i].initializePlugin(_view); }
 		controller.start(model,_view);
 		visible = true;

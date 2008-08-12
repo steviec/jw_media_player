@@ -10,19 +10,19 @@ import flash.display.DisplayObject;
 public interface ModelInterface {
 
 	/** Load a file into the model. **/
-	function load();
+	function load():void;
 	/** Playback resume directive. **/
-	function play();
+	function play():void;
 	/** Playback pause directive. **/
-	function pause();
+	function pause():void;
 	/** Playback seeking directive. **/
-	function seek(pos:Number);
+	function seek(pos:Number):void;
 	/** Stop the item altogether. **/
-	function stop();
+	function stop():void;
 	/** Set or toggle the playback quality. **/
-	function quality(stt:Boolean);
+	function quality(stt:Boolean):void;
 	/** Change the volume. **/
-	function volume(vol:Number);
+	function volume(vol:Number):void;
 
 
 };

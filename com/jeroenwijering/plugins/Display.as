@@ -42,11 +42,11 @@ public class Display implements PluginInterface {
 
 
 	/** Constructor; add all needed listeners. **/
-	public function Display() {};
+	public function Display():void {};
 
 
 	/** Initialize the plugin. **/
-	public function initializePlugin(vie:AbstractView) {
+	public function initializePlugin(vie:AbstractView):void {
 		view = vie;
 		view.addControllerListener(ControllerEvent.ERROR,errorHandler);
 		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
@@ -76,7 +76,7 @@ public class Display implements PluginInterface {
 
 
 	/** Receive buffer updates. **/
-	private function bufferHandler(evt:ModelEvent) {
+	private function bufferHandler(evt:ModelEvent):void {
 		var pct = '';
 		if(evt.data.percentage > 0) {
 			pct = Strings.zero(evt.data.percentage);
@@ -88,13 +88,13 @@ public class Display implements PluginInterface {
 
 
 	/** Process a click on the display. **/
-	private function clickHandler(evt:MouseEvent) {
+	private function clickHandler(evt:MouseEvent):void {
 		view.sendEvent(view.config['displayclick']);
 	};
 
 
 	/** Receive and print errors. **/
-	private function errorHandler(evt:Object) {
+	private function errorHandler(evt:Object):void {
 		setIcon('errorIcon');
 		try { 
 			display.errorIcon.txt.text = evt.data.message;
@@ -103,7 +103,7 @@ public class Display implements PluginInterface {
 
 
 	/** Logo loaded; now position it. **/
-	private function logoHandler(evt:Event) {
+	private function logoHandler(evt:Event):void {
 		if(margins[0] > margins[2]) { 
 			display.logo.x = display.back.width- margins[2]-display.logo.width;
 		} else {
@@ -118,7 +118,7 @@ public class Display implements PluginInterface {
 
 
 	/** Receive resizing requests **/
-	private function resizeHandler(evt:ControllerEvent=null) {
+	private function resizeHandler(evt:ControllerEvent=null):void {
 		var wid = view.config['width'];
 		var hei = view.config['height'];
 		if(hei > 0) { 
@@ -145,7 +145,7 @@ public class Display implements PluginInterface {
 
 
 	/** Set a specific icon in the display. **/
-	private function setIcon(icn:String=undefined) {
+	private function setIcon(icn:String=undefined):void {
 		for(var i in ICONS) {
 			if(display[ICONS[i]]) { 
 				if(icn == ICONS[i]) {
@@ -159,7 +159,7 @@ public class Display implements PluginInterface {
 
 
 	/** Setup the logo loading. **/
-	private function setLogo() {
+	private function setLogo():void {
 		margins = new Array(
 			display.logo.x,
 			display.logo.y,
@@ -174,7 +174,7 @@ public class Display implements PluginInterface {
 
 
 	/** Handle a change in playback state. **/
-	private function stateHandler(evt:ModelEvent=null) {
+	private function stateHandler(evt:ModelEvent=null):void {
 		state = view.config['state'];
 		if(state == ModelStates.PLAYING) {
 			setIcon();

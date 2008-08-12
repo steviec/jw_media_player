@@ -27,14 +27,14 @@ public class Stacker {
 	*
 	* @param skn	The MovieClip to manage stacking of.
 	**/
-	public function Stacker(clp:MovieClip) {
+	public function Stacker(clp:MovieClip):void {
 		clip = clp;
 		analyze();
 	};
 
 
 	/** Analyze the MovieClip and save its children.  **/
-	private function analyze() {
+	private function analyze():void {
 		_width = clip.width;
 		stack = new Array();
 		for(var i=0; i<clip.numChildren; i++) {
@@ -52,8 +52,8 @@ public class Stacker {
 		for (var i in stack) {
 			if(i!=idx && stack[i].c.visible==true && stack[i].w < _width &&
 				stack[i].x < max && stack[i].x+stack[i].w > min) {
-				// trace(stack[idx].n+'overlaps with'+stack[i].n);
-				// trace(stack[i].x+'-'+max+' / '+(stack[i].x+stack[i].w)+'-'+min);
+				//trace(stack[idx].n+' overlaps with '+stack[i].n);
+				//trace(stack[i].x+'-'+max+' / '+(stack[i].x+stack[i].w)+'-'+min);
 				return true;
 			}
 		}
@@ -66,7 +66,7 @@ public class Stacker {
 	*
 	* @param wid	The target width of the clip.
 	**/
-	public function rearrange(wid:Number=undefined) { 
+	public function rearrange(wid:Number=undefined):void {
 		if(wid) { latest = wid; }
 		var rdf = latest-width;
 		var ldf = 0;
@@ -74,11 +74,13 @@ public class Stacker {
 		for(var i=0; i<stack.length; i++) {
 			if(stack[i].x > width/2) {
 				stack[i].c.x = stack[i].x + rdf;
+				//trace(stack[i].n+': docked right');
 				if(stack[i].c.visible == false && overlaps(i) == false) {
 					rdf -= stack[i+1].x - stack[i].x;
 				}
 			} else {
 				stack[i].c.x = stack[i].x-ldf;
+				//trace(stack[i].n+': docked left');
 				if(stack[i].c.visible == false && overlaps(i) == false) {
 					if(stack[i-1].w > width/3) {
 						ldf += stack[i].w + stack[i].x;
@@ -88,6 +90,7 @@ public class Stacker {
 				}
 			}
 			if(stack[i].w > width/3) {
+				//trace(stack[i].n+': stretched');
 				stack[i].c.width = stack[i].w+rdf+ldf;
 			}
 		}
@@ -98,7 +101,7 @@ public class Stacker {
 				if(stack[j].x > width/2) {
 					stack[j].c.x += dif;
 				}
-				if(stack[j].w>width/4 && stack[j].w<width) {
+				if(stack[j].w > width/3 && stack[j].w < width) {
 					stack[j].c.width += dif;
 				}
 			}

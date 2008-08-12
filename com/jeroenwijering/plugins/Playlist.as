@@ -44,11 +44,11 @@ public class Playlist implements PluginInterface {
 	private var light:ColorTransform;
 
 
-	public function Playlist() {};
+	public function Playlist():void {};
 
 
 	/** Initialize the communication with the player. **/
-	public function initializePlugin(vie:AbstractView) {
+	public function initializePlugin(vie:AbstractView):void {
 		view = vie;
 		view.addControllerListener(ControllerEvent.ITEM,itemHandler);
 		view.addControllerListener(ControllerEvent.PLAYLIST,playlistHandler);
@@ -77,7 +77,7 @@ public class Playlist implements PluginInterface {
 
 
 	/** Setup all buttons in the playlist **/
-	private function buildList(clr:Boolean) {
+	private function buildList(clr:Boolean):void {
 		if(!view.playlist) { return; }
 		var wid = clip.back.width;
 		var hei = clip.back.height;
@@ -117,7 +117,7 @@ public class Playlist implements PluginInterface {
 
 
 	/** Setup the scrollbar component **/
-	private function buildSlider() {
+	private function buildSlider():void {
 		var scr = clip.slider;
 		scr.visible = true;
 		scr.x = clip.back.width-scr.width;
@@ -129,13 +129,13 @@ public class Playlist implements PluginInterface {
 
 
 	/** Handle a click on a button. **/
-	private function clickHandler(evt:MouseEvent) {
+	private function clickHandler(evt:MouseEvent):void {
 		view.sendEvent('item',Number(evt.target.name));
 	};
 
 
 	/** Switch the currently active item */
-	private function itemHandler(evt:ControllerEvent) {
+	private function itemHandler(evt:ControllerEvent):void {
 		var idx = view.config['item'];
 		if(buttons[idx]) {
 			if(buttons[idx].c['back']) {
@@ -155,14 +155,14 @@ public class Playlist implements PluginInterface {
 
 
 	/** Loading of image completed; resume loading **/
-	private function loaderHandler(evt:Event) {
+	private function loaderHandler(evt:Event):void {
 		var ldr = Loader(evt.target.loader);
 		Stretcher.stretch(ldr,image[0],image[1],Stretcher.EXACTFIT);
 	};
 
 
 	/** Handle a button rollover. **/
-	private function overHandler(evt:MouseEvent) {
+	private function overHandler(evt:MouseEvent):void {
 		var idx = Number(evt.target.name);
 		if(light) { 
 			for (var itm in view.playlist[idx]) {
@@ -177,7 +177,7 @@ public class Playlist implements PluginInterface {
 
 
 	/** Handle a button rollover. **/
-	private function outHandler(evt:MouseEvent) {
+	private function outHandler(evt:MouseEvent):void {
 		var idx = Number(evt.target.name);
 		if(front) {
 			for (var itm in view.playlist[idx]) {
@@ -194,7 +194,7 @@ public class Playlist implements PluginInterface {
 
 
 	/** New playlist loaded: rebuild the playclip. **/
-	private function playlistHandler(evt:ControllerEvent) {
+	private function playlistHandler(evt:ControllerEvent):void {
 		active = undefined;
 		if(view.config['playlist'] != 'none') {
 			buildList(true);
@@ -203,7 +203,7 @@ public class Playlist implements PluginInterface {
 
 
 	/** Process resizing requests **/
-	private function resizeHandler(evt:ControllerEvent) {
+	private function resizeHandler(evt:ControllerEvent):void {
 		if(view.config['playlist'] == 'right') {
 			clip.x = evt.data.width;
 			clip.y = 0;
@@ -231,7 +231,7 @@ public class Playlist implements PluginInterface {
 
 
 	/** Make sure the playlist is not out of range. **/
-	private function scrollCheck() {
+	private function scrollCheck():void {
 		var scr = clip.slider;
 		if(clip.list.y > 0 || scr.icon.y < scr.rail.y) {
 			clip.list.y = 0;
@@ -245,7 +245,7 @@ public class Playlist implements PluginInterface {
 
 
 	/** Scrolling handler. **/
-	private function scrollHandler() {
+	private function scrollHandler():void {
 		var scr = clip.slider;
 		var yps = scr.mouseY;
 		var ips = yps - scr.icon.height/2;
@@ -257,7 +257,7 @@ public class Playlist implements PluginInterface {
 
 
 	/** Init the colors. **/
-	private function setColors() {
+	private function setColors():void {
 		if(view.config['backcolor']) { 
 			back = new ColorTransform();
 			back.color = uint('0x'+view.config['backcolor'].substr(-6));
@@ -279,7 +279,7 @@ public class Playlist implements PluginInterface {
 
 
 	/** Setup button elements **/
-	private function setContents(idx:Number) {
+	private function setContents(idx:Number):void {
 		for (var itm in view.playlist[idx]) {
 			if(!buttons[idx].c[itm]) {
 				continue;
@@ -322,7 +322,7 @@ public class Playlist implements PluginInterface {
 
 
 	/** Start scrolling the playlist on mousedown. **/
-	private function sdownHandler(evt:MouseEvent) {
+	private function sdownHandler(evt:MouseEvent):void {
 		clearInterval(scrollInterval);
     	clip.stage.addEventListener(MouseEvent.MOUSE_UP,supHandler);
 		scrollHandler();
@@ -331,7 +331,7 @@ public class Playlist implements PluginInterface {
 
 
 	/** Revert the highlight on mouseout. **/
-	private function soutHandler(evt:MouseEvent) {
+	private function soutHandler(evt:MouseEvent):void {
 		if(front) {
 			clip.slider.icon.transform.colorTransform = front;
 		} else { 
@@ -341,7 +341,7 @@ public class Playlist implements PluginInterface {
 
 
 	/** Highlight the icon on rollover. **/
-	private function soverHandler(evt:MouseEvent) {
+	private function soverHandler(evt:MouseEvent):void {
 		if(light) {
 			clip.slider.icon.transform.colorTransform = light;
 		} else { 
@@ -351,14 +351,14 @@ public class Playlist implements PluginInterface {
 
 
 	/** Stop scrolling the playlist on mouseout. **/
-	private function supHandler(evt:MouseEvent) {
+	private function supHandler(evt:MouseEvent):void {
 		clearInterval(scrollInterval);
     	clip.stage.removeEventListener(MouseEvent.MOUSE_UP,supHandler);
 	};
 
 
 	/** Process state changes **/
-	private function stateHandler(evt:ModelEvent) {
+	private function stateHandler(evt:ModelEvent):void {
 		if(view.config['playlist'] == 'over') {
 			if(evt.data.newstate == ModelStates.PLAYING || 
 				evt.data.newstate == ModelStates.BUFFERING) {
@@ -371,7 +371,7 @@ public class Playlist implements PluginInterface {
 
 
 	/** Process mousewheel usage. **/
-	private function wheelHandler(evt:MouseEvent) {};
+	private function wheelHandler(evt:MouseEvent):void {};
 
 
 };

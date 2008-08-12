@@ -31,7 +31,7 @@ public class ControllerEvent extends Event {
 	* @param typ	The type of event.
 	* @param dat	An object with all associated data.
 	**/
-	public function ControllerEvent(typ:String,dat:Object=undefined,bbl:Boolean=false,ccb:Boolean=false) {
+	public function ControllerEvent(typ:String,dat:Object=undefined,bbl:Boolean=false,ccb:Boolean=false):void {
 		super(typ,bbl,ccb);
 		_data = dat;
 	};

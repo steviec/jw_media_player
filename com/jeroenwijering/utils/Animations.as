@@ -20,7 +20,7 @@ public class Animations {
 	* @param end	The final alpha value.
 	* @param spd	The amount of alpha change per frame.
 	**/
-	public static function fade(tgt:MovieClip,end:Number=1,spd:Number=0.2) {
+	public static function fade(tgt:MovieClip,end:Number=1,spd:Number=0.2):void {
 		if(tgt.alpha > end) {
 			tgt.spd = -Math.abs(spd);
 		} else {
@@ -32,7 +32,7 @@ public class Animations {
 
 
 	/** The fade enterframe function. **/
-	private static function fadeHandler(evt:Event) {
+	private static function fadeHandler(evt:Event):void {
 		var tgt = MovieClip(evt.target);
 		if((tgt.alpha >= tgt.end-tgt.spd && tgt.spd > 0) ||
 			(tgt.alpha <= tgt.end+tgt.spd && tgt.spd < 0)) {
@@ -54,7 +54,7 @@ public class Animations {
 	* @param yps	The y destination.
 	* @param spd	The movement speed (1 - 2).
 	**/
-	public static function ease(tgt:MovieClip,xps:Number,yps:Number,spd:Number=2) {
+	public static function ease(tgt:MovieClip,xps:Number,yps:Number,spd:Number=2):void {
 		if(!xps) { tgt.xps = tgt.x; } else { tgt.xps = xps; }
 		if(!yps) { tgt.yps = tgt.y; } else { tgt.yps = yps; }
 		tgt.spd = spd;
@@ -63,7 +63,7 @@ public class Animations {
 
 
 	/** The ease enterframe function. **/
-	private static function easeHandler(evt:Event) {
+	private static function easeHandler(evt:Event):void {
 		var tgt = MovieClip(evt.target);
 		if(Math.abs(tgt.x - tgt.xps) < 1 && Math.abs(tgt.y - tgt.yps) < 1) {
 			tgt.removeEventListener(Event.ENTER_FRAME,easeHandler);
@@ -83,7 +83,7 @@ public class Animations {
 	* @param txt	The textstring to write.
 	* @param spd	The speed of typing (1 - 2).
 	**/
-	public static function write(tgt:MovieClip,str:String,spd:Number=1.5) {
+	public static function write(tgt:MovieClip,str:String,spd:Number=1.5):void {
 		tgt.str = str;
 		tgt.spd = spd;
 		tgt.tf.text = '';
@@ -92,7 +92,7 @@ public class Animations {
 
 
 	/** The write enterframe function. **/
-	private static function writeHandler(evt:Event) {
+	private static function writeHandler(evt:Event):void {
 		var tgt = MovieClip(evt.target);
 		var dif = Math.floor((tgt.str.length-tgt.tf.text.length)/tgt.spd);
 		tgt.tf.text = tgt.str.substr(0,tgt.str.length-dif);

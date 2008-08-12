@@ -35,7 +35,7 @@ public class Model extends EventDispatcher {
 
 
 	/** Constructor, save arrays and set currentItem. **/
-	public function Model(cfg:Object,skn:MovieClip,ctr:Controller) {
+	public function Model(cfg:Object,skn:MovieClip,ctr:Controller):void {
 		config = cfg;
 		skin = skn;
 		Draw.clear(skin.display.media);
@@ -56,7 +56,7 @@ public class Model extends EventDispatcher {
 
 
 	/** Item change: switch the curently active model if there's a new URL **/
-	private function itemHandler(evt:ControllerEvent) {
+	private function itemHandler(evt:ControllerEvent):void {
 		var typ = playlist[evt.data.index]['type'];
 		var url = playlist[evt.data.index]['file'];
 		if(models[typ] && typ == currentModel) {
@@ -82,7 +82,7 @@ public class Model extends EventDispatcher {
 
 
 	/** Setup a new model. **/
-	private function loadModel(typ:String) {
+	private function loadModel(typ:String):void {
 		switch(typ) {
 			case 'camera':
 				models[typ] = new CameraModel(this);
@@ -116,7 +116,7 @@ public class Model extends EventDispatcher {
 
 
 	/** Place a loaded mediafile on stage **/
-	public function mediaHandler(chd:DisplayObject=undefined) {
+	public function mediaHandler(chd:DisplayObject=undefined):void {
 		var obj = skin.display.media;
 		Draw.clear(obj);
 		if(chd) {
@@ -129,7 +129,7 @@ public class Model extends EventDispatcher {
 
 
 	/** Load the configuration array. **/
-	private function muteHandler(evt:ControllerEvent) {
+	private function muteHandler(evt:ControllerEvent):void {
 		if(currentModel && evt.data.state == true) {
 			models[currentModel].volume(0); 
 		} else if(currentModel && evt.data.state == false) {
@@ -139,7 +139,7 @@ public class Model extends EventDispatcher {
 
 
 	/** Togge the playback state. **/
-	private function playHandler(evt:ControllerEvent) {
+	private function playHandler(evt:ControllerEvent):void {
 		if(currentModel) {
 			if(evt.data.state == true) {
 				models[currentModel].play();
@@ -151,7 +151,7 @@ public class Model extends EventDispatcher {
 
 
 	/** Send an idle with new playlist. **/
-	private function playlistHandler(evt:ControllerEvent) {
+	private function playlistHandler(evt:ControllerEvent):void {
 		if(currentModel) { 
 			stopHandler(); 
 		} else {
@@ -162,7 +162,7 @@ public class Model extends EventDispatcher {
 
 
 	/** Toggle the playback quality. **/
-	private function qualityHandler(evt:ControllerEvent) {
+	private function qualityHandler(evt:ControllerEvent):void {
 		if(currentModel) {
 			models[currentModel].quality(evt.data.state);
 		}
@@ -170,13 +170,13 @@ public class Model extends EventDispatcher {
 
 
 	/** Resize the media and thumb. **/
-	private function resizeHandler(evt:ControllerEvent) {
+	private function resizeHandler(evt:ControllerEvent):void {
 		Stretcher.stretch(skin.display.media,evt.data.width,evt.data.height,config['stretching']);
 	};
 
 
 	/** Seek inside a file. **/
-	private function seekHandler(evt:ControllerEvent) {
+	private function seekHandler(evt:ControllerEvent):void {
 		if(currentModel) {
 			models[currentModel].seek(evt.data.position);
 		}
@@ -184,7 +184,7 @@ public class Model extends EventDispatcher {
 
 
 	/** Load the configuration array. **/
-	private function stopHandler(evt:ControllerEvent=undefined) {
+	private function stopHandler(evt:ControllerEvent=undefined):void {
 		currentURL = undefined;
 		if(currentModel) {
 			models[currentModel].stop();
@@ -196,7 +196,7 @@ public class Model extends EventDispatcher {
 
 
 	/**  Dispatch events. State switch is saved. **/
-	public function sendEvent(typ:String,dat:Object) {
+	public function sendEvent(typ:String,dat:Object):void {
 		if(typ == ModelEvent.STATE && dat.newstate != config['state']) {
 			dat.oldstate = config['state'];
 			config['state'] = dat.newstate;
@@ -214,7 +214,7 @@ public class Model extends EventDispatcher {
 
 
 	/** Load a thumb on stage. **/
-	private function thumbLoader() {
+	private function thumbLoader():void {
 		var img = playlist[config['item']]['image'];
 		if(img) {
 			loader.load(new URLRequest(img));
@@ -222,13 +222,13 @@ public class Model extends EventDispatcher {
 	};
 
 	/** Place a loaded thumb on stage. **/
-	private function thumbHandler(evt:Event=null) {
+	private function thumbHandler(evt:Event=null):void {
 		mediaHandler(loader);
 	};
 
 
 	/** Load the configuration array. **/
-	private function volumeHandler(evt:ControllerEvent) {
+	private function volumeHandler(evt:ControllerEvent):void {
 		if(currentModel) {
 			models[currentModel].volume(evt.data.percentage);
 		}

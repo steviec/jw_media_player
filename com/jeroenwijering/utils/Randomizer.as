@@ -20,7 +20,7 @@ public class Randomizer {
 	*
 	* @param len	Length of the list to randomize.
 	**/
-	public function Randomizer(len:Number) {
+	public function Randomizer(len:Number):void {
 		original = new Array();
 		todo = new Array();
 		done = new Array();

@@ -35,7 +35,7 @@ public class View extends AbstractView {
 
 
 	/** Constructor, save references and subscribe to events. **/
-	public function View(cfg:Object,skn:MovieClip,ctr:Controller,mdl:Model) {
+	public function View(cfg:Object,skn:MovieClip,ctr:Controller,mdl:Model):void {
 		_config = cfg;
 		_config['client'] = 'FLASH '+Capabilities.version;
 		_skin = skn;
@@ -76,27 +76,27 @@ public class View extends AbstractView {
 
 
 	/** jump to the about page. **/
-	private function aboutSetter(evt:ContextMenuEvent) {
+	private function aboutSetter(evt:ContextMenuEvent):void {
 		navigateToURL(new URLRequest(config['aboutlink']),'_blank');
 	};
 
 
 	/**  Subscribers to the controller and model. **/
-	override public function addControllerListener(typ:String,fcn:Function) {
+	override public function addControllerListener(typ:String,fcn:Function):void {
 		controller.addEventListener(typ.toUpperCase(),fcn);
 	};
 	private function addJSControllerListener(typ:String,fcn:String):Boolean {
 		listeners.push({target:'CONTROLLER',type:typ.toUpperCase(),callee:fcn});
 		return true;
 	};
-	override public function addModelListener(typ:String,fcn:Function) {
+	override public function addModelListener(typ:String,fcn:Function):void {
 		model.addEventListener(typ.toUpperCase(),fcn);
 	};
 	private function addJSModelListener(typ:String,fcn:String):Boolean {
 		listeners.push({target:'MODEL',type:typ.toUpperCase(),callee:fcn});
 		return true;
 	};
-	override public function addViewListener(typ:String,fcn:Function) {
+	override public function addViewListener(typ:String,fcn:Function):void {
 		this.addEventListener(typ.toUpperCase(),fcn);
 	};
 	private function addJSViewListener(typ:String,fcn:String):Boolean {
@@ -106,7 +106,7 @@ public class View extends AbstractView {
 
 
 	/** Send event to listeners and tracers. **/
-	private function forward(tgt:String,typ:String,dat:Object) {
+	private function forward(tgt:String,typ:String,dat:Object):void {
 		var prm = '';
 		for (var i in dat) { prm += i+':'+dat[i]+','; }
 		if(prm.length > 0) {
@@ -130,11 +130,11 @@ public class View extends AbstractView {
 
 
 	/** Toggle the fullscreen mode. **/
-	private function fullscreenSetter(evt:ContextMenuEvent) { sendEvent('fullscreen'); };
+	private function fullscreenSetter(evt:ContextMenuEvent):void { sendEvent('fullscreen'); };
 
 
 	/** Add a custom menu item. **/
-	private function menuAdd(itm:ContextMenuItem,hdl:Function) {
+	private function menuAdd(itm:ContextMenuItem,hdl:Function):void {
 		itm.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT,hdl);
 		itm.separatorBefore = true;
 		context.customItems.push(itm);
@@ -142,7 +142,7 @@ public class View extends AbstractView {
 
 
 	/** Set the rightclick menu. **/
-	private function menuSet() {
+	private function menuSet():void {
 		context = new ContextMenu();
 		context.hideBuiltInItems();
 		skin.contextMenu = context;
@@ -168,7 +168,7 @@ public class View extends AbstractView {
 
 
 	/** Send a call to javascript that the player is ready. **/
-	private function playerReady() {
+	private function playerReady():void {
 		var dat = {
 			id:config['id'],
 			client:config['client'],
@@ -181,7 +181,7 @@ public class View extends AbstractView {
 
 
 	/** Toggle the smoothing mode. **/
-	private function qualityHandler(evt:ControllerEvent) {
+	private function qualityHandler(evt:ControllerEvent):void {
 		if(evt.data.state == true) {
 			context.customItems[0].caption = "Switch to low quality";
 		} else {
@@ -191,11 +191,11 @@ public class View extends AbstractView {
 
 
 	/** Toggle the smoothing mode. **/
-	private function qualitySetter(evt:ContextMenuEvent) { sendEvent('quality'); };
+	private function qualitySetter(evt:ContextMenuEvent):void { sendEvent('quality'); };
 
 
 	/** Set the fullscreen menubutton. **/
-	private function resizeHandler(evt:ControllerEvent) {
+	private function resizeHandler(evt:ControllerEvent):void {
 		if(evt.data.fullscreen == false) { 
 			context.customItems[1].caption = "Switch to fullscreen";
 		} else {
@@ -205,7 +205,7 @@ public class View extends AbstractView {
 
 
 	/** Forward a resizing of the stage. **/
-	private function resizeSetter(evt:Event=undefined) {
+	private function resizeSetter(evt:Event=undefined):void {
 		var dat = {
 			height:_skin.stage.stageHeight,
 			width:_skin.stage.stageWidth
@@ -215,7 +215,7 @@ public class View extends AbstractView {
 
 
 	/**  Dispatch events. **/
-	override public function sendEvent(typ:String,prm:Object=undefined) {
+	override public function sendEvent(typ:String,prm:Object=undefined):void {
 		typ = typ.toUpperCase();
 		var dat = new Object();
 		switch(typ) {
@@ -256,13 +256,13 @@ public class View extends AbstractView {
 
 
 	/** Forward events to tracer and subscribers. **/
-	private function setController(evt:ControllerEvent) { forward('CONTROLLER',evt.type,evt.data); };
-	private function setModel(evt:ModelEvent) { forward('MODEL',evt.type,evt.data); };
-	private function setView(evt:ViewEvent) { forward('VIEW',evt.type,evt.data); };
+	private function setController(evt:ControllerEvent):void { forward('CONTROLLER',evt.type,evt.data); };
+	private function setModel(evt:ModelEvent):void { forward('MODEL',evt.type,evt.data); };
+	private function setView(evt:ViewEvent):void { forward('VIEW',evt.type,evt.data); };
 
 
 	/** Setup listeners to all events for tracing / javascript. **/
-	private function setListening() {
+	private function setListening():void {
 		addControllerListener(ControllerEvent.ERROR,setController);
 		addControllerListener(ControllerEvent.ITEM,setController);
 		addControllerListener(ControllerEvent.MUTE,setController);

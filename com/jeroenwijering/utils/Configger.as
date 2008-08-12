@@ -25,7 +25,7 @@ public class Configger extends EventDispatcher {
 
 
 	/** Constructor; nothing fancy. **/
-	public function Configger(ref:Sprite) {
+	public function Configger(ref:Sprite):void {
 		reference = ref;
 	};
 
@@ -35,7 +35,7 @@ public class Configger extends EventDispatcher {
 	* 
 	* @param def	The config object to overwrite new data in.
 	**/
-	public function load(def:Object) {
+	public function load(def:Object):void {
 		config = def;
 		var xml = reference.root.loaderInfo.parameters['config'];
 		if(xml) {
@@ -47,7 +47,7 @@ public class Configger extends EventDispatcher {
 
 
 	/** Load configuration data from external XML file. **/
-	private function loadXML(url:String) {
+	private function loadXML(url:String):void {
 		loader = new URLLoader();
 		loader.addEventListener(Event.COMPLETE,xmlHandler);
 		try {
@@ -57,7 +57,7 @@ public class Configger extends EventDispatcher {
 
 
 	/** Parse the XML list **/
-	private function xmlHandler(evt:Event) {
+	private function xmlHandler(evt:Event):void {
 		var dat = XML(evt.currentTarget.data);
 		var obj = new Object();
 		for each (var prp in dat.children()) {
@@ -69,14 +69,14 @@ public class Configger extends EventDispatcher {
 
 
 	/** Set config variables or load them from flashvars. **/
-	private function loadFlashvars() {
+	private function loadFlashvars():void {
 		compareWrite(reference.root.loaderInfo.parameters);
 		dispatchEvent(new Event(Event.COMPLETE));
 	};
 
 
 	/** Compare and save new items in config, preserving datatype. **/
-	private function compareWrite(obj:Object) {
+	private function compareWrite(obj:Object):void {
 		for(var cfv in obj) {
 			var lfv = cfv.toLowerCase();
 			if(config[lfv] != undefined) {

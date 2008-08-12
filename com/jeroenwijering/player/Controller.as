@@ -32,7 +32,7 @@ public class Controller extends EventDispatcher {
 
 
 	/** Constructor, set up stage and playlist listeners. **/
-	public function Controller(cfg:Object,skn:MovieClip) {
+	public function Controller(cfg:Object,skn:MovieClip):void {
 		config = cfg;
 		skin = skn;
 		playlister = new Playlister();
@@ -46,7 +46,7 @@ public class Controller extends EventDispatcher {
 
 
 	/** Register view and model with controller, start loading playlist. **/
-	public function start(mdl:Model,vie:View) {
+	public function start(mdl:Model,vie:View):void {
 		model= mdl;
 		model.addEventListener(ModelEvent.META,metaHandler);
 		model.addEventListener(ModelEvent.TIME,metaHandler);
@@ -77,13 +77,13 @@ public class Controller extends EventDispatcher {
 
 
 	/** Catch errors dispatched by the playlister. **/
-	private function errorHandler(evt:ErrorEvent) {
+	private function errorHandler(evt:ErrorEvent):void {
 		dispatchEvent(new ControllerEvent(ControllerEvent.ERROR,{message:evt.text}));
 	};
 
 
 	/** Switch fullscreen state. **/
-	private function fullscreenHandler(evt:ViewEvent) {
+	private function fullscreenHandler(evt:ViewEvent):void {
 		if(skin.stage['displayState'] == 'fullScreen') {
 			skin.stage['displayState'] = 'normal';
 		} else {
@@ -94,7 +94,7 @@ public class Controller extends EventDispatcher {
 
 
 	/** Set the fullscreen rectangle **/
-	private function fullscreenrect() {
+	private function fullscreenrect():void {
 		try { 
 			skin.stage["fullScreenSourceRect"] = new Rectangle(0,0,
 				Capabilities.screenResolutionX/2,Capabilities.screenResolutionY/2);
@@ -103,7 +103,7 @@ public class Controller extends EventDispatcher {
 
 
 	/** Jump to a userdefined item in the playlist. **/
-	private function itemHandler(evt:ViewEvent) {
+	private function itemHandler(evt:ViewEvent):void {
 		var itm = evt.data.index;
 		if (itm < 0) {
 			playItem(0);
@@ -116,7 +116,7 @@ public class Controller extends EventDispatcher {
 
 
 	/** Jump to the link of a playlistitem. **/
-	private function linkHandler(evt:ViewEvent) {
+	private function linkHandler(evt:ViewEvent):void {
 		var itm = evt.data.index;
 		if (itm  == undefined) {
 			itm = config['item'];
@@ -129,7 +129,7 @@ public class Controller extends EventDispatcher {
 
 
 	/** Load a new playlist. **/
-	private function loadHandler(evt:ViewEvent) {
+	private function loadHandler(evt:ViewEvent):void {
 		stopHandler();
 		try {
 			playlister.load(evt.data.object);
@@ -141,7 +141,7 @@ public class Controller extends EventDispatcher {
 
 
 	/** Update playlist item duration. **/
-	private function metaHandler(evt:ModelEvent) {
+	private function metaHandler(evt:ModelEvent):void {
 		if(evt.data.duration) {
 			var dur = Math.round(evt.data.duration*10)/10
 			playlister.update(config['item'],'duration',dur);
@@ -150,7 +150,7 @@ public class Controller extends EventDispatcher {
 
 
 	/** Save new state of the mute switch and send volume. **/
-	private function muteHandler(evt:ViewEvent) {
+	private function muteHandler(evt:ViewEvent):void {
 		if(evt.data.state) {
 			if(evt.data.state == config['mute']) {
 				return;
@@ -165,7 +165,7 @@ public class Controller extends EventDispatcher {
 
 
 	/** Jump to the next item in the playlist. **/
-	private function nextHandler(evt:ViewEvent) {
+	private function nextHandler(evt:ViewEvent):void {
 		if(playlist && config['shuffle'] == true) { 
 			playItem(randomizer.pick());
 		} else if (playlist && config['item'] == playlist.length-1) {
@@ -177,7 +177,7 @@ public class Controller extends EventDispatcher {
 
 
 	/** Change the playback state. **/
-	private function playHandler(evt:ViewEvent) {
+	private function playHandler(evt:ViewEvent):void {
 		if(playlist) {
 			if(evt.data.state != false && config['state'] == ModelStates.PAUSED) {
 				dispatchEvent(new ControllerEvent(ControllerEvent.PLAY,{state:true}));
@@ -194,7 +194,7 @@ public class Controller extends EventDispatcher {
 
 
 	/** Direct the model to play a new item. **/
-	private function playItem(nbr:Number=undefined) {
+	private function playItem(nbr:Number=undefined):void {
 		if(nbr > -1) {
 			if(playlist[nbr]['file'] == playlist[config['item']]['file']) {
 				playlist[nbr]['duration'] = playlist[config['item']]['duration'];
@@ -206,7 +206,7 @@ public class Controller extends EventDispatcher {
 
 
 	/** Manage loading of a new playlist. **/
-	private function playlistHandler(evt:Event) {
+	private function playlistHandler(evt:Event):void {
 		if(config['shuffle'] == true) {
 			randomizer = new Randomizer(playlist.length);
 			config['item'] = randomizer.pick();
@@ -221,7 +221,7 @@ public class Controller extends EventDispatcher {
 
 
 	/** Jump to the previous item in the playlist. **/
-	private function prevHandler(evt:ViewEvent) {
+	private function prevHandler(evt:ViewEvent):void {
 		if (config['item'] == 0) {
 			playItem(playlist.length-1);
 		} else { 
@@ -231,7 +231,7 @@ public class Controller extends EventDispatcher {
 
 
 	/** Switch playback quality. **/
-	private function qualityHandler(evt:ViewEvent=null) {
+	private function qualityHandler(evt:ViewEvent=null):void {
 		if(evt.data.state != undefined) {
 			if(evt.data.state == config['quality']) {
 				return;
@@ -247,7 +247,7 @@ public class Controller extends EventDispatcher {
 
 
 	/** Forward a resizing of the stage. **/
-	private function resizeHandler(evt:ViewEvent) {
+	private function resizeHandler(evt:ViewEvent):void {
 		var mgn = config['margins'].split(',');
 		var dat = {
 			height:evt.data.height-mgn[0],
@@ -276,7 +276,7 @@ public class Controller extends EventDispatcher {
 
 
 	/** Seek to a specific part in a mediafile. **/
-	private function seekHandler(evt:ViewEvent) {
+	private function seekHandler(evt:ViewEvent):void {
 		if(config['state'] != ModelStates.IDLE && playlist[config['item']]['duration'] > 0) {
 			var pos = evt.data.position;
 			if(pos < 2) { 
@@ -290,13 +290,13 @@ public class Controller extends EventDispatcher {
 
 
 	/** Stop all playback and buffering. **/
-	private function stopHandler(evt:ViewEvent=undefined) {
+	private function stopHandler(evt:ViewEvent=undefined):void {
 		dispatchEvent(new ControllerEvent(ControllerEvent.STOP));
 	};
 
 
 	/** Manage playback state changes. **/
-	private function stateHandler(evt:ModelEvent) {
+	private function stateHandler(evt:ModelEvent):void {
 		if(evt.data.newstate == ModelStates.COMPLETED && (config['repeat'] == 'always' ||
 			(config['repeat'] == 'list' && config['shuffle'] == true && randomizer.length > 0) || 
 			(config['repeat'] == 'list' && config['shuffle'] == false && config['item'] < playlist.length-1))) {
@@ -312,7 +312,7 @@ public class Controller extends EventDispatcher {
 
 
 	/** Save new state of the mute switch and send volume. **/
-	private function volumeHandler(evt:ViewEvent) {
+	private function volumeHandler(evt:ViewEvent):void {
 		var vol = evt.data.percentage;
 		if (vol < 1) {
 			muteHandler(new ViewEvent(ViewEvent.MUTE,{state:true}));

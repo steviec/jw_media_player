@@ -35,7 +35,7 @@ public class CameraModel implements ModelInterface {
 	private var position:Number;
 
 
-	public function CameraModel(mod:Model) {
+	public function CameraModel(mod:Model):void {
 		model = mod;
 		try {
 			camera = Camera.getCamera();
@@ -53,14 +53,14 @@ public class CameraModel implements ModelInterface {
 
 
 	/** Catch security errors. **/
-	private function errorHandler(evt:ErrorEvent) {
+	private function errorHandler(evt:ErrorEvent):void {
 		model.sendEvent(ModelEvent.ERROR,{message:evt.text});
 	};
 
 
 
 	/** Load the camera into the video **/
-	public function load() {
+	public function load():void {
 		position = model.playlist[model.config['item']]['start'];
 		model.mediaHandler(video);
 		if(model.config['streamer']) {
@@ -72,7 +72,7 @@ public class CameraModel implements ModelInterface {
 
 
 	/** Pause playback. **/
-	public function pause() {
+	public function pause():void {
 		video.attachCamera(null);
 		if(stream) { 
 			stream.publish(null);
@@ -85,7 +85,7 @@ public class CameraModel implements ModelInterface {
 
 
 	/** Resume playback **/
-	public function play() {
+	public function play():void {
 		video.attachCamera(camera);
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 		interval = setInterval(timeInterval,100);
@@ -98,7 +98,7 @@ public class CameraModel implements ModelInterface {
 
 
 	/** Change the quality mode. **/
-	public function quality(stt:Boolean) {
+	public function quality(stt:Boolean):void {
 		if(stt == true) {
 			camera.setMode(480,360,25);
 			video.smoothing = true;
@@ -114,7 +114,7 @@ public class CameraModel implements ModelInterface {
 
 
 	/** Seek the camera timeline. **/
-	public function seek(pos:Number) {
+	public function seek(pos:Number):void {
 		position = pos;
 		clearInterval(interval);
 		play();
@@ -122,7 +122,7 @@ public class CameraModel implements ModelInterface {
 
 
 	/** Destroy the videocamera. **/
-	public function stop() {
+	public function stop():void {
 		position = 0;
 		video.attachCamera(null);
 		clearInterval(interval);
@@ -131,7 +131,7 @@ public class CameraModel implements ModelInterface {
 
 
 	/** Receive NetStream status updates. **/
-	private function statusHandler(evt:NetStatusEvent) {
+	private function statusHandler(evt:NetStatusEvent):void {
 		if(evt.info.code == "NetConnection.Connect.Success") {
 			stream = new NetStream(connection);
 			stream.addEventListener(NetStatusEvent.NET_STATUS,statusHandler);
@@ -142,7 +142,7 @@ public class CameraModel implements ModelInterface {
 
 
 	/** Interval function that countdowns the time. **/
-	private function timeInterval() {
+	private function timeInterval():void {
 		position = Math.round(position*10+1)/10;
 		var dur = model.playlist[model.config['item']]['duration'];
 		if(dur > 0) {
@@ -157,7 +157,7 @@ public class CameraModel implements ModelInterface {
 
 
 	/** Volume setting **/
-	public function volume(pct:Number) {};
+	public function volume(pct:Number):void {};
 
 
 };
