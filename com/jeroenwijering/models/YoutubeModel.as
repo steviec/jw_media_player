@@ -79,6 +79,9 @@ public class YoutubeModel implements ModelInterface {
 			}
 		}
 		if(str == '') { str = url.substr(url.indexOf('/v/')+3); }
+		if(str.indexOf('&') > -1) { 
+			str = str.substr(0,str.indexOf('&'));
+		}
 		return str;
 	};
 

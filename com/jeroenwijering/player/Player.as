@@ -14,7 +14,7 @@ import flash.events.Event;
 public class Player extends MovieClip {
 
 
-	/** A list with all default configuration values. Change to hard-code your values. **/
+	/** A list with all default configuration values. Change to hard-code your prefs. **/
 	private var defaults:Object = {
 		author:undefined,
 		description:undefined,
@@ -62,7 +62,7 @@ public class Player extends MovieClip {
 		streamer:undefined,
 		token:undefined,
 		tracecall:undefined,
-		version:'4.1.56'
+		version:'4.1.59'
 	};
 	/** Object that loads all configuration variables. **/
 	private var configger:Configger;
