@@ -41,7 +41,7 @@ public class Player extends MovieClip {
 		width:400,
 
 		autostart:false,
-		bufferlength:1,
+		bufferlength:0.1,
 		displayclick:'play',
 		item:0,
 		mute:false,

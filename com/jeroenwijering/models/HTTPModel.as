@@ -15,6 +15,7 @@ import flash.media.Video;
 import flash.net.*;
 import flash.utils.clearInterval;
 import flash.utils.setInterval;
+import flash.utils.Timer;
 
 
 public class HTTPModel implements ModelInterface {
@@ -44,6 +45,8 @@ public class HTTPModel implements ModelInterface {
 	private var h264:Boolean;
 	/** Byteposition to which the file has been loaded. **/
 	private var loaded:Number;
+	/** Timer for checking bandwidth **/
+	private var timer:Timer
 
 
 	/** Constructor; sets up the connection and display. **/
@@ -132,6 +135,11 @@ public class HTTPModel implements ModelInterface {
 
 	/** Interval for the loading progress **/
 	private function loadHandler():void {
+		if(!timer) { 
+			timer = new Timer(2000,1);
+            timer.addEventListener("timer", timerHandler);
+            timer.start();
+		}
 		loaded = stream.bytesLoaded;
 		var ttl = stream.bytesTotal;
 		if(loaded >= ttl && loaded > 0) {
@@ -279,6 +287,13 @@ public class HTTPModel implements ModelInterface {
 		if(dur > 0) {
 			model.sendEvent(ModelEvent.TIME,{position:pos,duration:dur});
 		}
+	};
+
+
+	/** Timer that checks bandwidth has completed. **/
+	public function timerHandler(event:TimerEvent):void {
+    	var bww = Math.round(stream.bytesLoaded*4/1024);
+		model.sendEvent(ModelEvent.META,{bandwidth:bww});
 	};
 
 

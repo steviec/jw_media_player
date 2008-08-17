@@ -23,10 +23,18 @@ public class NetClient {
 	};
 
 
-	/** Handler for captionate events. **/
-	public function onBWDone():void {
-		var dat = {type:'bwdone'};
-		forward(dat);
+	/** Checking the available bandwidth. **/
+	public function onBWCheck(... rest):Number {
+		return 0;
+	};
+
+
+	/** Receiving the bandwidth check result. **/
+	public function onBWDone(... rest):void {
+		if (rest.length > 0) {
+			var dat = {type:'bandwidth',bandwidth:rest[0]};
+			forward(dat);
+		}
 	};
 
 

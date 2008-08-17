@@ -107,6 +107,8 @@ public class RTMPModel implements ModelInterface {
 		} else if(dat.type == 'fcsubscribe' && dat.code == 'NetStream.Play.Start') {
 			setStream();
 			clearInterval(timeout);
+		} else if(dat.type == 'bandwidth') {
+			setStream('?bw='+dat.bandwidth);
 		}
 		model.sendEvent(ModelEvent.META,dat);
 	};
@@ -156,7 +158,7 @@ public class RTMPModel implements ModelInterface {
 
 
 	/** Set streaming object **/
-	public function setStream():void {
+	public function setStream(que:String=""):void {
 		var url = getID(model.playlist[model.config['item']]['file']);
 		stream = new NetStream(connection);
 		stream.addEventListener(NetStatusEvent.NET_STATUS,statusHandler);
@@ -166,7 +168,7 @@ public class RTMPModel implements ModelInterface {
 		stream.client = new NetClient(this);
 		video.attachNetStream(stream);
 		stream.soundTransform = transform;
-		stream.play(url);
+		stream.play(url+que);
 		clearInterval(timeinterval);
 		timeinterval = setInterval(timeHandler,100);
 	};
@@ -179,8 +181,10 @@ public class RTMPModel implements ModelInterface {
 				connection.call("secureTokenResponse",null,
 					TEA.decrypt(evt.info.secureToken,model.config['token']));
 			}
+			// connection.call("checkBandwidth",null);
+			// For FMS3 bandwidth checking, uncomment the line above and comment the one below.
 			setStream();
-			// If you use Limelight/Akamai: comment the above line and uncomment the one below...
+			// If you use Limelight/Akamai: comment the line above and uncomment the one below.
 			// timeout = setInterval(subscribe,2000,model.playlist[model.config['item']]['file']);
 		} else if(evt.info.code == "NetStream.Seek.Notify") {
 			clearInterval(timeinterval);
