@@ -15,7 +15,6 @@ public class ViewEvent extends Event {
 	public static var ITEM:String = "ITEM";
 	public static var LINK:String = "LINK";
 	public static var LOAD:String = "LOAD";
-	public static var META:String = "META";
 	public static var MUTE:String = "MUTE";
 	public static var NEXT:String = "NEXT";
 	public static var PLAY:String = "PLAY";
@@ -24,6 +23,7 @@ public class ViewEvent extends Event {
 	public static var RESIZE:String = "RESIZE";
 	public static var SEEK:String = "SEEK";
 	public static var STOP:String = "STOP";
+	public static var TRACE:String = "TRACE";
 	public static var VOLUME:String = "VOLUME";
 	/** The data associated with the event. **/
 	private var _data:Object;

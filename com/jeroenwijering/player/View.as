@@ -22,31 +22,31 @@ public class View extends AbstractView {
 
 	/** Object with all configuration parameters **/
 	private var _config:Object;
-	/** Clip with all graphical elements **/
-	private var _skin:MovieClip;
+	/** Object that load the skin and plugins. **/
+	private var loader:SWFLoader;
 	/** Controller of the MVC cycle. **/
 	private var controller:Controller;
 	/** Model of the MVC cycle. **/
 	private var model:Model;
 	/** Reference to the contextmenu. **/
 	private var context:ContextMenu;
-	/** Quality menuitem **/
+	/** A list with all javascript listeners. **/
 	private var listeners:Array;
 
 
 	/** Constructor, save references and subscribe to events. **/
-	public function View(cfg:Object,skn:MovieClip,ctr:Controller,mdl:Model):void {
+	public function View(cfg:Object,ldr:SWFLoader,ctr:Controller,mdl:Model):void {
 		_config = cfg;
 		_config['client'] = 'FLASH '+Capabilities.version;
-		_skin = skn;
-		_skin.stage.scaleMode = "noScale";
-		_skin.stage.align = "TL";
-		_skin.stage.addEventListener(Event.RESIZE,resizeSetter);
-		_config['controlbarsize'] = _skin['controlbar'].height;
+		loader = ldr;
+		skin.stage.scaleMode = "noScale";
+		skin.stage.align = "TL";
+		skin.stage.addEventListener(Event.RESIZE,resizeSetter);
+		_config['controlbarsize'] = skin['controlbar'].height;
 		controller = ctr;
 		model = mdl;
 		menuSet();
-		if(ExternalInterface.available && skin.loaderInfo.url.indexOf('http://') == 0) {
+		if(ExternalInterface.available && loader.skin.loaderInfo.url.indexOf('http') == 0) {
 			listeners = new Array();
 			setListening();
 			setTimeout(playerReady,50);
@@ -54,12 +54,13 @@ public class View extends AbstractView {
 				if(ExternalInterface.objectID) {
 					_config['id'] = ExternalInterface.objectID;
 				}
-				ExternalInterface.addCallback("getConfig", getConfig);
-				ExternalInterface.addCallback("getPlaylist", getPlaylist);
-				ExternalInterface.addCallback("addControllerListener", addJSControllerListener);
-				ExternalInterface.addCallback("addModelListener", addJSModelListener);
-				ExternalInterface.addCallback("addViewListener", addJSViewListener);
-				ExternalInterface.addCallback("sendEvent", sendEvent);
+				ExternalInterface.addCallback("getConfig",getConfig);
+				ExternalInterface.addCallback("getPlaylist",getPlaylist);
+				ExternalInterface.addCallback("addControllerListener",addJSControllerListener);
+				ExternalInterface.addCallback("addModelListener",addJSModelListener);
+				ExternalInterface.addCallback("addViewListener",addJSViewListener);
+				ExternalInterface.addCallback("sendEvent",sendEvent);
+				ExternalInterface.addCallback("loadPlugin",loadPlugin);
 			} catch (err:Error) {}
 		} else if (Capabilities.playerType == 'External') {
 			setListening();
@@ -72,7 +73,7 @@ public class View extends AbstractView {
 	private function getConfig():Object { return _config; };
 	override public function get playlist():Array { return controller.playlist; };
 	private function getPlaylist():Array { return controller.playlist; };
-	override public function get skin():MovieClip { return _skin; };
+	override public function get skin():MovieClip { return loader.skin; };
 
 
 	/** jump to the about page. **/
@@ -131,6 +132,15 @@ public class View extends AbstractView {
 
 	/** Toggle the fullscreen mode. **/
 	private function fullscreenSetter(evt:ContextMenuEvent):void { sendEvent('fullscreen'); };
+
+
+	/** Add a plugin to the player from javascript. **/
+	private function loadPlugin(pgi:String,prm:Object=null):void {
+		loader.loadPlugins(pgi);
+		if(prm) {
+			for(var itm in prm) { _config[itm] = prm[itm]; }
+		}
+	};
 
 
 	/** Add a custom menu item. **/
@@ -207,8 +217,8 @@ public class View extends AbstractView {
 	/** Forward a resizing of the stage. **/
 	private function resizeSetter(evt:Event=undefined):void {
 		var dat = {
-			height:_skin.stage.stageHeight,
-			width:_skin.stage.stageWidth
+			height:skin.stage.stageHeight,
+			width:skin.stage.stageWidth
 		};
 		dispatchEvent(new ViewEvent(ViewEvent.RESIZE,dat));
 	};
@@ -219,8 +229,8 @@ public class View extends AbstractView {
 		typ = typ.toUpperCase();
 		var dat = new Object();
 		switch(typ) {
-			case 'META':
-				dat = prm;
+			case 'TRACE':
+				dat['message'] = prm;
 				break;
 			case 'LINK':
 				if (prm != null) {
@@ -284,7 +294,6 @@ public class View extends AbstractView {
 		addViewListener(ViewEvent.LINK,setView);
 		addViewListener(ViewEvent.LOAD,setView);
 		addViewListener(ViewEvent.MUTE,setView);
-		addViewListener(ViewEvent.META,setView);
 		addViewListener(ViewEvent.NEXT,setView);
 		addViewListener(ViewEvent.PLAY,setView);
 		addViewListener(ViewEvent.PREV,setView);
@@ -292,6 +301,7 @@ public class View extends AbstractView {
 		addViewListener(ViewEvent.RESIZE,setView);
 		addViewListener(ViewEvent.SEEK,setView);
 		addViewListener(ViewEvent.STOP,setView);
+		addViewListener(ViewEvent.TRACE,setView);
 		addViewListener(ViewEvent.VOLUME,setView);
 	};
 

@@ -113,6 +113,7 @@ public class Captions implements PluginInterface {
 		clip.visible = true;
 		clip.field.htmlText = txt;
 		resizeHandler();
+		if(txt != '') { view.sendEvent('TRACE','caption: '+txt); }
 	};
 
 

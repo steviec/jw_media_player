@@ -25,8 +25,6 @@ public class SWFLoader extends EventDispatcher {
 	private var loader:Loader;
 	/** Base directory for the plugins. **/
 	private var basedir:String = 'http://plugins.longtailvideo.com/';
-	/** Amount of plugins still to load. **/
-	private var amount:Number;
 
 
 	/**
@@ -36,22 +34,18 @@ public class SWFLoader extends EventDispatcher {
 	**/
 	public function SWFLoader(ply:MovieClip):void {
 		player = ply;
-		amount = 0;
 	};
 
 
 	/** 
 	* Load a list of SWF plugins.
 	*
-	* @prm pgi		A commaseparated list with plugins. 
+	* @prm pgi	A commaseparated list with plugins.
 	**/
 	public function loadPlugins(pgi:String=null):void {
 		if(pgi) {
 			var arr = pgi.split(',');
-			amount = arr.length;
 			for(var i in arr) { loadSWF(arr[i],false); }
-		} else { 
-			dispatchEvent(new Event(Event.COMPLETE));
 		}
 	}; 
 
@@ -66,7 +60,7 @@ public class SWFLoader extends EventDispatcher {
 			loadSWF(skn,true);
 		} else {
 			skin = player['player'];
-			dispatchEvent(new Event(Event.INIT));
+			dispatchEvent(new Event(Event.COMPLETE));
 		}
 	};
 
@@ -78,12 +72,12 @@ public class SWFLoader extends EventDispatcher {
 		if(skn) {
 			ldr.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,skinError);
 			ldr.contentLoaderInfo.addEventListener(Event.INIT,skinHandler);
-		} else { 
+		} else {
 			skin.addChild(ldr);
 			ldr.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,pluginError);
 			ldr.contentLoaderInfo.addEventListener(Event.INIT,pluginHandler);
 		}
-		if(player.loaderInfo.url.indexOf('http://') == 0) {
+		if(player.loaderInfo.url.indexOf('http') == 0) {
 			var ctx = new LoaderContext(true,ApplicationDomain.currentDomain,SecurityDomain.currentDomain);
 			if(skn) { 
 				ldr.load(new URLRequest(str),ctx);
@@ -96,22 +90,19 @@ public class SWFLoader extends EventDispatcher {
 	};
 
 
-	/** SWF loading failed; use default skin. **/
+	/** SWF loading failed. **/
 	private function pluginError(evt:IOErrorEvent):void {
-		amount--;
-		if (amount == 0) {
-			dispatchEvent(new Event(Event.COMPLETE));
-		}
+		player.view.sendEvent('trace',' plugin: '+evt.toString());
 	};
 
 
 	/** Plugin loading completed; add to stage and populate. **/
 	private function pluginHandler(evt:Event):void {
-		var clp = evt.target.content;
-		player.addPlugin(clp);
-		amount--;
-		if (amount == 0) {
-			dispatchEvent(new Event(Event.COMPLETE));
+		var plg = evt.target.content;
+		try { 
+			plg.initializePlugin(player.view);
+		} catch(err:Error) { 
+			player.view.sendEvent('trace',' plugin: '+err.message);
 		}
 	};
 
@@ -119,7 +110,7 @@ public class SWFLoader extends EventDispatcher {
 	/** SWF loading failed; use default skin. **/
 	private function skinError(evt:IOErrorEvent=null):void {
 		skin = player['player'];
-		dispatchEvent(new Event(Event.INIT));
+		dispatchEvent(new Event(Event.COMPLETE));
 	};
 
 
@@ -130,7 +121,7 @@ public class SWFLoader extends EventDispatcher {
 			skin = MovieClip(clp['player']);
 			Draw.clear(player);
 			player.addChild(skin);
-			dispatchEvent(new Event(Event.INIT));
+			dispatchEvent(new Event(Event.COMPLETE));
 		} else {
 			skinError();
 		}

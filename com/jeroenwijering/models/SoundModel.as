@@ -47,7 +47,7 @@ public class SoundModel implements ModelInterface {
 	/** Sound completed; send event. **/
 	private function completeHandler(evt:Event):void {
 		clearInterval(interval);
-		position = model.playlist[model.config['item']]['start'];
+		position = model.playlist[model.config['item']]['start']; 
 		model.sendEvent(ModelEvent.TIME,{position:position,duration:duration});
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
 	};

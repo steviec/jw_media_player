@@ -70,7 +70,7 @@ public class Controller extends EventDispatcher {
 			height:skin.stage.stageHeight
 		}));
 		if(config['file']) { 
-			playlister.load(config); 
+			playlister.load(config);
 		}
 	};
 
@@ -96,7 +96,7 @@ public class Controller extends EventDispatcher {
 	/** Set the fullscreen rectangle **/
 	private function fullscreenrect():void {
 		try { 
-			skin.stage["fullScreenSourceRect"] = new Rectangle(0,0,
+			skin.stage["fullScreenSourceRect"] = new Rectangle(skin.x,skin.y,
 				Capabilities.screenResolutionX/2,Capabilities.screenResolutionY/2);
 		} catch (err:Error) {}
 	};

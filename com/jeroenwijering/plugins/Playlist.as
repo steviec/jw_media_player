@@ -73,6 +73,8 @@ public class Playlist implements PluginInterface {
 			image = new Array(clip.list.button.image.width,clip.list.button.image.height);
 		} catch (err:Error) {}
 		setColors();
+		playlistHandler();
+		resizeHandler();
 	};
 
 
@@ -179,7 +181,7 @@ public class Playlist implements PluginInterface {
 	/** Handle a button rollover. **/
 	private function outHandler(evt:MouseEvent):void {
 		var idx = Number(evt.target.name);
-		if(front) {
+		if(light) {
 			for (var itm in view.playlist[idx]) {
 				if(buttons[idx].c[itm]) { 
 					buttons[idx].c[itm].textColor = front.color;
@@ -194,7 +196,7 @@ public class Playlist implements PluginInterface {
 
 
 	/** New playlist loaded: rebuild the playclip. **/
-	private function playlistHandler(evt:ControllerEvent):void {
+	private function playlistHandler(evt:ControllerEvent=null):void {
 		active = undefined;
 		if(view.config['playlist'] != 'none') {
 			buildList(true);
@@ -203,26 +205,26 @@ public class Playlist implements PluginInterface {
 
 
 	/** Process resizing requests **/
-	private function resizeHandler(evt:ControllerEvent):void {
+	private function resizeHandler(evt:ControllerEvent=null):void {
 		if(view.config['playlist'] == 'right') {
-			clip.x = evt.data.width;
+			clip.x = view.config['width'];
 			clip.y = 0;
 			clip.back.width = view.config['playlistsize'];
-			clip.back.height = evt.data.height;
+			clip.back.height = view.config['height'];;
 			buildList(false);
 		} else if (view.config['playlist'] == 'bottom') {
 			clip.x = 0;
-			clip.y = evt.data.height;
+			clip.y = view.config['height'];
 			if (view.config['controlbar'] == 'bottom') {
 				clip.y += view.config['controlbarsize'];
 			}
 			clip.back.height = view.config['playlistsize'];
-			clip.back.width = evt.data.width;
+			clip.back.width = view.config['width'];
 			buildList(false);
 		} else if (view.config['playlist'] == 'over') {
 			clip.x = clip.y = 0;
-			clip.back.width = evt.data.width;
-			clip.back.height = evt.data.height;
+			clip.back.width = view.config['width'];
+			clip.back.height = view.config['height'];
 			buildList(false);
 		} else {
 			clip.visible = false;

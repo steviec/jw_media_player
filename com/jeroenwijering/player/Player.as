@@ -57,12 +57,12 @@ public class Player extends MovieClip {
 		client:undefined,
 		id:undefined,
 		linktarget:'_blank',
-		margins:'0,0',
+		margins:'0,0,0,0',
 		plugins:undefined,
 		streamer:undefined,
 		token:undefined,
 		tracecall:undefined,
-		version:'4.1.59'
+		version:'4.1.60'
 	};
 	/** Object that loads all configuration variables. **/
 	private var configger:Configger;
@@ -74,14 +74,11 @@ public class Player extends MovieClip {
 	private var model:Model;
 	/** Reference to the View of the MVC cycle. **/
 	private var _view:View;
-	/** A list with all the active plugins. **/
-	private var plugins:Array;
 
 
 	/** Constructor; Loads config parameters. **/
 	public function Player():void {
 		visible = false;
-		plugins = new Array();
 		configger = new Configger(this);
 		configger.addEventListener(Event.COMPLETE,configHandler);
 		configger.load(defaults);
@@ -91,40 +88,29 @@ public class Player extends MovieClip {
 	/** Config loading completed; now load skin. **/
 	private function configHandler(evt:Event):void {
 		loader = new SWFLoader(this);
-		loader.addEventListener(Event.INIT,skinHandler);
-		loader.addEventListener(Event.COMPLETE,pluginHandler);
+		loader.addEventListener(Event.COMPLETE,skinHandler);
 		loader.loadSkin(configger.config['skin']);
 	};
 
 
-	/** Skin loading completed, now load MVC and plugins. **/
+	/** Skin loading completed, now load MVC. **/
 	private function skinHandler(evt:Event):void {
 		controller = new Controller(configger.config,loader.skin);
 		model = new Model(configger.config,loader.skin,controller);
-		_view = new View(configger.config,loader.skin,controller,model);
-		if(loader.skin['captions']) { addPlugin(new Captions()); }
-		if(loader.skin['controlbar']) { addPlugin(new Controlbar()); }
-		if(loader.skin['display']) { addPlugin(new Display()); }
-		if(loader.skin['playlist']) { addPlugin(new Playlist()); }
-		loader.loadPlugins(configger.config['plugins']);
-	};
-
-
-	/** 
-	* Add a certain plugin to the list.
-	*
-	* @prm plg		Any object that implements the PluginInterface.
-	**/
-	public function addPlugin(plg:Object):void {
-		plugins.push(plg);
-	};
-
-
-	/** Plugin loading completed; let's start! **/
-	private function pluginHandler(evt:Event=null):void {
-		for(var i=0; i<plugins.length; i++) { plugins[i].initializePlugin(_view); }
+		_view = new View(configger.config,loader,controller,model);
 		controller.start(model,_view);
 		visible = true;
+		addPlugins();
+	};
+
+
+	/** MVC inited; now add plugins. **/
+	private function addPlugins() {
+		if(loader.skin['captions']) { new Captions().initializePlugin(view); }
+		if(loader.skin['controlbar']) { new Controlbar().initializePlugin(view); }
+		if(loader.skin['display']) { new Display().initializePlugin(view); }
+		if(loader.skin['playlist']) { new Playlist().initializePlugin(view); }
+		loader.loadPlugins(configger.config['plugins']);
 	};
 
 
